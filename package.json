@@ -1,0 +1,23 @@
+{
+  "name": "shifts-api",
+  "version": "1.0.0",
+  "description": "api for shifts app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shifts/shifts-api.git"
+  },
+  "author": "Sam Elliott & Josh Hunt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shifts/shifts-api/issues"
+  },
+  "homepage": "https://github.com/Shifts/shifts-api",
+  "dependencies": {
+    "pg": "^3.4.1",
+    "sequelize": "^1.7.9"
+  }
+}
