@@ -18,6 +18,8 @@
   "homepage": "https://github.com/Shifts/shifts-api",
   "dependencies": {
     "pg": "^3.4.1",
-    "sequelize": "^1.7.9"
+    "rethinkdb": "^1.14.0-0",
+    "sequelize": "^1.7.9",
+    "thinky": "^1.14.2"
   }
 }
