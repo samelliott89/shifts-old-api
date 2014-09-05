@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/Shifts/shifts-api",
   "dependencies": {
+    "body-parser": "^1.7.0",
+    "express": "^4.8.8",
+    "passport": "^0.2.1",
     "pg": "^3.4.1",
     "rethinkdb": "^1.14.0-0",
     "sequelize": "^1.7.9",
