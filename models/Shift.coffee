@@ -1,5 +1,4 @@
 thinky = require('thinky')()
-
 User = require './User'
 
 Shift = thinky.createModel 'Shift',
@@ -9,6 +8,9 @@ Shift = thinky.createModel 'Shift',
     end: Date
     ownerId: String
 
-Shift.belongsTo User, 'owner', 'ownerID', 'id'
+Shift.belongsTo User.model, 'owner', 'ownerID', 'id'
 
-module.exports = Shift
+exports.models = Shift
+
+exports.helpers =
+    getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
