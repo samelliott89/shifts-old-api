@@ -14,4 +14,4 @@ module.exports = (app) ->
         .get shiftRoutes.getShift
         .post shiftRoutes.editShift
 
-    app.use (req, res) -> res.json 404, error: 'route not found'
+    app.use (req, res) -> res.status(404).json error: 'route not found'
