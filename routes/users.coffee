@@ -1,11 +1,11 @@
-models = require '../models'
+models  = require '../models'
+helpers = require './helpers'
 
 exports.getUser = (req, res) ->
-    models.User.get(req.param('userID')).getJoin().run()
+    userID = req.param 'userID'
+    models.getUser userID
         .then (user) -> res.json {user}
-        .catch (error) ->
-            console.log error
-            res.status(400).json {error: 'unexpected error occured', more: error}
+        .catch helpers.errorHandler req, res
 
 exports.editUser = (req, res) ->
     res.json {page: 'editUser'}
