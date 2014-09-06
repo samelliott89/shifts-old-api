@@ -1,10 +1,17 @@
 express = require 'express'
 bodyParser = require 'body-parser'
+cookieParser = require 'cookie-parser'
+session = require 'express-session'
 
 routes = require './routes'
+passport = require './auth'
 
 app = express()
+app.use cookieParser()
 app.use bodyParser.json()
+app.use session secret: process.env.API_SECRET or 'insecure secret'
+app.use passport.initialize()
+app.use passport.session()
 
 # No routes or middlewares to be defined before this
 routes app
