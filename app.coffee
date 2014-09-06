@@ -1,14 +1,16 @@
-express = require 'express'
-bodyParser = require 'body-parser'
+morgan       = require 'morgan'
+express      = require 'express'
+session      = require 'express-session'
+bodyParser   = require 'body-parser'
 cookieParser = require 'cookie-parser'
-session = require 'express-session'
 responseTime = require 'response-time'
 
-routes = require './routes'
-passport = require './auth'
+routes       = require './routes'
+passport     = require './auth'
 
 app = express()
 app.use responseTime()
+app.use morgan 'dev'
 app.use cookieParser()
 app.use bodyParser.json()
 app.use session
