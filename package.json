@@ -25,6 +25,7 @@
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
     "pg": "^3.4.1",
+    "response-time": "^2.0.1",
     "rethinkdb": "^1.14.0-0",
     "sequelize": "^1.7.9",
     "thinky": "^1.14.2",
