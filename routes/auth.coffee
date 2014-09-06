@@ -5,7 +5,7 @@ exports.register = (req, res) ->
     email = req.body.email
     password = req.body.password
 
-    models.getUser email
+    models.getUser email, {includePassword: true}
         .then ->
             # Email already exists, so return an error
             res.status(400).json {error: 'Email already exists'}
