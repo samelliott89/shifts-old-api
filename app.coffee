@@ -5,8 +5,8 @@ bodyParser   = require 'body-parser'
 cookieParser = require 'cookie-parser'
 responseTime = require 'response-time'
 
-routes       = require './routes'
-passport     = require './auth'
+routes = require './routes'
+auth   = require './auth'
 
 app = express()
 app.use responseTime()
@@ -18,8 +18,8 @@ app.use session
     saveUninitialized: true
     resave: true
 
-app.use passport.initialize()
-app.use passport.session()
+app.use auth.passport.initialize()
+app.use auth.passport.session()
 
 # No routes or middlewares to be defined before this
 routes app

@@ -1,3 +1,4 @@
+bcrypt = require 'bcrypt'
 passport = require 'passport'
 LocalStrategy = require('passport-local').Strategy
 
@@ -6,7 +7,7 @@ models = require '../models'
 passport.use new LocalStrategy (email, password, done) ->
     models.getUser email
         .then (user) ->
-            if models.validatePassword user, password
+            if exports.checkPassword user, password
                 return done null, user
             else
                 return done null, false, {message: 'Incorrect password'}
@@ -24,4 +25,11 @@ passport.deserializeUser (userId, done) ->
         .then (user) -> done null, user
         .catch done # If there's an error, done will be called with err as the first arg
 
-module.exports = passport
+exports.passport = passport
+
+exports.hashPassword = (password) ->
+    salt = bcrypt.genSaltSync 10
+    bcrypt.hashSync password, salt
+
+exports.checkPassword = (user, passwordToTest) ->
+    bcrypt.compareSync passwordToTest, user.password
