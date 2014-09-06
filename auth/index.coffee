@@ -16,4 +16,12 @@ passport.use new LocalStrategy (email, password, done) ->
             else
                 return done err
 
+passport.serializeUser (user, done) ->
+    done null, user.id
+
+passport.deserializeUser (userId, done) ->
+    models.getUser userId
+        .then (user) -> done null, user
+        .catch done
+
 module.exports = passport
