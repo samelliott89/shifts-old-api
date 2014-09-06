@@ -11,16 +11,17 @@ User = thinky.createModel 'User',
 
 exports.model = User
 
-prepareUser = (user, {includePassword}) ->
+prepareUser = (user, opts={}) ->
+    {includePassword} = opts
     unless includePassword
         delete user.password
     return user
 
-
 exports.helpers =
+    prepareUser: prepareUser
+
     # Getting a user via this helper is recommended because it will strip
     # sensitive data, like passwords, by default
-
     getUser: (key, opts={}) -> new Promise (resolve, reject) ->
         # If the key is an email, get via secondry index,
         # otherwise, assume it's an ID and just .get()

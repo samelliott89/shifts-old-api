@@ -1,6 +1,7 @@
+auth        = require '../auth'
 shiftRoutes = require './shifts'
-userRoutes = require './users'
-authRoutes = require './auth'
+userRoutes  = require './users'
+authRoutes  = require './auth'
 
 module.exports = (app) ->
     app.route '/api/users/:userID'
@@ -15,7 +16,7 @@ module.exports = (app) ->
         .get shiftRoutes.getShift
         .post shiftRoutes.editShift
 
-    app.route '/api/auth/register'
-        .post authRoutes.register
+    app.post '/api/auth/register', authRoutes.register
+    app.post '/api/auth/login', auth.passport.authenticate('local'), authRoutes.postLogin
 
     app.use (req, res) -> res.status(404).json error: 'route not found'

@@ -4,8 +4,11 @@ LocalStrategy = require('passport-local').Strategy
 
 models = require '../models'
 
-passport.use new LocalStrategy (email, password, done) ->
-    models.getUser email
+localConfig =
+    usernameField: 'email'
+
+passport.use new LocalStrategy localConfig, (email, password, done) ->
+    models.getUser email, {includePassword: true}
         .then (user) ->
             if exports.checkPassword user, password
                 return done null, user
