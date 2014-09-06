@@ -9,7 +9,11 @@ passport = require './auth'
 app = express()
 app.use cookieParser()
 app.use bodyParser.json()
-app.use session secret: process.env.API_SECRET or 'insecure secret'
+app.use session
+    secret: process.env.API_SECRET or 'insecure secret'
+    saveUninitialized: true
+    resave: true
+
 app.use passport.initialize()
 app.use passport.session()
 
