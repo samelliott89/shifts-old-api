@@ -22,6 +22,6 @@ passport.serializeUser (user, done) ->
 passport.deserializeUser (userId, done) ->
     models.getUser userId
         .then (user) -> done null, user
-        .catch done
+        .catch done # If there's an error, done will be called with err as the first arg
 
 module.exports = passport
