@@ -9,6 +9,8 @@ User = thinky.createModel 'User',
     password:     String
     profilePhoto: String
 
+User.ensureIndex 'email'
+
 exports.model = User
 
 prepareUser = (user, opts={}) ->
