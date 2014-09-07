@@ -27,5 +27,16 @@ exports.register = (req, res) ->
                 .then (user) -> res.json user
                 .catch (err) -> res.status(500).json {error: 'Error creating user', message: err.message}
 
-exports.postLogin = (req, res) ->
-    res.json {user: models.prepareUser req.user}
+exports.login = (req, res, next) ->
+    error = (error, status=500) ->
+        res.status(status).json {error}
+
+    authCallback = (err, user, info) ->
+        return error err.message        if err
+        return error info.message, 400  unless user
+
+        req.logIn user, (err) ->
+            return error err.message    if err
+            res.json {user: models.prepareUser req.user}
+
+    auth.passport.authenticate('local', authCallback)(req, res, next)

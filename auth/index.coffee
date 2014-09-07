@@ -8,6 +8,7 @@ localConfig =
     usernameField: 'email'
 
 passport.use new LocalStrategy localConfig, (email, password, done) ->
+
     models.getUser email, {includePassword: true}
         .then (user) ->
             if exports.checkPassword user, password
@@ -15,7 +16,7 @@ passport.use new LocalStrategy localConfig, (email, password, done) ->
             else
                 return done null, false, {message: 'Incorrect password'}
         .catch (err) ->
-            if helpers.notFound err
+            if models.helpers.notFound err
                 return done null, false, {message: 'Incorrect email'}
             else
                 return done err

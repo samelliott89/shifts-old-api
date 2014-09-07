@@ -18,6 +18,6 @@ module.exports = (app) ->
         .put shiftRoutes.editShift
 
     app.post '/api/auth/register', authRoutes.register
-    app.post '/api/auth/login', auth.passport.authenticate('local'), authRoutes.postLogin
+    app.post '/api/auth/login', authRoutes.login
 
     app.use (req, res) -> res.status(404).json error: 'route not found'
