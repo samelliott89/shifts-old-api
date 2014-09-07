@@ -10,7 +10,7 @@ Shift = thinky.createModel 'Shift',
 
 Shift.belongsTo User.model, 'owner', 'ownerID', 'id'
 
-exports.models = Shift
+exports.model = Shift
 
 exports.helpers =
     getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
