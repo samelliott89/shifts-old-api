@@ -18,9 +18,8 @@ module.exports =
         # return true if invalidShifts is undefined
         !invalidShifts?
 
-    shiftsHaveEndDate: (shifts) ->
+    shiftsEndIsAfterStart: (shifts) ->
         invalidShifts = _.find shifts, (shift) ->
-            !validator.isAfter(shift.end, shift.sta
-                rt)
+            !validator.isAfter(shift.end, shift.start)
         # return true if invalidShifts is undefined
         !invalidShifts?
