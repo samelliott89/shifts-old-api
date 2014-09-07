@@ -4,6 +4,7 @@ session      = require 'express-session'
 bodyParser   = require 'body-parser'
 cookieParser = require 'cookie-parser'
 responseTime = require 'response-time'
+validator    = require 'express-validator'
 
 routes = require './routes'
 auth   = require './auth'
@@ -13,6 +14,7 @@ app.use responseTime()
 app.use morgan 'dev'
 app.use cookieParser()
 app.use bodyParser.json()
+app.use validator()
 app.use session
     secret: process.env.API_SECRET or 'insecure secret'
     saveUninitialized: true
