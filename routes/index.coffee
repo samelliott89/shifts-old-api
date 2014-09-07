@@ -13,8 +13,8 @@ module.exports = (app) ->
 
     app.route '/api/users/:userID/shifts'
         .get shiftRoutes.getShifts
-        .post shiftRoutes.addShifts
-        .put shiftRoutes.bulkEditShifts
+        .post auth.currentUserRequired, shiftRoutes.addShifts
+        .put auth.currentUserRequired, shiftRoutes.bulkEditShifts
 
     app.route '/api/shifts/:shiftID'
         .get shiftRoutes.getShift

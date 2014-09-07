@@ -11,7 +11,7 @@ passport.use new LocalStrategy localConfig, (email, password, done) ->
 
     models.getUser email, {includePassword: true}
         .then (user) ->
-            if exports.checkPassword user, password
+            if module.exports.checkPassword user, password
                 return done null, user
             else
                 return done null, false, {message: 'Incorrect password'}
@@ -29,11 +29,24 @@ passport.deserializeUser (userId, done) ->
         .then (user) -> done null, user
         .catch done # If there's an error, done will be called with err as the first arg
 
-exports.passport = passport
+module.exports =
+    passport: passport
 
-exports.hashPassword = (password) ->
-    salt = bcrypt.genSaltSync 10
-    bcrypt.hashSync password, salt
+    hashPassword: (password) ->
+        salt = bcrypt.genSaltSync 10
+        bcrypt.hashSync password, salt
 
-exports.checkPassword = (user, passwordToTest) ->
-    bcrypt.compareSync passwordToTest, user.password
+    checkPassword: (user, passwordToTest) ->
+        bcrypt.compareSync passwordToTest, user.password
+
+    currentUserRequired: (req, res, next) ->
+        idealUserID = req.param 'userID'
+        currentUserID = req.user?.id
+
+        unless currentUserID
+            return res.status(401).json {error: 'Authentication required'}
+
+        if idealUserID is currentUserID
+            next()
+        else
+            res.status(403).json {error: 'Forbidden from accessing this resource'}
