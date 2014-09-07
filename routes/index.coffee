@@ -6,15 +6,16 @@ authRoutes  = require './auth'
 module.exports = (app) ->
     app.route '/api/users/:userID'
         .get userRoutes.getUser
-        .post userRoutes.editUser
+        .put userRoutes.editUser
 
     app.route '/api/users/:userID/shifts'
-        .get shiftRoutes.getShiftsForUser
-        .post shiftRoutes.addShiftsForUser
+        .get shiftRoutes.getShifts
+        .post shiftRoutes.addShifts
+        .put shiftRoutes.bulkEditShifts
 
     app.route '/api/shifts/:shiftID'
         .get shiftRoutes.getShift
-        .post shiftRoutes.editShift
+        .put shiftRoutes.editShift
 
     app.post '/api/auth/register', authRoutes.register
     app.post '/api/auth/login', auth.passport.authenticate('local'), authRoutes.postLogin
