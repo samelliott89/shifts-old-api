@@ -4,6 +4,9 @@ userRoutes  = require './users'
 authRoutes  = require './auth'
 
 module.exports = (app) ->
+    app.route '/api'
+        .get userRoutes.apiIndex
+
     app.route '/api/users/:userID'
         .get userRoutes.getUser
         .put userRoutes.editUser

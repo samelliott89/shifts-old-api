@@ -9,3 +9,9 @@ exports.getUser = (req, res) ->
 
 exports.editUser = (req, res) ->
     res.json {page: 'editUser'}
+
+exports.apiIndex = (req, res) ->
+    res.json
+        message: 'Shifts API'
+        isAuthenticated: req.isAuthenticated()
+        user: req.user
