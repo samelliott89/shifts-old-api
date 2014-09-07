@@ -6,7 +6,7 @@ exports.register = (req, res) ->
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
     req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
 
-    errors = req.validationErrors(true);
+    errors = req.validationErrors(true)
     return res.status(400).json {errors}  if errors
 
     email = req.body.email
