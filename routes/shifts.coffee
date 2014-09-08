@@ -21,7 +21,10 @@ exports.addShifts = (req, res) ->
         # Only include whitelisted fields
         shift = _.pick shift, onlyFields
         shift = new models.Shift shift
-        shift.owner = req.user
+
+        # req.user isnt a 'proper' User object, so we assign the relationship
+        # the 'manual' way. models.Shift.filter().joinAll() will still work.
+        shift.ownerID = req.user.id
         return shift
 
     models.Shift.save shifts
