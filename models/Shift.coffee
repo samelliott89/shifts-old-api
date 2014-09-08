@@ -6,7 +6,7 @@ Shift = thinky.createModel 'Shift',
     title: String
     start: Date
     end: Date
-    ownerId: String
+    ownerID: String
 
 Shift.belongsTo User.model, 'owner', 'ownerID', 'id'
 
