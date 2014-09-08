@@ -3,7 +3,13 @@ _ = require 'underscore'
 models = require '../models'
 
 exports.getShifts = (req, res) ->
-    res.json {page: 'getShifts'}
+    userID = req.param 'userID'
+
+    models.getShiftsForUser userID
+        .then (shifts) ->
+            res.json {shifts}
+        .catch (err) ->
+            res.status(500).json {error: err.toString()}
 
 exports.addShifts = (req, res) ->
     req.checkBody('shifts', 'Shifts must be an array').isArray()
