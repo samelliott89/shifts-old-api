@@ -14,9 +14,12 @@ User.ensureIndex 'email'
 exports.model = User
 
 prepareUser = (user, opts={}) ->
-    {includePassword} = opts
-    unless includePassword
+    unless opts.includePassword
         delete user.password
+
+    unless opts.includeEmail
+        delete user.email
+
     return user
 
 exports.helpers =
