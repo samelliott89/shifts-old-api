@@ -1,10 +1,9 @@
 #!/bin/sh
 read OLDID NEWID BRANCH
-echo "Received updates, deploying"
+REF_PREFIX="refs/heads/"
+BRANCH=${BRANCH_PATH#${REF_PREFIX}}
 
-echo Old ID: $OLDID
-echo New ID: $NEWID
-echo Branch: $BRANCH
+echo "Received updates, deploying $BRANCH"
 
 GIT_WORK_TREE=/home/josh/www/shifts-api git checkout -f
 cd /home/josh/www/shifts-api
