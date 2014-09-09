@@ -14,3 +14,4 @@ npm install
 forever restart api
 
 echo $'\e[1G' to $'\e[1G\e[K' "Deployed changes to server 👍"
+echo $'\e[1G'"------>" "All done."
