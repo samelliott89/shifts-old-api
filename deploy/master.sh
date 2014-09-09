@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Received updates, deploying master"
+echo $'\e[1G' to $'\e[1G\e[K' "Received updates, deploying master"
 
 CODE_DIR="/home/josh/www/shifts-api"
 GIT_WORK_TREE=$CODE_DIR
@@ -13,4 +13,4 @@ cd $CODE_DIR
 npm install
 forever restart api
 
-echo "Deployed changes to server 👍"
+echo $'\e[1G' to $'\e[1G\e[K' "Deployed changes to server 👍"
