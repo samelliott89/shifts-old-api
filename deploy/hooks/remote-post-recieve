@@ -1,6 +1,7 @@
+#!/usr/bin/env bash
+
 # This file is never executed here. It should be set as a post-receive hook on the git remote
 
-#!/bin/sh
 read OLDID NEWID BRANCH_PATH
 
 # Remote REF_PREFIX from the BRANCH_PATH input
