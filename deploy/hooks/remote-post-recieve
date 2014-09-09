@@ -4,7 +4,7 @@
 
 read OLDID NEWID BRANCH_PATH
 
-# Remote REF_PREFIX from the BRANCH_PATH input
+# Remove REF_PREFIX from the BRANCH_PATH input
 REF_PREFIX="refs/heads/"
 BRANCH=${BRANCH_PATH#${REF_PREFIX}}
 
