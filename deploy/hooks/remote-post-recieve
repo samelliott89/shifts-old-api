@@ -1,0 +1,16 @@
+# This file is never executed here. It should be set as a post-receive hook on the git remote
+
+#!/bin/sh
+read OLDID NEWID BRANCH_PATH
+
+# Remote REF_PREFIX from the BRANCH_PATH input
+REF_PREFIX="refs/heads/"
+BRANCH=${BRANCH_PATH#${REF_PREFIX}}
+
+DEPLOY_SCRIPT="deploy/$BRANCH.sh"
+
+if git show $BRANCH:$DEPLOY_SCRIPT >/dev/null 2>&1
+then
+    echo "Executing deploy script: $BRANCH:$DEPLOY_SCRIPT:"
+    eval "$(git show $BRANCH:$DEPLOY_SCRIPT)"
+fi
