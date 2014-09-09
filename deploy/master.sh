@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo $'\e[1G' to $'\e[1G\e[K' "Received updates, deploying master"
 
@@ -14,4 +14,8 @@ npm install
 forever restart api
 
 echo $'\e[1G' to $'\e[1G\e[K' "Deployed changes to server 👍"
+echo $'\e[1G'
+echo $'\e[1G'
+echo $'\e[1G'
+echo $'\e[1G'
 echo $'\e[1G'"------>" "All done."
