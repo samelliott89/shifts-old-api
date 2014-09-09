@@ -12,6 +12,6 @@ DEPLOY_SCRIPT="deploy/$BRANCH.sh"
 
 if git show $BRANCH:$DEPLOY_SCRIPT >/dev/null 2>&1
 then
-    echo "Executing deploy script: $BRANCH:$DEPLOY_SCRIPT:"
+    echo $'\e[1G'">>>>>>> Executing deploy script: $BRANCH:$DEPLOY_SCRIPT:"
     eval "$(git show $BRANCH:$DEPLOY_SCRIPT)"
 fi
