@@ -4,7 +4,7 @@
 * `$ cd shifts-api`
 * `$ npm install`
 
-The Shifts API uses rethinkDB as it's data store.
+The Shifts API uses rethinkDB as its data store.
 
 Run `$ coffee app.coffee` to start the server.
 
