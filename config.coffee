@@ -1,7 +1,7 @@
 _ = require 'underscore'
 baseConfig = require './defaults.json'
 
-configPrefix = 'SHIFTS_WEB_'
+configPrefix = 'SHIFTS_API_'
 
 config = _.chain process.env
     .map (value, key) ->
