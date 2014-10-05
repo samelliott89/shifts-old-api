@@ -1,0 +1,4 @@
+{
+    "SECRET": "insecure secret",
+    "PORT": 5012
+}

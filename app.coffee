@@ -1,25 +1,32 @@
+cors             = require 'cors'
 morgan           = require 'morgan'
 express          = require 'express'
-session          = require 'express-session'
 bodyParser       = require 'body-parser'
 cookieParser     = require 'cookie-parser'
 responseTime     = require 'response-time'
 expressValidator = require 'express-validator'
 
-auth   = require './auth'
-routes = require './routes'
+config           = require './config'
+routes           = require './routes'
+sessions         = require './sessions'
 customValidators = require './validators'
 
 app = express()
+
+app.use (req, res, next) ->
+    console.log 'Incomming request:', req.path
+    next()
+
 app.use responseTime()
+app.use cors()
 app.use morgan 'dev'
 app.use cookieParser()
 app.use bodyParser.json()
 app.use expressValidator {customValidators}
-app.use session
-    secret: process.env.API_SECRET or 'insecure secret'
-    saveUninitialized: true
-    resave: true
+
+# Hide all session-creation/auth logic within here.
+# If redis isnt avail, will fall back to memory-based sessions
+sessions app
 
 # Guard against invalid JSON errors
 app.use (err, req, res, next) ->
@@ -28,12 +35,9 @@ app.use (err, req, res, next) ->
     else
         next()
 
-app.use auth.passport.initialize()
-app.use auth.passport.session()
-
-# No routes or middlewares to be defined before this
+# No routes or middlewares to be defined before or after this
 routes app
 
-port = Number process.env.API_PORT or 5012
-console.log "Going to run on port #{port}"
-app.listen port, -> console.log "Listening on port #{port}"
+port = Number config.PORT
+app.listen port, ->
+    console.log "\n###\n## Running on port #{port}\n###\n"

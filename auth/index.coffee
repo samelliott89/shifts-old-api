@@ -14,10 +14,10 @@ passport.use new LocalStrategy localConfig, (email, password, done) ->
             if module.exports.checkPassword user, password
                 return done null, user
             else
-                return done null, false, {message: 'Incorrect password'}
+                return done null, false, {password: {msg: 'Incorrect password'}}
         .catch (err) ->
             if models.helpers.notFound err
-                return done null, false, {message: 'Incorrect email'}
+                return done null, false, {email: {msg: 'Incorrect email'}}
             else
                 return done err
 
