@@ -33,7 +33,8 @@ app.use (err, req, res, next) ->
     if err instanceof SyntaxError
         return res.status(400).json {error: 'Invalid JSON'}
     else
-        next()
+        console.error err
+        return res.status(500).json {error: 'Uncaught server error'}
 
 # No routes or middlewares to be defined before or after this
 routes app
