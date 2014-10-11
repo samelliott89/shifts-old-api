@@ -23,6 +23,7 @@ module.exports = (app) ->
         secret: config.SECRET
         saveUninitialized: true
         rolling: true
+        resave: true
         cookie: {maxAge: 1000 * 60 * 60 * 24 * 30}
 
     app.use auth.passport.initialize()
