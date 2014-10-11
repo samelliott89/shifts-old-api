@@ -22,7 +22,9 @@ module.exports = (app) ->
         store: sessionStore
         secret: config.SECRET
         saveUninitialized: true
-        resave: true
+        rolling: true
+        cookie:
+            maxAge: 1000 * 60 * 60 * 24 * 30 # 30 days
 
     app.use auth.passport.initialize()
     app.use auth.passport.session()
