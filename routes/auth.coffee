@@ -48,7 +48,8 @@ exports.login = (req, res, next) ->
         req.logIn user, (err) ->
             return error err    if err
             userInfo = models.prepareUser req.user
-            res.cookie 'userInfo', JSON.stringify userInfo, {maxAge: 30*24*60*60}
+            userInfo = JSON.stringify userInfo
+            res.cookie 'userInfo', userInfo, {maxAge: 1000 * 60 * 60 * 24 * 30}
             res.json {user: userInfo}
 
     auth.passport.authenticate('local', authCallback)(req, res, next)
