@@ -1,6 +1,7 @@
 _ = require 'underscore'
 Promise = require 'bluebird'
 thinky = require('thinky')()
+r = thinky.r
 
 User = require './User'
 
@@ -11,9 +12,16 @@ Shift = thinky.createModel 'Shift',
     end: Date
     ownerID: String
 
+Shift.ensureIndex 'start'
+Shift.ensureIndex 'ownerID'
+
 Shift.belongsTo User.model, 'owner', 'ownerID', 'id'
 
 exports.model = Shift
+
+oneDay = 1000 * 60 * 60 * 24
+shiftsFrom = new Date()
+shiftsFrom.setTime shiftsFrom.getTime() - oneDay
 
 exports.helpers =
     getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
@@ -21,9 +29,17 @@ exports.helpers =
     getShiftsForUser: (ownerID) -> new Promise (resolve, reject) ->
         Shift.filter({ownerID}).getJoin().run()
             .then (results) ->
-                _.each results, (shift) ->
-                    User.helpers.prepareUser shift.owner
-                    delete shift.ownerID
+                shifts = _.chain results
+                    # Reject shifts when the start date is more than 24 hours ago
+                    .reject (shift) ->
+                        shift.start < shiftsFrom
+                    .each((shift) ->
+                        User.helpers.prepareUser shift.owner
+                        delete shift.ownerID
+                    )
+                    .value()
 
-                resolve results
+                shifts.sort (a, b) -> new Date(a.start) - new Date(b.start)
+
+                resolve shifts
             .catch reject

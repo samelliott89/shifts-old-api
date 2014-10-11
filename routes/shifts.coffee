@@ -26,6 +26,10 @@ exports.addShifts = (req, res) ->
     shifts = req.body.shifts.map (shift) ->
         # Only include whitelisted fields
         shift = _.pick shift, onlyFields
+
+        shift.start = new Date shift.start
+        shift.end = new Date shift.end
+
         shift = new models.Shift shift
 
         # req.user isnt a 'proper' User object, so we assign the relationship
