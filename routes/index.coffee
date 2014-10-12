@@ -12,9 +12,10 @@ module.exports = (app) ->
         .put auth.currentUserRequired, userRoutes.editUser
 
     app.route '/api/users/:userID/shifts'
-        .get shiftRoutes.getShifts
-        .post auth.currentUserRequired, shiftRoutes.addShifts
-        .put auth.currentUserRequired, shiftRoutes.bulkEditShifts
+        .get    shiftRoutes.getShifts
+        .post   auth.currentUserRequired, shiftRoutes.addShifts
+        .put    auth.currentUserRequired, shiftRoutes.bulkEditShifts
+        .delete auth.currentUserRequired, shiftRoutes.deleteShift
 
     app.route '/api/shifts/:shiftID'
         .get shiftRoutes.getShift

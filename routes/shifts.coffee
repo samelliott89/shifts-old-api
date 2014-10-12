@@ -48,4 +48,7 @@ exports.editShift = (req, res) ->
     res.json {page: 'editShift'}
 
 exports.bulkEditShifts = (req, res) ->
-    res.josn {page: 'bulkEditShifts'}
+    res.json {page: 'bulkEditShifts'}
+
+exports.deleteShift = (req, res) ->
+    res.json {page: 'deleteShift'}
