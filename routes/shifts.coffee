@@ -1,15 +1,34 @@
 _ = require 'underscore'
+q = require 'q'
 
+auth = require '../auth'
 models = require '../models'
+errors = require '../errors'
+helpers = require './helpers'
 
-exports.getShifts = (req, res) ->
+VALID_SHIFT_FIELDS = ['start', 'end', 'title']
+
+getCurrentUsersShift = (req) ->
+    dfd = q.defer()
+    shiftID = req.param 'shiftID'
+    currentUserID = req.user?.id
+
+    models.getShift shiftID
+        .then (shift) ->
+            if shift.owner.id isnt currentUserID
+                return dfd.reject new errors.InvalidPermissions()
+            dfd.resolve shift
+        .catch (err) ->
+            dfd.reject err
+
+    return dfd.promise
+
+exports.getShiftsForUser = (req, res) ->
     userID = req.param 'userID'
 
     models.getShiftsForUser userID
         .then (shifts) ->
             res.json {shifts}
-        .catch (err) ->
-            res.status(500).json {error: err.toString()}
 
 exports.addShifts = (req, res) ->
     req.checkBody('shifts', 'Shifts must be an array').isArray()
@@ -17,15 +36,14 @@ exports.addShifts = (req, res) ->
     req.checkBody('shifts', 'Shifts must have valid a end date').shiftsHaveEndDate()
     req.checkBody('shifts', 'Shifts must end after they begin').shiftsEndIsAfterStart()
 
-    errors = req.validationErrors(true)
-    return res.status(400).json {errors}  if errors
+    validationErrors = req.validationErrors(true)
+    return res.status(400).json {errors: validationErrors}  if validationErrors
 
     rawShifts = req.body.shifts
-    onlyFields = ['start', 'end', 'title']
 
     shifts = req.body.shifts.map (shift) ->
         # Only include whitelisted fields
-        shift = _.pick shift, onlyFields
+        shift = _.pick shift, VALID_SHIFT_FIELDS
 
         shift.start = new Date shift.start
         shift.end = new Date shift.end
@@ -38,8 +56,7 @@ exports.addShifts = (req, res) ->
         return shift
 
     models.Shift.save shifts
-        .then (result) -> res.json {cool: 'Successfully created shifts!'}
-        .catch (err)   -> res.json {Error: 'Error creating shifts', err}
+        .done (result) -> res.json {cool: 'Successfully created shifts!'}
 
 exports.getShift = (req, res, next) ->
     getCurrentUsersShift req
