@@ -41,14 +41,28 @@ exports.addShifts = (req, res) ->
         .then (result) -> res.json {cool: 'Successfully created shifts!'}
         .catch (err)   -> res.json {Error: 'Error creating shifts', err}
 
-exports.getShift = (req, res) ->
-    res.json {page: 'getShift'}
+exports.getShift = (req, res, next) ->
+    getCurrentUsersShift req
+        .then (shift) ->
+            res.json {shift}
+        .catch next
 
-exports.editShift = (req, res) ->
-    res.json {page: 'editShift'}
+exports.editShift = (req, res, next) ->
+    getCurrentUsersShift req
+        .then (shift) ->
+            newShift = _.pick req.body, VALID_SHIFT_FIELDS
+            _.extend shift, newShift
+            shift.save()
+            res.json {shift}
+        .catch next
 
 exports.bulkEditShifts = (req, res) ->
     res.json {page: 'bulkEditShifts'}
 
-exports.deleteShift = (req, res) ->
-    res.json {page: 'deleteShift'}
+exports.deleteShift = (req, res, next) ->
+    shiftID = req.param 'shiftID'
+
+    getCurrentUsersShift req
+        .then (shift) -> models.deleteShift shiftID
+        .then -> res.status(204).end()
+        .catch next
