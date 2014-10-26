@@ -13,7 +13,7 @@ FOREVER="./node_modules/.bin/forever"
 
 # Checkout the latest code and move into that dir
 echo $'\e[1G'"------> Checking out latest master into $CODE_DIR"
-GIT_WORK_TREE=$CODE_DIR git checkout -f 2>&1 | sed $'s/^/\e[1G        /'
+GIT_WORK_TREE=$CODE_DIR git checkout master -f 2>&1 | sed $'s/^/\e[1G        /'
 cd $CODE_DIR
 
 # Do app-specific build tasks
