@@ -43,3 +43,5 @@ exports.helpers =
 
                 resolve shifts
             .catch reject
+
+    deleteShift: (shiftID) -> Shift.get(shiftID).delete().run()
