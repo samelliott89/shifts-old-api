@@ -11,15 +11,13 @@ config           = require './config'
 routes           = require './routes'
 sessions         = require './sessions'
 customValidators = require './validators'
+routeHelpers     = require './routes/helpers'
 
 bugsnag.register 'f443a1d6e5c1382943e7a87859659a4a'
 
 app = express()
 
-app.use (req, res, next) ->
-    console.log 'Incomming request:', req.path
-    next()
-
+app.use bugsnag.requestHandler
 app.use responseTime()
 app.use cors()
 app.use morgan 'dev'
@@ -27,20 +25,15 @@ app.use cookieParser()
 app.use bodyParser.json()
 app.use expressValidator {customValidators}
 
-# Hide all session-creation/auth logic within here.
-# If redis isnt avail, will fall back to memory-based sessions
+# Setup sessions
 sessions app
 
-# Guard against invalid JSON errors
-app.use (err, req, res, next) ->
-    if err instanceof SyntaxError
-        return res.status(400).json {error: 'Invalid JSON'}
-    else
-        console.error err
-        return res.status(500).json {error: 'Uncaught server error'}
-
-# No routes or middlewares to be defined before or after this
+# Setup routing
 routes app
+
+# Error handlers
+app.use bugsnag.errorHandler
+app.use routeHelpers.errorHandler
 
 port = Number config.PORT
 app.listen port, ->
