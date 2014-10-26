@@ -21,7 +21,7 @@ exports.register = (req, res) ->
             # Email already exists, so return an error
             res.status(400).json {errors: {email: {msg: 'Email already exists'}}}
         .catch (err) ->
-            return res.status(500).json {error: 'Unknown error occured'} unless models.helpers.notFound err
+            return res.status(500).json {error: 'Unexpected server error'} unless models.helpers.notFound err
 
             newUser = new models.User userFields
 
@@ -31,25 +31,20 @@ exports.register = (req, res) ->
 
 exports.login = (req, res, next) ->
 
-    console.log '## Received login request...'
-
-    error = (error, status=500) ->
+    error = (error, status = 500) ->
         res.status(status).json {errors: error}
 
     authCallback = (err, user, info) ->
         if err
-            console.log ' ** if err'
             return error err
         unless user
-            console.log ' ** unless user'
-            console.log info
             return error info, 400
 
         req.logIn user, (err) ->
             return error err    if err
             userInfo = models.prepareUser req.user
-            userInfo = JSON.stringify userInfo
-            res.cookie 'userInfo', userInfo, {maxAge: 1000 * 60 * 60 * 24 * 30}
+            userInfoJson = JSON.stringify userInfo
+            res.cookie 'userInfo', userInfoJson, {maxAge: 1000 * 60 * 60 * 24 * 30}
             res.json {user: userInfo}
 
     auth.passport.authenticate('local', authCallback)(req, res, next)
