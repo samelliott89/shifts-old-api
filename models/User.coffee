@@ -8,6 +8,7 @@ User = thinky.createModel 'User',
     email:        String
     password:     String
     profilePhoto: String
+    traits:       Object
 
 User.ensureIndex 'email'
 

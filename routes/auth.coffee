@@ -24,6 +24,9 @@ exports.register = (req, res) ->
             return res.status(500).json {error: 'Unexpected server error'} unless models.helpers.notFound err
 
             newUser = new models.User userFields
+            newUser.traits = {
+                protoUser: true
+            }
 
             newUser.saveAll()
                 .then (user) -> res.json user
