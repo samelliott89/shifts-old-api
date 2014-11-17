@@ -45,6 +45,6 @@ exports.addCapture = (req, res) ->
                 return shift
 
             models.Shift.save shifts
-                .done (result) -> console.log 'Saved fake shifts', result
+                .done (result) -> res.json {status: 'success'}
 
         setTimeout _addFakeShifts, 3 * 1000
