@@ -9,3 +9,7 @@ _.extend exports, userModelDef.helpers
 shiftModelDef = require './Shift'
 exports.Shift = shiftModelDef.model
 _.extend exports, shiftModelDef.helpers
+
+captureModelDef = require './Capture'
+exports.Capture = captureModelDef.model
+_.extend exports, captureModelDef.helpers

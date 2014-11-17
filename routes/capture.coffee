@@ -2,9 +2,16 @@ models = require '../models'
 
 exports.addCapture = (req, res) ->
 
-    res.json {status: 'cool, it worked'}
+    unless req.user.traits?.fakeCamera
+        capture = new models.Capture
+            ownerID: req.user.id
+            ucImageID: req.body.ucImageID
+            tzOffset: req.body.tzOffset
+            processed: false
 
-    if req.user.traits?.fakeCamera
+        models.Capture.save capture
+            .done (result) -> res.json {status: 'success'}
+    else
         _addFakeShifts = ->
             fakeShifts = [
                 {
