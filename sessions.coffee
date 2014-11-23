@@ -1,5 +1,6 @@
 redis            = require 'redis'
 session          = require 'express-session'
+expressJwt       = require 'express-jwt'
 RedisStore       = require('connect-redis')(session)
 
 config = require './config'
@@ -26,5 +27,9 @@ module.exports = (app) ->
         resave: true
         cookie: {maxAge: 1000 * 60 * 60 * 24 * 30}
 
-    app.use auth.passport.initialize()
-    app.use auth.passport.session()
+    app.use expressJwt
+        secret: config.SECRET
+        credentialsRequired: false
+
+    # app.use auth.passport.initialize()
+    # app.use auth.passport.session()

@@ -4,6 +4,9 @@ models  = require '../models'
 helpers = require './helpers'
 
 exports.getUser = (req, res, next) ->
+    console.log 'req.user:'
+    console.log req.user
+
     userID = req.param 'userID'
     models.getUser userID
         .then (user) -> res.json {user}
@@ -33,6 +36,9 @@ exports.editUser = (req, res, next) ->
     res.json {page: 'editUser'}
 
 exports.apiIndex = (req, res) ->
+    console.log 'req.user:'
+    console.log req.user
+
     res.json
         message: 'Shifts API'
         isAuthenticated: req.isAuthenticated()

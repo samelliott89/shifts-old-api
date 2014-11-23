@@ -1,6 +1,8 @@
 _ = require 'underscore'
+jwt = require 'jsonwebtoken'
 
 models = require '../models'
+config = require '../config'
 auth = require '../auth'
 helpers = require './helpers'
 
@@ -34,23 +36,38 @@ exports.register = (req, res) ->
 
 exports.login = (req, res, next) ->
 
-    error = (error, status = 500) ->
-        res.status(status).json {errors: error}
+    models.getUser req.body.email, {includePassword: true}
+        .then (user) ->
+            if auth.checkPassword user, req.body.password
+                delete user.password
+                token = jwt.sign user, config.SECRET, { expiresInMinutes: config.SESSION_DURATION }
+                res.json {user, token}
+            else
+                res.status(401).json {error: 'Incorrect password', message: 'User found, but password was incorrect'}
+        .catch (err) ->
+            if models.helpers.notFound err
+                res.status(401).json {error: 'Incorrect email', message: 'No user found'}
+            else
+                console.log err
+                res.status(500).json {error: 'Server error'}
 
-    authCallback = (err, user, info) ->
-        if err
-            return error err
-        unless user
-            return error info, 400
+    # error = (error, status = 500) ->
+    #     res.status(status).json {errors: error}
 
-        req.logIn user, (err) ->
-            return error err    if err
-            userInfo = models.prepareUser req.user
-            userInfoJson = JSON.stringify userInfo
-            res.cookie 'userInfo', userInfoJson, {maxAge: 1000 * 60 * 60 * 24 * 30}
-            res.json {user: userInfo}
+    # authCallback = (err, user, info) ->
+    #     if err
+    #         return error err
+    #     unless user
+    #         return error info, 400
 
-    auth.passport.authenticate('local', authCallback)(req, res, next)
+    #     req.logIn user, (err) ->
+    #         return error err    if err
+    #         userInfo = models.prepareUser req.user
+    #         userInfoJson = JSON.stringify userInfo
+    #         res.cookie 'userInfo', userInfoJson, {maxAge: 1000 * 60 * 60 * 24 * 30}
+    #         res.json {user: userInfo}
+
+    # auth.passport.authenticate('local', authCallback)(req, res, next)
 
 exports.logout = (req, res) ->
     req.logout()

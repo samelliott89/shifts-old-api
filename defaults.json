@@ -1,4 +1,5 @@
 {
     "SECRET": "insecure secret",
+    "SESSION_DURATION": 43200,
     "PORT": 5012
 }

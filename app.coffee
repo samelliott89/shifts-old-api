@@ -13,7 +13,7 @@ sessions         = require './sessions'
 customValidators = require './validators'
 routeHelpers     = require './routes/helpers'
 
-bugsnag.register 'f443a1d6e5c1382943e7a87859659a4a'
+# bugsnag.register 'f443a1d6e5c1382943e7a87859659a4a'
 
 app = express()
 
@@ -24,6 +24,9 @@ app.use morgan 'dev'
 app.use cookieParser()
 app.use bodyParser.json()
 app.use expressValidator {customValidators}
+
+expressJwt = require 'express-jwt'
+jwt        = require 'jsonwebtoken'
 
 # Setup sessions
 sessions app
