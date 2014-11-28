@@ -1,5 +1,7 @@
 thinky = require('thinky')()
 Promise = require 'bluebird'
+_ = require 'underscore'
+
 helpers = require './helpers'
 
 User = thinky.createModel 'User',
@@ -7,7 +9,7 @@ User = thinky.createModel 'User',
     displayName:  String
     email:        String
     password:     String
-    profilePhoto: String
+    photo:        String
     traits:       Object
 
 User.ensureIndex 'email'
@@ -15,16 +17,25 @@ User.ensureIndex 'email'
 exports.model = User
 
 prepareUser = (user, opts={}) ->
+    console.warn '###\n## Don\'t use this, use cleanUser instead!\n###'
     unless opts.includePassword
         delete user.password
 
     unless opts.includeEmail
         delete user.email
 
+    unless opts.includeEmail
+        delete user.email
+
     return user
+
+cleanUser = (user, whitelist) ->
+    whitelist ?= ['displayName', 'id', 'photo']
+    _.pick user, whitelist
 
 exports.helpers =
     prepareUser: prepareUser
+    cleanUser: cleanUser
 
     # Getting a user via this helper is recommended because it will strip
     # sensitive data, like passwords, by default
