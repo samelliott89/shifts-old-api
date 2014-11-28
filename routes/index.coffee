@@ -2,6 +2,7 @@ auth        = require '../auth'
 shiftRoutes = require './shifts'
 userRoutes  = require './users'
 authRoutes  = require './auth'
+searchRoutes  = require './search'
 captureRoutes  = require './capture'
 
 module.exports = (app) ->
@@ -24,6 +25,9 @@ module.exports = (app) ->
 
     app.route '/api/users/:userID/captures'
         .post   auth.currentUserRequired, captureRoutes.addCapture
+
+    app.route '/api/search/users'
+        .get    searchRoutes.userSearch
 
     app.post '/api/auth/register', authRoutes.register
     app.post '/api/auth/login', authRoutes.login
