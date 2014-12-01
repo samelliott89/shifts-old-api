@@ -19,8 +19,13 @@ exports.userSearch = (req, res) ->
         type: 'users'
         body:
             query:
-                match:
-                    _all: searchQuery
+                constant_score:
+                    filter:
+                        fquery:
+                            query:
+                                match_phrase_prefix:
+                                    displayName: searchQuery
+                            _cache: true
 
     console.log 'ES Search'
     console.log esSearch
