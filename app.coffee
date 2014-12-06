@@ -3,13 +3,13 @@ morgan           = require 'morgan'
 express          = require 'express'
 bugsnag          = require 'bugsnag'
 bodyParser       = require 'body-parser'
+expressJwt       = require 'express-jwt'
 cookieParser     = require 'cookie-parser'
 responseTime     = require 'response-time'
 expressValidator = require 'express-validator'
 
 config           = require './config'
 routes           = require './routes'
-sessions         = require './sessions'
 customValidators = require './validators'
 routeHelpers     = require './routes/helpers'
 
@@ -25,11 +25,10 @@ app.use cookieParser()
 app.use bodyParser.json()
 app.use expressValidator {customValidators}
 
-expressJwt = require 'express-jwt'
-jwt        = require 'jsonwebtoken'
-
-# Setup sessions
-sessions app
+# Setup auth
+app.use expressJwt
+    secret: config.SECRET
+    credentialsRequired: false
 
 # Setup routing
 routes app
