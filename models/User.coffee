@@ -4,6 +4,17 @@ _ = require 'underscore'
 
 helpers = require './helpers'
 
+safeUserFields = ['displayName', 'id', 'photo']
+safeOwnUserFields = safeUserFields.concat ['email']
+
+cleanUser = (user, req) ->
+    if req?.user?.id is user.id
+        fields = safeOwnUserFields
+    else
+        fields = safeUserFields
+
+    _.pick user, fields
+
 User = thinky.createModel 'User',
     id:           String
     displayName:  String
@@ -13,6 +24,7 @@ User = thinky.createModel 'User',
     traits:       Object
 
 User.ensureIndex 'email'
+User.define 'clean', (req) -> cleanUser this, req
 
 exports.model = User
 
