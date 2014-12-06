@@ -1,9 +1,10 @@
 _ = require 'underscore'
-bcrypt = require 'bcrypt'
 jwt = require 'jsonwebtoken'
+bcrypt = require 'bcrypt'
 
 models = require '../models'
 config = require '../config'
+_errs = require '../errors'
 
 vaidJwtFields = ['id', 'traits']
 
@@ -16,24 +17,19 @@ module.exports =
         bcrypt.compareSync passwordToTest, user.password
 
     authRequired: (req, res, next) ->
-        currentUserID = req.user?.id
-
-        unless currentUserID
-            return res.status(401).json {error: 'Authentication required'}
+        unless req.isAuthenticated
+            return next new _errs.AuthRequired()
 
         next()
 
     currentUserRequired: (req, res, next) ->
-        idealUserID = req.param 'userID'
-        currentUserID = req.user?.id
+        unless req.isAuthenticated
+            return next new _errs.AuthRequired()
 
-        unless currentUserID
-            return res.status(401).json {error: 'Authentication required'}
-
-        if idealUserID is currentUserID
+        if req.param('userID') is req.user.id
             next()
         else
-            res.status(403).json {error: 'Forbidden from accessing this resource'}
+            return next new _errs.InvalidPermissions()
 
     createToken: (user) ->
         user = _.pick user, vaidJwtFields
