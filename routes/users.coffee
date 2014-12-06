@@ -1,7 +1,6 @@
 _ = require 'underscore'
 
 models  = require '../models'
-helpers = require './helpers'
 
 exports.getUser = (req, res, next) ->
     console.log 'req.user:'

@@ -4,7 +4,6 @@ q = require 'q'
 auth = require '../auth'
 models = require '../models'
 errors = require '../errors'
-helpers = require './helpers'
 
 VALID_SHIFT_FIELDS = ['start', 'end', 'title']
 
