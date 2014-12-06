@@ -1,6 +1,9 @@
+_ = require 'underscore'
 bcrypt = require 'bcrypt'
+jwt = require 'jsonwebtoken'
 
 models = require '../models'
+config = require '../config'
 
 vaidJwtFields = ['id', 'traits']
 
@@ -31,3 +34,7 @@ module.exports =
             next()
         else
             res.status(403).json {error: 'Forbidden from accessing this resource'}
+
+    createToken: (user) ->
+        user = _.pick user, vaidJwtFields
+        token = jwt.sign user, config.SECRET, { expiresInMinutes: config.SESSION_DURATION }
