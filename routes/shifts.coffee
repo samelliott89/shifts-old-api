@@ -3,7 +3,7 @@ q = require 'q'
 
 auth = require '../auth'
 models = require '../models'
-errors = require '../errors'
+_errs = require '../errors'
 
 VALID_SHIFT_FIELDS = ['start', 'end', 'title']
 
@@ -15,7 +15,7 @@ getCurrentUsersShift = (req) ->
     models.getShift shiftID
         .then (shift) ->
             if shift.owner.id isnt currentUserID
-                return dfd.reject new errors.InvalidPermissions()
+                return dfd.reject new _errs.InvalidPermissions()
             dfd.resolve shift
         .catch (err) ->
             dfd.reject err
@@ -34,9 +34,7 @@ exports.addShifts = (req, res) ->
     req.checkBody('shifts', 'Shifts must have valid a start date').shiftsHaveStartDate()
     req.checkBody('shifts', 'Shifts must have valid a end date').shiftsHaveEndDate()
     req.checkBody('shifts', 'Shifts must end after they begin').shiftsEndIsAfterStart()
-
-    validationErrors = req.validationErrors(true)
-    return res.status(400).json {errors: validationErrors}  if validationErrors
+    _errs.handleValidationErrors {req}
 
     rawShifts = req.body.shifts
 
@@ -49,7 +47,7 @@ exports.addShifts = (req, res) ->
 
         shift = new models.Shift shift
 
-        # req.user isnt a 'proper' User object, so we assign the relationship
+        # req.user isnt a proper User object, so we assign the relationship
         # the 'manual' way. models.Shift.filter().joinAll() will still work.
         shift.ownerID = req.user.id
         return shift
@@ -61,7 +59,8 @@ exports.getShift = (req, res, next) ->
     getCurrentUsersShift req
         .then (shift) ->
             res.json {shift}
-        .catch next
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.editShift = (req, res, next) ->
     getCurrentUsersShift req
@@ -70,7 +69,8 @@ exports.editShift = (req, res, next) ->
             _.extend shift, newShift
             shift.save()
             res.json {shift}
-        .catch next
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.bulkEditShifts = (req, res) ->
     res.json {page: 'bulkEditShifts'}
@@ -81,4 +81,5 @@ exports.deleteShift = (req, res, next) ->
     getCurrentUsersShift req
         .then (shift) -> models.deleteShift shiftID
         .then -> res.status(204).end()
-        .catch next
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
