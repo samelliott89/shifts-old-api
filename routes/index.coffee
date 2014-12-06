@@ -35,4 +35,4 @@ module.exports = (app) ->
     app.get '/api/auth/token', auth.authRequired, authRoutes.refreshToken
     app.get '/api/auth/logout', authRoutes.logout
 
-    app.use (req, res) -> res.status(404).json error: 'route not found'
+    app.use (req, res, next) -> next new _errs.NotFound()
