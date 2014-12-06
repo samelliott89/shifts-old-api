@@ -34,7 +34,7 @@ exports.userSearch = (req, res) ->
         .then (resp) ->
 
             results = _.map resp.hits.hits, (result) ->
-                cleanedResult = models.cleanUser result._source
+                cleanedResult = models.cleanUser result._source, req
                 cleanedResult._score = result._score
                 return cleanedResult
 
