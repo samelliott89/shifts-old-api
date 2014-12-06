@@ -1,5 +1,4 @@
 _ = require 'underscore'
-jwt = require 'jsonwebtoken'
 
 auth = require '../auth'
 _errs = require '../errors'
@@ -53,7 +52,9 @@ exports.login = (req, res, next) ->
             else
                 _errs.handleRethinkErrors err
 
-    # auth.passport.authenticate('local', authCallback)(req, res, next)
+exports.refreshToken = (req, res) ->
+    token = auth.createToken req.user
+    res.json {token}
 
 exports.logout = (req, res) ->
     req.logout()

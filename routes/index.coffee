@@ -4,6 +4,7 @@ userRoutes  = require './users'
 authRoutes  = require './auth'
 searchRoutes  = require './search'
 captureRoutes  = require './capture'
+_errs = require '../errors'
 
 module.exports = (app) ->
     app.route '/api'
@@ -31,6 +32,7 @@ module.exports = (app) ->
 
     app.post '/api/auth/register', authRoutes.register
     app.post '/api/auth/login', authRoutes.login
+    app.get '/api/auth/token', auth.authRequired, authRoutes.refreshToken
     app.get '/api/auth/logout', authRoutes.logout
 
     app.use (req, res) -> res.status(404).json error: 'route not found'
