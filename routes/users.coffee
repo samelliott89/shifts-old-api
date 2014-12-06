@@ -1,28 +1,24 @@
 _ = require 'underscore'
 
 models  = require '../models'
+_errs = require '../errors'
 
 exports.getUser = (req, res, next) ->
-    console.log 'req.user:'
-    console.log req.user
-
-    userID = req.param 'userID'
-    models.getUser userID
-        .then (user) -> res.json {user}
-        .catch next
+    models.getUser req.param('userID')
+        .then (user) ->
+            user = user.clean req
+            res.json {user}
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.editUser = (req, res, next) ->
     req.checkBody('email', 'Valid email required').isEmail() if req.body.email
     req.checkBody('password', 'Password of minimum 8 characters required').isLength(8) if req.body.password
-
-    errors = req.validationErrors(true)
-    return res.status(400).json {errors}  if errors
-
-    userID = req.param 'userID'
+    _errs.handleValidationErrors {req}
 
     allowedFields = ['email', 'displayName']
 
-    models.getUser userID
+    models.getUser req.param('userID')
         .then (user) ->
             # Get only the whitelisted fields and set them on the user object
             newUserFields = _.pick req.body, allowedFields

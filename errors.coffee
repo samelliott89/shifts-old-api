@@ -1,4 +1,6 @@
 _ = require 'underscore'
+thinky = require('thinky')()
+rethinkDBErrors = thinky.Errors
 
 class HttpError extends Error
     constructor: (arg1, arg2) ->
@@ -61,12 +63,11 @@ exports.handleValidationErrors = ({req, next}) ->
     return false
 
 exports.handleRethinkErrors = (err, next) ->
-    # todo: flesh this out and handle more common errors
-    console.log 'RethinkDB threw error:'
-    # console.log err
-    # console.log err.stack
+    # todo: maybe log this better?
 
-    # newError = new ServerError()
+    if err instanceof rethinkDBErrors.DocumentNotFound
+        err = new NotFound()
+
     if next
         next err
     else
