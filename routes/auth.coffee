@@ -1,71 +1,57 @@
 _ = require 'underscore'
 jwt = require 'jsonwebtoken'
 
+auth = require '../auth'
+_errs = require '../errors'
 models = require '../models'
 config = require '../config'
-auth = require '../auth'
-helpers = require './helpers'
 
-exports.register = (req, res) ->
+validRegistrationFields = ['email', 'password', 'displayName', 'profilePhoto']
+
+exports.register = (req, res, next) ->
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
     req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
-
-    errors = req.validationErrors(true)
-    return res.status(400).json {errors}  if errors
+    _errs.handleValidationErrors {req}
 
     # Only include whitelisted fields
-    onlyFields = ['email', 'password', 'displayName', 'profilePhoto']
-    userFields = _.pick req.body, onlyFields
+    userFields = _.pick req.body, validRegistrationFields
     userFields.password = auth.hashPassword userFields.password
 
     models.getUser userFields.email, {includePassword: true}
         .then ->
-            # Email already exists, so return an error
-            res.status(400).json {errors: {email: {msg: 'Email already exists'}}}
+            next new _errs.ValidationFailed {email:msg: 'The supplied email address is already taken'}
+
         .catch (err) ->
-            return res.status(500).json {error: 'Unexpected server error'} unless models.helpers.notFound err
+            unless models.helpers.notFound err
+                _errs.handleRethinkErrors err, next
 
             newUser = new models.User userFields
-            newUser.traits = {
-                protoUser: true
-            }
+            newUser.traits = { protoUser: true }
 
             newUser.saveAll()
-                .then (user) -> res.json user
-                .catch (err) -> res.status(500).json {error: 'Error creating user', message: err.message}
+                .then (user) ->
+                    token = auth.createToken user
+                    res.json {user, token}
+                .catch _errs.handleRethinkErrors err
 
 exports.login = (req, res, next) ->
+    req.checkBody('email', 'Valid email required').notEmpty().isEmail()
+    req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
+    _errs.handleValidationErrors {req}
 
     models.getUser req.body.email, {includePassword: true}
         .then (user) ->
             if auth.checkPassword user, req.body.password
-                delete user.password
-                token = jwt.sign user, config.SECRET, { expiresInMinutes: config.SESSION_DURATION }
+                token = auth.createToken user
                 res.json {user, token}
             else
-                res.status(401).json {error: 'Incorrect password', message: 'User found, but password was incorrect'}
+                next new _errs.AuthFailed {password:msg: {'Password is incorrect'}}
+
         .catch (err) ->
             if models.helpers.notFound err
-                res.status(401).json {error: 'Incorrect email', message: 'No user found'}
+                next new _errs.AuthFailed {email:msg: {'Email is incorrect'}}
             else
-                console.log err
-                res.status(500).json {error: 'Server error'}
-
-    # error = (error, status = 500) ->
-    #     res.status(status).json {errors: error}
-
-    # authCallback = (err, user, info) ->
-    #     if err
-    #         return error err
-    #     unless user
-    #         return error info, 400
-
-    #     req.logIn user, (err) ->
-    #         return error err    if err
-    #         userInfo = models.prepareUser req.user
-    #         userInfoJson = JSON.stringify userInfo
-    #         res.cookie 'userInfo', userInfoJson, {maxAge: 1000 * 60 * 60 * 24 * 30}
-    #         res.json {user: userInfo}
+                _errs.handleRethinkErrors err
 
     # auth.passport.authenticate('local', authCallback)(req, res, next)
 
