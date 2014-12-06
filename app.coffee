@@ -2,16 +2,16 @@ cors             = require 'cors'
 morgan           = require 'morgan'
 express          = require 'express'
 bugsnag          = require 'bugsnag'
-bodyParser       = require 'body-parser'
 expressJwt       = require 'express-jwt'
+bodyParser       = require 'body-parser'
 cookieParser     = require 'cookie-parser'
 responseTime     = require 'response-time'
 expressValidator = require 'express-validator'
 
 config           = require './config'
 routes           = require './routes'
+middlewares      = require './middlewares'
 customValidators = require './validators'
-routeHelpers     = require './routes/helpers'
 
 # bugsnag.register 'f443a1d6e5c1382943e7a87859659a4a'
 
@@ -29,13 +29,14 @@ app.use expressValidator {customValidators}
 app.use expressJwt
     secret: config.SECRET
     credentialsRequired: false
+app.use middlewares.isAuthed
 
-# Setup routing
 routes app
 
-# Error handlers
-app.use bugsnag.errorHandler
-app.use routeHelpers.errorHandler
+app.use middlewares.errorHandler
+
+# TODO: evaluate how we use bugsnag properly
+# app.use bugsnag.errorHandler
 
 port = Number config.PORT
 app.listen port, ->
