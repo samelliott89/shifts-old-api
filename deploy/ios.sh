@@ -6,14 +6,14 @@
 #    when this is ran as a git remote hook
 #  - All echos also start with the escape sequence for this same reason
 
-echo $'\e[1G'"------> Recieved update, deploying jwtAuth"
+echo $'\e[1G'"------> Recieved update, deploying ios"
 
 CODE_DIR="/home/shifts/www/shifts-api"
 FOREVER="./node_modules/.bin/forever"
 
 # Checkout the latest code and move into that dir
-echo $'\e[1G'"------> Checking out latest jwtAuth into $CODE_DIR"
-GIT_WORK_TREE=$CODE_DIR git checkout jwtAuth -f 2>&1 | sed $'s/^/\e[1G        /'
+echo $'\e[1G'"------> Checking out latest ios into $CODE_DIR"
+GIT_WORK_TREE=$CODE_DIR git checkout ios -f 2>&1 | sed $'s/^/\e[1G        /'
 cd $CODE_DIR
 
 # Do app-specific build tasks
