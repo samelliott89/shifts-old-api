@@ -55,8 +55,3 @@ exports.login = (req, res, next) ->
 exports.refreshToken = (req, res) ->
     token = auth.createToken req.user
     res.json {token}
-
-exports.logout = (req, res) ->
-    req.logout()
-    res.clearCookie 'userInfo'
-    res.json {'message': 'Successully logged out'}
