@@ -7,12 +7,11 @@ esClient = new elasticsearch.Client
     host: config.ELASTIC_SEARCH_HOST
     log: 'warning'
 
-exports.userSearch = (req, res) ->
+exports.userSearch = (req, res, next) ->
     searchQuery = req.param 'q'
-    console.log 'searchQuery:', searchQuery
 
     unless searchQuery
-        res.status(400).json {error: 'Required param \'q\' missing'}
+        throw new _errs.ValidationError {q:msg:'Search query is required'}
 
     esSearch =
         index: config.ELASTIC_SEARCH_INDEX
@@ -27,19 +26,12 @@ exports.userSearch = (req, res) ->
                                     displayName: searchQuery
                             _cache: true
 
-    console.log 'ES Search'
-    console.log esSearch
-
     esClient.search esSearch
         .then (resp) ->
-
             results = _.map resp.hits.hits, (result) ->
                 cleanedResult = models.cleanUser result._source, req
                 cleanedResult._score = result._score
                 return cleanedResult
 
             res.json {results}
-        .catch (err) ->
-            console.log 'fuck, error'
-            console.log err
-            res.send(500).json({error: 'ES fucked up'})
+        .catch next
