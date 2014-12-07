@@ -44,11 +44,11 @@ exports.login = (req, res, next) ->
                 token = auth.createToken user
                 res.json {user, token}
             else
-                next new _errs.AuthFailed {password:msg: {'Password is incorrect'}}
+                next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
 
         .catch (err) ->
             if models.helpers.notFound err
-                next new _errs.AuthFailed {email:msg: {'Email is incorrect'}}
+                next new _errs.AuthFailed {email:msg: 'No account exists for this email'}
             else
                 _errs.handleRethinkErrors err
 
