@@ -2,7 +2,6 @@ _errs  = require './errors'
 
 exports.isAuthed = (req, res, next) ->
     req.isAuthenticated = !!req.user
-    console.log 'req.isAuthenticated:', req.isAuthenticated
     next()
 
 exports.errorHandler = (originalError, req, res, next) ->
