@@ -16,7 +16,7 @@ exports.editUser = (req, res, next) ->
     req.checkBody('password', 'Password of minimum 8 characters required').isLength(8) if req.body.password
     _errs.handleValidationErrors {req}
 
-    allowedFields = ['email', 'displayName']
+    allowedFields = ['email', 'displayName', 'bio']
 
     models.getUser req.param('userID')
         .then (user) ->
