@@ -4,7 +4,7 @@ _ = require 'underscore'
 
 helpers = require './helpers'
 
-safeUserFields = ['displayName', 'id', 'photo']
+safeUserFields = ['bio', 'displayName', 'id', 'photo']
 safeOwnUserFields = safeUserFields.concat ['email']
 
 cleanUser = (user, req) ->
@@ -17,6 +17,7 @@ cleanUser = (user, req) ->
 
 User = thinky.createModel 'User',
     id:           String
+    bio:          String
     displayName:  String
     email:        String
     password:     String
