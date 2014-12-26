@@ -88,9 +88,18 @@ getFriends = (userID) ->
 
         promise.catch reject
 
+deleteFriendship = (user1, user2) ->
+    promises = [
+        Friendship.getAll(user1 + user2, {index: 'UserToFriend'}).delete().run()
+        Friendship.getAll(user2 + user1, {index: 'UserToFriend'}).delete().run()
+    ]
+
+    bluebird.all promises
+
 exports.helpers = {
     getFriendshipStatus
     getFriends
+    deleteFriendship
     FRIENDSHIP_MUTUAL
     FRIENDSHIP_NONE
     FRIENDSHIP_USER2_TO_ACCEPT

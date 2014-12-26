@@ -8,15 +8,17 @@ exports.getFriends = (req, res, next) ->
             res.json {friends}
         .catch (err) -> _errs.handleRethinkErrors err, next
 
-exports.addFriend = (req, res, next) ->
+exports.createFriendship = (req, res, next) ->
     req.checkBody('friend', 'Friend must be valid user ID').isUUID()
     _errs.handleValidationErrors {req}
 
-    requesterUserID = req.param 'userID'
-    futureFriendID = req.body.friend
+    # userID is the current user, who we're creating the relationship on behalf of
+    # friendID is the other user
+    userID = req.param 'userID'
+    friendID = req.body.friend
     previousStatus = models.FRIENDSHIP_NONE
 
-    models.getFriendshipStatus requesterUserID, futureFriendID
+    models.getFriendshipStatus userID, friendID
         .then (friendStatus) ->
             previousStatus = friendStatus
 
@@ -24,8 +26,8 @@ exports.addFriend = (req, res, next) ->
                 when models.FRIENDSHIP_MUTUAL, models.FRIENDSHIP_USER2_TO_ACCEPT then return true
 
             newFriendship = new models.Friendship {
-                userID: requesterUserID
-                friendID: futureFriendID
+                userID: userID
+                friendID: friendID
             }
             newFriendship.save()
 
@@ -38,5 +40,19 @@ exports.addFriend = (req, res, next) ->
 
             res.json {status: statusToReturn}
 
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
+exports.deleteFriendship = (req, res, next) ->
+    req.checkQuery('friend', 'Friend must be valid user ID').isUUID()
+
+    # userID is the current user, who we're creating the relationship on behalf of
+    # friendID is the other user
+    userID = req.param 'userID'
+    friendID = req.query.friend
+
+    models.deleteFriendship userID, friendID
+        .then ([result1, result2]) ->
+            res.status(204).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next
