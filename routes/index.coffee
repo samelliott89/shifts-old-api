@@ -15,8 +15,9 @@ module.exports = (app) ->
         .get userRoutes.getUser
         .put auth.currentUserRequired, userRoutes.editUser
 
-    app.route '/api/users/:userID/friends/:friendID'
-        .post auth.authRequired, friendRoutes.addFriend
+    app.route '/api/users/:userID/friends'
+        .get auth.currentUserRequired, friendRoutes.getFriends
+        .post auth.currentUserRequired, friendRoutes.addFriend
 
     app.route '/api/users/:userID/shifts'
         .get    auth.currentUserRequired, shiftRoutes.getShiftsForUser
