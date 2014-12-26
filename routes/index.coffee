@@ -4,6 +4,7 @@ userRoutes  = require './users'
 authRoutes  = require './auth'
 searchRoutes  = require './search'
 captureRoutes  = require './capture'
+friendRoutes  = require './friends'
 _errs = require '../errors'
 
 module.exports = (app) ->
@@ -13,6 +14,9 @@ module.exports = (app) ->
     app.route '/api/users/:userID'
         .get userRoutes.getUser
         .put auth.currentUserRequired, userRoutes.editUser
+
+    app.route '/api/users/:userID/friends/:friendID'
+        .post auth.authRequired, friendRoutes.addFriend
 
     app.route '/api/users/:userID/shifts'
         .get    auth.currentUserRequired, shiftRoutes.getShiftsForUser
