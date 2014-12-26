@@ -34,8 +34,8 @@ Friendship.ensureIndex 'FriendToUser', (doc) ->
 
 exports.model = Friendship
 
-FRIENDSHIP_MUTUAL = 1
 FRIENDSHIP_NONE = 0
+FRIENDSHIP_MUTUAL = 1
 FRIENDSHIP_USER2_TO_ACCEPT = -1
 FRIENDSHIP_USER1_TO_ACCEPT = -2
 
