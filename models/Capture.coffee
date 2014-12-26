@@ -1,4 +1,4 @@
-thinky = require('thinky')()
+thinky = require './thinky'
 
 User = require './User'
 

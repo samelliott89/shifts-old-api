@@ -1,7 +1,7 @@
-thinky = require('thinky')()
 Promise = require 'bluebird'
 _ = require 'underscore'
 
+thinky = require './thinky'
 helpers = require './helpers'
 
 safeUserFields = ['bio', 'displayName', 'id', 'photo']

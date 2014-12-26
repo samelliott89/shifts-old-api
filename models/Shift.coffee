@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Promise = require 'bluebird'
-thinky = require('thinky')()
+thinky = require './thinky'
 r = thinky.r
 
 User = require './User'
