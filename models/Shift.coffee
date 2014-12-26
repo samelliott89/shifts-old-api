@@ -34,7 +34,6 @@ exports.helpers =
                     .reject (shift) ->
                         shift.start < shiftsFrom
                     .each((shift) ->
-                        # TODO: use cleanUser instead
                         shift.owner = shift.owner.clean()
                         delete shift.ownerID
                     )
