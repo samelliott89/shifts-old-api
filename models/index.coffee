@@ -13,3 +13,7 @@ _.extend exports, shiftModelDef.helpers
 captureModelDef = require './Capture'
 exports.Capture = captureModelDef.model
 _.extend exports, captureModelDef.helpers
+
+friendshipModelDef = require './Friendship'
+exports.Friendship = friendshipModelDef.model
+_.extend exports, friendshipModelDef.helpers
