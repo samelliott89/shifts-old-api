@@ -1,7 +1,9 @@
 bluebird = Promise = require 'bluebird'
+_ = require 'underscore'
 
 thinky = require './thinky'
-User = require './User'
+r = thinky.r
+userHelpers = require('./User').helpers
 
 # See http://stackoverflow.com/a/2911606/2592 for an explanation of what's going on.
 # In short, when user1 requests friends with user2, a record is created:
@@ -20,15 +22,15 @@ Friendship = thinky.createModel 'Friendship',
     userID:   String
     friendID: String
 
+Friendship.ensureIndex 'userID'
+Friendship.ensureIndex 'friendID'
+
+# Create a compound index that looks like 'userIDfriendID' (rather than [userID, friendID])
 Friendship.ensureIndex 'UserToFriend', (doc) ->
     doc('userID').add(doc('friendID'))
 
 Friendship.ensureIndex 'FriendToUser', (doc) ->
     doc('friendID').add(doc('userID'))
-
-# I don't thinky we actually need joins/relationships here
-# Friendship.belongsTo User.model, 'user', 'userID', 'id'
-# Friendship.belongsTo User.model, 'friend', 'friendID', 'id'
 
 exports.model = Friendship
 
@@ -57,8 +59,38 @@ getFriendshipStatus = (user1, user2) ->
     bluebird.all promises
         .then _evaluateFriendship
 
+getFriends = (userID) ->
+    userAsFriend = r.table('Friendship')
+        .filter {friendID: userID}
+        .map (row) -> row 'userID'
+        .coerceTo 'array'
+
+    promise = Friendship
+        # First, create a list one direction of relationships
+        .filter {userID: userID}
+        .map (row) -> row 'friendID'
+        .coerceTo 'array'
+
+        # Then create a list the other way around and find the intersection of both
+        # This intersection is all the friends userID has
+        .setIntersection userAsFriend
+
+        # 'Join' to the User tables and execute
+        .map (friendID) -> r.table('User').get friendID
+        .execute()
+
+    # Resolve with an array of friends, with cleaned data
+    new Promise (resolve, reject) ->
+        promise.then (cursor) ->
+            cursor.toArray (err, friends) ->
+                return reject err  if err
+                resolve _.map friends, userHelpers.cleanUser
+
+        promise.catch reject
+
 exports.helpers = {
     getFriendshipStatus
+    getFriends
     FRIENDSHIP_MUTUAL
     FRIENDSHIP_NONE
     FRIENDSHIP_USER2_TO_ACCEPT
