@@ -32,9 +32,6 @@ Friendship.ensureIndex 'friendID'
 Friendship.ensureIndex 'UserToFriend', (doc) ->
     doc('userID').add(doc('friendID'))
 
-Friendship.ensureIndex 'FriendToUser', (doc) ->
-    doc('friendID').add(doc('userID'))
-
 exports.model = Friendship
 
 NONE = 0
