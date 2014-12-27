@@ -1,19 +1,20 @@
 _ = require 'underscore'
+bluebird = require 'bluebird'
 
 models  = require '../models'
 _errs = require '../errors'
 
 exports.getUser = (req, res, next) ->
-    models.getUser req.param('userID')
+    userID = req.param 'userID'
+    models.getUser userID, {req, clean: true}
         .then (user) ->
-            user = user.clean req
             res.json {user}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
 exports.editUser = (req, res, next) ->
-    req.checkBody('email', 'Valid email required').isEmail() if req.body.email
-    req.checkBody('password', 'Password of minimum 8 characters required').isLength(8) if req.body.password
+    req.checkBody('email', 'Valid email required').isEmail()  if req.body.email
+    req.checkBody('password', 'Password of minimum 8 characters required').isLength(8)  if req.body.password
     _errs.handleValidationErrors {req}
 
     allowedFields = ['email', 'displayName', 'bio']

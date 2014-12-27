@@ -16,14 +16,14 @@ exports.createFriendship = (req, res, next) ->
     # friendID is the other user
     userID = req.param 'userID'
     friendID = req.body.friend
-    previousStatus = models.FRIENDSHIP_NONE
+    previousStatus = models.FRIENDSHIP_STATUS.NONE
 
     models.getFriendshipStatus userID, friendID
         .then (friendStatus) ->
             previousStatus = friendStatus
 
             switch friendStatus
-                when models.FRIENDSHIP_MUTUAL, models.FRIENDSHIP_USER2_TO_ACCEPT then return true
+                when models.FRIENDSHIP_STATUS.MUTUAL, models.FRIENDSHIP_STATUS.USER2_TO_ACCEPT then return true
 
             newFriendship = new models.Friendship {
                 userID: userID
@@ -33,10 +33,10 @@ exports.createFriendship = (req, res, next) ->
 
         .then (result) ->
             switch previousStatus
-                when models.FRIENDSHIP_NONE, models.FRIENDSHIP_USER2_TO_ACCEPT
-                    statusToReturn = 'FRIENDSHIP_USER2_TO_ACCEPT'
-                when models.FRIENDSHIP_MUTUAL, models.FRIENDSHIP_USER1_TO_ACCEPT
-                    statusToReturn = 'FRIENDSHIP_MUTUAL'
+                when models.FRIENDSHIP_STATUS.NONE, models.FRIENDSHIP_STATUS.USER2_TO_ACCEPT
+                    statusToReturn = 'USER2_TO_ACCEPT'
+                when models.FRIENDSHIP_STATUS.MUTUAL, models.FRIENDSHIP_STATUS.USER1_TO_ACCEPT
+                    statusToReturn = 'MUTUAL'
 
             res.json {status: statusToReturn}
 

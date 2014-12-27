@@ -1,6 +1,7 @@
-Promise = require 'bluebird'
+bluebird = Promise = require 'bluebird'
 _ = require 'underscore'
 
+friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 helpers = require './helpers'
 
@@ -35,19 +36,31 @@ exports.helpers =
     # Getting a user via this helper is recommended because it will strip
     # sensitive data, like passwords, by default
     getUser: (key, opts={}) -> new Promise (resolve, reject) ->
-        # If the key is an email, get via secondry index,
-        # otherwise, assume it's an ID and just .get()
-        if '@' in key
-            User.getAll(key, {index: 'email'})
-                .run (err, results) ->
-                    # Reject if there's an error, or if results is empty
-                    reject err if err
+        promises = []
 
-                    if results.length
-                        resolve results[0]
-                    else
-                        reject helpers.ERROR_NOT_FOUND
+        if '@' in key
+            promises.push User.getAll(key, {index: 'email'}).run()
         else
-            User.get(key).run()
-                .then (user) -> resolve user
-                .catch reject
+            promises.push User.get(key).run()
+
+            # Only geting friend status if using ID
+            if opts.req?.isAuthenticated
+                promises.push(friendshipHelpers.getFriendshipStatus opts.req.user.id, key)
+
+        bluebird.all promises
+            .then ([user, friendshipStatus]) ->
+                if _.isArray user
+                    user = user[0]
+
+                unless user
+                    return reject helpers.ERROR_NOT_FOUND
+
+                if opts.clean and opts.req
+                    user = user.clean opts.req
+
+                unless typeof friendshipStatus is undefined
+                    user.isFriend = friendshipStatus is friendshipHelpers.FRIENDSHIP_STATUS.MUTUAL
+                    user.friendshipStatus = friendshipHelpers.mapFriendStatus friendshipStatus
+
+                resolve user
+            .catch reject

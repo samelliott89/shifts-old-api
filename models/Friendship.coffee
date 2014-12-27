@@ -34,21 +34,31 @@ Friendship.ensureIndex 'FriendToUser', (doc) ->
 
 exports.model = Friendship
 
-FRIENDSHIP_NONE = 0
-FRIENDSHIP_MUTUAL = 1
-FRIENDSHIP_USER2_TO_ACCEPT = -1
-FRIENDSHIP_USER1_TO_ACCEPT = -2
+NONE = 0
+MUTUAL = 1
+USER2_TO_ACCEPT = -1
+USER1_TO_ACCEPT = -2
+
+status = FRIENDSHIP_STATUS = {
+    NONE
+    MUTUAL
+    USER2_TO_ACCEPT
+    USER1_TO_ACCEPT
+}
 
 _evaluateFriendship = ([[rel1], [rel2]]) ->
     new Promise (resolve) ->
         if rel1 and rel2
-            resolve FRIENDSHIP_MUTUAL
+            resolve status.MUTUAL
         else if rel1 and not rel2
-            resolve FRIENDSHIP_USER2_TO_ACCEPT
+            resolve status.USER2_TO_ACCEPT
         else if not rel1 and rel2
-            resolve FRIENDSHIP_USER1_TO_ACCEPT
+            resolve status.USER1_TO_ACCEPT
         else
-            resolve FRIENDSHIP_NONE
+            resolve status.NONE
+
+mapFriendStatus = (status) ->
+    _.invert(FRIENDSHIP_STATUS)[status]
 
 getFriendshipStatus = (user1, user2) ->
     promises = [
@@ -100,8 +110,6 @@ exports.helpers = {
     getFriendshipStatus
     getFriends
     deleteFriendship
-    FRIENDSHIP_MUTUAL
-    FRIENDSHIP_NONE
-    FRIENDSHIP_USER2_TO_ACCEPT
-    FRIENDSHIP_USER1_TO_ACCEPT
+    mapFriendStatus
+    FRIENDSHIP_STATUS
 }
