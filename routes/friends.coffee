@@ -33,7 +33,7 @@ exports.getFriends = (req, res, next) ->
     userID = req.param 'userID'
     models.getFriends userID
         .then (friends) ->
-            res.json {friends}
+            res.json {users: friends}
         .catch (err) -> _errs.handleRethinkErrors err, next
 
 exports.createFriendship = (req, res, next) ->
@@ -82,5 +82,14 @@ exports.deleteFriendship = (req, res, next) ->
     models.deleteFriendship userID, friendID
         .then ([result1, result2]) ->
             res.status(204).end()
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
+exports.getPendingFriendships = (req, res, next) ->
+    userID = req.param 'userID'
+
+    models.getPendingFriendships userID
+        .then (pendingFriends) ->
+            res.json {users: pendingFriends}
         .catch (err) ->
             _errs.handleRethinkErrors err, next

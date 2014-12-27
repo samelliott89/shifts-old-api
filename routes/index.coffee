@@ -20,6 +20,9 @@ module.exports = (app) ->
         .post auth.currentUserRequired, friendRoutes.createFriendship
         .delete auth.currentUserRequired, friendRoutes.deleteFriendship
 
+    app.route '/api/users/:userID/friends/pending'
+        .get auth.currentUserRequired, friendRoutes.getPendingFriendships
+
     app.route '/api/users/:userID/shifts'
         .get    auth.currentUserRequired, shiftRoutes.getShiftsForUser
         .post   auth.currentUserRequired, shiftRoutes.addShifts

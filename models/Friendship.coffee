@@ -32,7 +32,7 @@ Friendship.ensureIndex 'friendID'
 Friendship.ensureIndex 'UserToFriend', (doc) ->
     doc('userID').add(doc('friendID'))
 
-exports.model = Friendship
+module.exports.model = Friendship
 
 NONE = 0
 MUTUAL = 1
@@ -71,13 +71,13 @@ getFriendshipStatus = (user1, user2) ->
 
 getFriends = (userID) ->
     userAsFriend = r.table('Friendship')
-        .filter {friendID: userID}
+        .getAll userID, {index: 'friendID'}
         .map (row) -> row 'userID'
         .coerceTo 'array'
 
-    promise = Friendship
+    Friendship
         # First, create a list one direction of relationships
-        .filter {userID: userID}
+        .getAll userID, {index: 'userID'}
         .map (row) -> row 'friendID'
         .coerceTo 'array'
 
@@ -89,16 +89,40 @@ getFriends = (userID) ->
         .map (friendID) -> r.table('User').get friendID
         .execute()
 
-    # Resolve with an array of friends, with cleaned data
-    new Promise (resolve, reject) ->
-        promise.then (cursor) ->
-            cursor.toArray (err, friends) ->
-                return reject err  if err
-                resolve _.map friends, userHelpers.cleanUser
+        # And then process the returned promise
+        .then (cursor) ->
+            cursor.toArray()
+        .then (friends) ->
+            _.map friends, userHelpers.cleanUser
 
-        promise.catch reject
+# Returns a list of pending friend requests, ready for user userID to accept
+getPendingFriendships = (userID) ->
+    userAsUser = r.table 'Friendship'
+        .getAll userID, {index: 'userID'}
+        .map (row) -> row 'friendID'
+        .coerceTo 'array'
+
+    Friendship
+        # First create a list of users who have a friendship of our user
+        .getAll userID, {index: 'friendID'}
+        .map (row) -> row 'userID'
+
+        # Then create a list the other way around and remove the interseection of both
+        # The difference will be all the pending friendship for user userID
+        .difference userAsUser
+
+        # 'Join' to the User table, and execute
+        .map (friendID) -> r.table('User').get friendID
+        .execute()
+
+        # And then process the returned promise
+        .then (cursor) ->
+            cursor.toArray()
+        .then (friends) ->
+            _.map friends, userHelpers.cleanUser
 
 deleteFriendship = (user1, user2) ->
+    # Delete friendships both ways - it's OK if one (or both) don't exist.
     promises = [
         Friendship.getAll(user1 + user2, {index: 'UserToFriend'}).delete().run()
         Friendship.getAll(user2 + user1, {index: 'UserToFriend'}).delete().run()
@@ -111,6 +135,7 @@ _.extend module.exports.helpers, {
     getFriendshipStatus
     getFriends
     deleteFriendship
+    getPendingFriendships
     mapFriendStatus
     FRIENDSHIP_STATUS
 }
