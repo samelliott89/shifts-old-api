@@ -40,4 +40,4 @@ app.use middlewares.errorHandler
 
 port = Number config.PORT
 app.listen port, ->
-    console.log "\n###\n## Running on port #{port}\n###\n"
+    console.log "\n### Started ShiftsAPI on port #{port}"

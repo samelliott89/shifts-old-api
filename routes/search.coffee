@@ -1,36 +1,81 @@
+_ = require 'underscore'
+request = require 'request'
 elasticsearch = require 'elasticsearch'
+
 config = require '../config'
 models = require '../models'
-_ = require 'underscore'
+_errs = require '../errors'
 
 esClient = new elasticsearch.Client
     host: config.ELASTIC_SEARCH_HOST
     log: 'warning'
 
-exports.userSearch = (req, res, next) ->
-    searchQuery = req.param 'q'
+esRiverUrl = "http://#{config.ELASTIC_SEARCH_HOST}/_river/rethinkdb/_meta"
 
-    unless searchQuery
-        throw new _errs.ValidationError {q:msg:'Search query is required'}
+_checkESRiverStatus = ->
+    console.log 'Checking ElasticSearch RethinkDB river'
+    request esRiverUrl, (err, resp, body) ->
+        if err
+            console.log 'Couldn\'t connect to Elastic Search at ' + config.ELASTIC_SEARCH_HOST
+            throw err
+
+        body = JSON.parse body
+
+        return  if body.found
+        _createESRiver()
+
+_createESRiver = ->
+    console.log 'Creating ES River'
+    body =
+        type: 'rethinkdb',
+        rethinkdb:
+            databases: test:
+                User:
+                    backfill: true,
+                    index: config.ELASTIC_SEARCH_INDEX
+            host: 'localhost'
+            port: 28015
+
+    requestOpts =
+        url: esRiverUrl
+        method: 'PUT'
+        json: true
+        body: body
+
+    request.put requestOpts, (err, resp, body) ->
+        if err
+            console.log 'Error creating ES RethinkDB river'
+            throw err
+
+        if body.created
+            console.log 'Successfully created ES RethinkDB river'
+            console.log 'You may need to restart ShiftsAPI or ElasticSearch for it to take effect'
+        else
+            console.log 'ES RethinkDB was not created. Search may not work until this is resolved'
+            console.log 'ES response:'
+            console.log body
+
+_checkESRiverStatus()
+
+exports.userSearch = (req, res, next) ->
+    req.checkQuery('q', 'Search query `q` of 1 or more characters is required').isLength(1, 2000)
+    _errs.handleValidationErrors {req}
+
+    searchQuery = req.param 'q'
 
     esSearch =
         index: config.ELASTIC_SEARCH_INDEX
-        type: 'users'
-        body:
+        type: 'User'
+        body: query: constant_score: filter: fquery:
             query:
-                constant_score:
-                    filter:
-                        fquery:
-                            query:
-                                match_phrase_prefix:
-                                    displayName: searchQuery
-                            _cache: true
+                match_phrase_prefix:
+                    displayName: searchQuery
+            _cache: true
 
     esClient.search esSearch
         .then (resp) ->
             results = _.map resp.hits.hits, (result) ->
                 cleanedResult = models.cleanUser result._source, req
-                cleanedResult._score = result._score
                 return cleanedResult
 
             res.json {results}
