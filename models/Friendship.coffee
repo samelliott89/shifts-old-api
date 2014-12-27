@@ -1,3 +1,6 @@
+# Shitty way to get around circular requires
+module.exports = {helpers: {}}
+
 bluebird = Promise = require 'bluebird'
 _ = require 'underscore'
 
@@ -106,7 +109,8 @@ deleteFriendship = (user1, user2) ->
 
     bluebird.all promises
 
-exports.helpers = {
+# Shitty way to get around circular requires
+_.extend module.exports.helpers, {
     getFriendshipStatus
     getFriends
     deleteFriendship
