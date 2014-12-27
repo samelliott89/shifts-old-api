@@ -1,6 +1,7 @@
 # Shitty way to get around circular requires
 module.exports = {helpers: {}}
 
+crypto = require 'crypto'
 bluebird = Promise = require 'bluebird'
 _ = require 'underscore'
 
@@ -8,7 +9,7 @@ friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 helpers = require './helpers'
 
-safeUserFields = ['bio', 'displayName', 'id', 'photo']
+safeUserFields = ['bio', 'displayName', 'id', 'photo', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email']
 
 cleanUser = (user, req) ->
@@ -16,6 +17,10 @@ cleanUser = (user, req) ->
         fields = safeOwnUserFields
     else
         fields = safeUserFields
+
+    unless user.photo
+        photoHash = crypto.createHash('md5').update(user.id).digest('hex')
+        user.defaultPhoto = "http://www.gravatar.com/avatar/#{photoHash}?default=retro"
 
     _.pick user, fields
 
