@@ -1,6 +1,34 @@
 models = require '../models'
 _errs = require '../errors'
 
+# Operations on friends must always happen on your own user object - you never
+# access the friends resource of another user.
+# Assuming in this example you (the current user) are UserB and the other user
+# is UserB
+#
+# To create a friend request to UserB,
+#   POST /api/users/UserA/friends
+#        {friend: 'UserB'}
+# Which will return the status {status: 'USER2_TO_ACCEPT'} indicating that
+# we're waiting for user2 (UserB) to accept the request
+#
+# If UserB queries the friendship, then they will see the status is
+# {status: 'USER1_TO_ACCEPT'}, indicating the current user is able to accept
+# the request
+#
+# For UserB to accept the friendship, they'll create a friendship the other way
+# around
+#   POST /api/users/UserB/friends
+#        {friend: 'UserA'}
+# Which will then return the status {status: 'MUTUAL'}, indicating the request
+# has been completed and the two users are friends
+#
+# At any stage, the user can accept or reject the friendship with a DELETE:
+#   DELETE /api/users/UserA/friends
+#       {friend: 'UserB'}
+# This will either reject any pending friendship requests, or if they're
+# already friends, end the friendship
+
 exports.getFriends = (req, res, next) ->
     userID = req.param 'userID'
     models.getFriends userID
