@@ -9,7 +9,7 @@ friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 helpers = require './helpers'
 
-safeUserFields = ['bio', 'displayName', 'id', 'photo', 'defaultPhoto']
+safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email']
 
 cleanUser = (user, req) ->
@@ -18,7 +18,7 @@ cleanUser = (user, req) ->
     else
         fields = safeUserFields
 
-    unless user.photo
+    unless user.profilePhoto
         photoHash = crypto.createHash('md5').update(user.id).digest('hex')
         user.defaultPhoto = "http://www.gravatar.com/avatar/#{photoHash}?default=retro"
 
@@ -30,8 +30,12 @@ User = thinky.createModel 'User',
     displayName:  String
     email:        String
     password:     String
-    photo:        String
     traits:       Object
+    profilePhoto: {
+        type: String
+        id: String
+        href: String
+    }
 
 User.ensureIndex 'email'
 User.define 'clean', (req) -> cleanUser this, req

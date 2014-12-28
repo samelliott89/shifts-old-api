@@ -13,23 +13,39 @@ exports.getUser = (req, res, next) ->
             _errs.handleRethinkErrors err, next
 
 exports.editUser = (req, res, next) ->
-    req.checkBody('email', 'Valid email required').isEmail()  if req.body.email
-    req.checkBody('password', 'Password of minimum 8 characters required').isLength(8)  if req.body.password
+    req.checkBody('email', 'Valid email required').optional().isEmail()
+    req.checkBody('password', 'Password of minimum 8 characters required').optional().isLength(8)
+
+    # Validate only uploadCare photos
+    req.checkBody('profilePhoto.type', 'Profile photo type of uploadcare is required').optional().equals('uploadcare')
+    req.checkBody('profilePhoto.id', 'Valid profile photo id for type is required').optional().isUUID()
     _errs.handleValidationErrors {req}
 
-    allowedFields = ['email', 'displayName', 'bio']
+    allowedFields = ['email', 'displayName', 'bio', 'profilePhoto']
+    photoAllowedFields = ['type', 'id']
+
+    console.log 'edit user body:'
+    console.log req.body
 
     models.getUser req.param('userID')
         .then (user) ->
             # Get only the whitelisted fields and set them on the user object
             newUserFields = _.pick req.body, allowedFields
+            if newUserFields.profilePhoto
+                newUserFields.profilePhoto = _.pick newUserFields.profilePhoto, photoAllowedFields
+                newUserFields.profilePhoto.href = "http://www.ucarecdn.com/#{newUserFields.profilePhoto.id}"
+
+            console.log 'newUserFields:'
+            console.log newUserFields
+
             _.extend user, newUserFields
+            console.log 'Saving user'
+            console.log user
             user.save()
         .then (user) ->
-            req.json {user}
+            user = user.clean {req}
+            res.json {user}
         .catch next
-
-    res.json {page: 'editUser'}
 
 exports.apiIndex = (req, res) ->
     res.json

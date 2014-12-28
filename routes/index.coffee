@@ -13,7 +13,7 @@ module.exports = (app) ->
 
     app.route '/api/users/:userID'
         .get userRoutes.getUser
-        .put auth.currentUserRequired, userRoutes.editUser
+        .post auth.currentUserRequired, userRoutes.editUser
 
     app.route '/api/users/:userID/friends'
         .get auth.currentUserRequired, friendRoutes.getFriends
