@@ -17,15 +17,13 @@ exports.editUser = (req, res, next) ->
     req.checkBody('password', 'Password of minimum 8 characters required').optional().isLength(8)
 
     # Validate only uploadCare photos
-    req.checkBody('profilePhoto.type', 'Profile photo type of uploadcare is required').optional().equals('uploadcare')
-    req.checkBody('profilePhoto.id', 'Valid profile photo id for type is required').optional().isUUID()
+    if req.body.profilePhoto?.type?
+        req.checkBody('profilePhoto.type', 'Profile photo type of uploadcare is required').optional().equals('uploadcare')
+        req.checkBody('profilePhoto.id', 'Valid profile photo id for type is required').optional().isUUID()
     _errs.handleValidationErrors {req}
 
     allowedFields = ['email', 'displayName', 'bio', 'profilePhoto']
     photoAllowedFields = ['type', 'id']
-
-    console.log 'edit user body:'
-    console.log req.body
 
     models.getUser req.param('userID')
         .then (user) ->
@@ -35,12 +33,7 @@ exports.editUser = (req, res, next) ->
                 newUserFields.profilePhoto = _.pick newUserFields.profilePhoto, photoAllowedFields
                 newUserFields.profilePhoto.href = "http://www.ucarecdn.com/#{newUserFields.profilePhoto.id}"
 
-            console.log 'newUserFields:'
-            console.log newUserFields
-
             _.extend user, newUserFields
-            console.log 'Saving user'
-            console.log user
             user.save()
         .then (user) ->
             user = user.clean {req}
