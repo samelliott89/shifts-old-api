@@ -81,7 +81,7 @@ exports.deleteFriendship = (req, res, next) ->
 
     models.deleteFriendship userID, friendID
         .then ([result1, result2]) ->
-            res.status(204).end()
+            res.json({}).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
