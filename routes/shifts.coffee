@@ -22,12 +22,16 @@ getCurrentUsersShift = (req) ->
 
     return dfd.promise
 
-exports.getShiftsForUser = (req, res) ->
+exports.getShiftsForUser = (req, res, next) ->
     userID = req.param 'userID'
 
-    models.getShiftsForUser userID
+    # This checks to make sure the current user has permission,
+    # and throws InvalidPermissions error if not
+    models.getShiftsForUser userID, {req}
         .then (shifts) ->
             res.json {shifts}
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.addShifts = (req, res) ->
     req.checkBody('shifts', 'Shifts must be an array').isArray()

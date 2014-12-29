@@ -24,7 +24,7 @@ module.exports = (app) ->
         .get auth.currentUserRequired, friendRoutes.getPendingFriendships
 
     app.route '/api/users/:userID/shifts'
-        .get    auth.currentUserRequired, shiftRoutes.getShiftsForUser
+        .get    auth.authRequired, shiftRoutes.getShiftsForUser
         .post   auth.currentUserRequired, shiftRoutes.addShifts
         .put    auth.currentUserRequired, shiftRoutes.bulkEditShifts
 
