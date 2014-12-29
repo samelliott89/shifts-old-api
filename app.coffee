@@ -17,7 +17,7 @@ customValidators = require './validators'
 
 app = express()
 
-app.use bugsnag.requestHandler
+# app.use bugsnag.requestHandler
 app.use responseTime()
 app.use cors()
 app.use morgan 'dev'
