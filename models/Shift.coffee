@@ -30,6 +30,7 @@ _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
     shiftsSince ?= new Date()
 
     r.expr(
+        # Get list of friends IDs
         r.table 'Friendship'
             .getAll currentUserID, {index: 'friendID'}
             .map (row) -> row('userID')
@@ -42,26 +43,37 @@ _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
             )
     ).do (friendIDs) ->
         r.table 'Shift'
+            # Get all shifts for the current user since a specified date
             .getAll shiftOwnerID, {index: 'ownerID'}
             .filter (shift) -> shift('start').gt shiftsSince
+
+            # Join the owner onto the shifts
             .eqJoin 'ownerID', r.table('User')
+
+            # Now, for each shift...
             .map (_shift) ->
                 shift = _shift('left')
+
+                # Find all shifts my friends are working on the same day I'm working
                 coworkerShifts = friendIDs.eqJoin(
                         (doc) -> doc,
                         r.table('Shift'),
                         {index: 'ownerID'}
                     )
+                    # remove the {left, right} artefact of using eqJoin()
                     .without({left: 'id'}).zip()
                     .filter (coShift) ->
+                        # Ensure the coworkers shift is on the same day as the user's shift
                         coShift('start').during(
                             shift('start').date(),
                             shift('end').date(),
                             {leftBound: "open", rightBound: "open"}
                         )
+                    # Join the owner onto each coworker shift
                     .eqJoin 'ownerID', r.table('User')
                     .map (row) ->
                         row('left').merge({owner: row('right')})
+                # Finally merge them onto the shift (and unpack the {left, right} from the original owner merge)
                 shift.merge {owner: _shift('right'), coworkers: coworkerShifts}
 
 
