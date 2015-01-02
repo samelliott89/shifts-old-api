@@ -33,6 +33,8 @@ _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
         # Get list of friends IDs
         r.table 'Friendship'
             .getAll currentUserID, {index: 'friendID'}
+            # Make sure the owner of the shifts doesnt show up in coworkers
+            .filter (row) -> row('userID').ne(shiftOwnerID)
             .map (row) -> row('userID')
             .coerceTo('array')
             .setIntersection(
@@ -105,14 +107,10 @@ exports.helpers =
                    opts.req?.user?.id isnt ownerID
                     throw new _errs.InvalidPermissions()
 
-                console.log 'Got shifts back:'
-                console.log shifts
-
                 # Clean shifts and the owner object on them
                 shifts = _.chain shifts
                     # Reject shifts when the start date is more than 24 hours ago
                     .reject (shift) ->
-                        console.log shift
                         shift.start < shiftsFrom
                     .each((shift) ->
                         shift.owner = userHelpers.cleanUser shift.owner, opts.req # opts.req might be undefined, but that's OK
