@@ -5,6 +5,6 @@
     "ELASTIC_SEARCH_HOST": "localhost:9200",
     "ELASTIC_SEARCH_INDEX": "shiftsapp",
     "RETHINKDB_HOST": "localhost",
-    "RETHINKDB_PORT": "",
+    "RETHINKDB_PORT": "28015",
     "RETHINKDB_DB": "shiftsapi"
 }
