@@ -39,5 +39,7 @@ app.use middlewares.errorHandler
 # app.use bugsnag.errorHandler
 
 port = Number config.PORT
-app.listen port, ->
-    console.log "\n### Started ShiftsAPI on port #{port}"
+console.log 'starting on port', port
+server = app.listen port, ->
+    {address, port} = server.address()
+    console.log "\n### Shifts API listening at http://#{address}:#{port}"

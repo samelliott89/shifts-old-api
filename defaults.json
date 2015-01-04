@@ -3,6 +3,8 @@
     "SESSION_DURATION": 43200,
     "PORT": 5012,
     "ELASTIC_SEARCH_HOST": "localhost:9200",
-    "ELASTIC_SEARCH_INDEX": "shiftsapp"
-
+    "ELASTIC_SEARCH_INDEX": "shiftsapp",
+    "RETHINKDB_HOST": "localhost",
+    "RETHINKDB_PORT": "",
+    "RETHINKDB_DB": "shiftsapi"
 }

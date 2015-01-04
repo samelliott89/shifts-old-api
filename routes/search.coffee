@@ -27,14 +27,16 @@ _checkESRiverStatus = ->
 _createESRiver = ->
     console.log 'Creating ES River'
     body =
-        type: 'rethinkdb',
+        type: 'rethinkdb'
         rethinkdb:
-            databases: test:
-                User:
-                    backfill: true,
-                    index: config.ELASTIC_SEARCH_INDEX
-            host: 'localhost'
-            port: 28015
+            host: config.RETHINKDB_HOST
+            port: config.RETHINKDB_PORT
+            databases: {}
+
+    body.rethinkdb.databases[config.RETHINKDB_DB] =
+        User:
+            backfill: true,
+            index: config.ELASTIC_SEARCH_INDEX
 
     requestOpts =
         url: esRiverUrl
