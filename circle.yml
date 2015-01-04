@@ -1,0 +1,13 @@
+dependencies:
+  pre:
+    - sudo pip install awscli
+
+deployment:
+  production:
+    branch: prod
+    commands:
+      - bash ./deploy/circleci/deploy-prod.sh
+  test:
+    branch: test
+    commands:
+      - bash ./deploy/circleci/deploy-test.sh
