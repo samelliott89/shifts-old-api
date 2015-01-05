@@ -1,5 +1,6 @@
 _ = require 'underscore'
-thinky = require('thinky')()
+
+thinky = require './models/thinky'
 rethinkDBErrors = thinky.Errors
 
 class HttpError extends Error
