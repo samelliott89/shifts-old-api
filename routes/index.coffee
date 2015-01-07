@@ -15,6 +15,12 @@ module.exports = (app) ->
         .get userRoutes.getUser
         .post auth.currentUserRequired, userRoutes.editUser
 
+    app.route '/api/requestPasswordReset'
+        .post userRoutes.requestPasswordReset
+
+    app.route '/api/users/:userID/changePassword'
+        .post userRoutes.changePassword
+
     app.route '/api/users/:userID/friends'
         .get auth.currentUserRequired, friendRoutes.getFriends
         .post auth.currentUserRequired, friendRoutes.createFriendship

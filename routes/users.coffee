@@ -1,7 +1,9 @@
 _ = require 'underscore'
 bluebird = require 'bluebird'
+jwt = require 'jsonwebtoken'
 
-models  = require '../models'
+config = require '../config'
+models = require '../models'
 _errs = require '../errors'
 
 exports.getUser = (req, res, next) ->
@@ -39,6 +41,61 @@ exports.editUser = (req, res, next) ->
             user = user.clean {req}
             res.json {user}
         .catch next
+
+exports.requestPasswordReset = (req, res, next) ->
+    req.checkBody('email', 'Valid email required').isEmail()
+    _errs.handleValidationErrors {req}
+
+    models.getUser req.body.email
+        .then (user) ->
+            resetObject = {id: user.id}
+            resetToken = jwt.sign resetObject, config.SECRET, {expiresInMinutes: config.PW_RESET_DURATION}
+            console.log 'Generated reset token:', resetToken
+            user.pwResetToken = resetToken
+            user.save()
+        .then (user) ->
+            res.json {success: true}
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
+exports.changePassword = (req, res, next) ->
+    req.checkBody('newPassword', 'Password of minimum 8 characters required').notEmpty().isLength(8)
+
+    if req.isAuthenticated
+        unless req.param('userID') is req.user.id
+            return next new _errs.InvalidPermissions()
+
+        req.checkBody('oldPassword', 'Old password is required').notEmpty()
+    else
+        req.checkBody('resetToken', 'Reset token is required').notEmpty()
+
+    _errs.handleValidationErrors {req}
+
+    if req.isAuthenticated
+        userID = req.param('userID')
+    else
+        # This will throw an error if token is invalid, and middleware picks that up
+        jwt.verify req.body.resetToken, config.SECRET
+        userID = jwt.decode(req.body.resetToken).id
+
+    models.getUser userID, {includePassword: true}
+        .then (user) ->
+            if req.isAuthenticated
+                unless auth.checkPassword user, req.body.oldPassword
+                    throw new _errs.AuthFailed {password:msg: 'Password is incorrect'}
+            else
+                # This check probably isnt needed, but it does invalidate previously
+                # sent (but not yet expired) tokens
+                unless user.pwResetToken and user.pwResetToken is req.body.resetToken
+                    throw new _errs.AuthFailed 'Password reset token is incorrect'
+
+            user.setPassword req.body.newPassword
+            delete user.pwResetToken
+            user.save()
+        .then (user) ->
+            res.json {status: 'success'}
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.apiIndex = (req, res) ->
     res.json
