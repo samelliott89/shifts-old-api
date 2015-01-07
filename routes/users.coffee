@@ -2,6 +2,7 @@ _ = require 'underscore'
 bluebird = require 'bluebird'
 jwt = require 'jsonwebtoken'
 
+auth = require '../auth'
 config = require '../config'
 models = require '../models'
 _errs = require '../errors'
