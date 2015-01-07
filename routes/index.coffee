@@ -5,9 +5,12 @@ authRoutes  = require './auth'
 searchRoutes  = require './search'
 captureRoutes  = require './capture'
 friendRoutes  = require './friends'
+pageRoutes  = require './pages'
 _errs = require '../errors'
 
 module.exports = (app) ->
+    app.route('/resetPassword').get(pageRoutes.resetPassword)
+
     app.route '/api'
         .get userRoutes.apiIndex
 
