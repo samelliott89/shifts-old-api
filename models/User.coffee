@@ -5,6 +5,8 @@ crypto = require 'crypto'
 bluebird = Promise = require 'bluebird'
 _ = require 'underscore'
 
+auth = require '../auth'
+
 friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 helpers = require './helpers'
@@ -31,6 +33,7 @@ User = thinky.createModel 'User',
     email:        String
     password:     String
     traits:       Object
+    pwResetToken: String
     profilePhoto: {
         type: String
         id: String
@@ -39,6 +42,9 @@ User = thinky.createModel 'User',
 
 User.ensureIndex 'email'
 User.define 'clean', (req) -> cleanUser this, req
+
+User.define 'setPassword', (newPassword) ->
+    @password = auth.hashPassword newPassword
 
 module.exports.model = User
 

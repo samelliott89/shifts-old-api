@@ -14,7 +14,6 @@ exports.register = (req, res, next) ->
 
     # Only include whitelisted fields
     userFields = _.pick req.body, validRegistrationFields
-    userFields.password = auth.hashPassword userFields.password
 
     models.getUser userFields.email, {includePassword: true}
         .then ->
@@ -25,6 +24,7 @@ exports.register = (req, res, next) ->
                 _errs.handleRethinkErrors err, next
 
             newUser = new models.User userFields
+            newUser.setPassword userFields.password
             newUser.traits = { protoUser: true }
 
             newUser.saveAll()
