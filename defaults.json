@@ -1,6 +1,7 @@
 {
     "SECRET": "insecure secret",
     "SESSION_DURATION": 43200,
+    "PW_RESET_DURATION": 180,
     "PORT": 5012,
     "ELASTIC_SEARCH_HOST": "localhost:9200",
     "ELASTIC_SEARCH_INDEX": "shiftsapp",
