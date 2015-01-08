@@ -28,6 +28,7 @@
     "cors": "^2.4.2",
     "elasticsearch": "^3.0.0",
     "express": "^4.8.8",
+    "express-handlebars": "^1.1.0",
     "express-jwt": "^0.5.0",
     "express-session": "^1.7.6",
     "express-validator": "^2.8.0",
