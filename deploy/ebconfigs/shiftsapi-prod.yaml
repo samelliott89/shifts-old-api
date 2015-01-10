@@ -2,3 +2,31 @@ option_settings:
   - namespace: 'aws:elasticbeanstalk:application:environment'
     option_name: NODE_ENV
     value: 'Prod'
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: InstanceType
+    value: t2.small
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: SecurityGroups
+    value: sg-0d64c368
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: EC2KeyName
+    value: shiftsapi-prod
+
+  - namespace: aws:ec2:vpc
+    option_name: VPCId
+    value: vpc-46ed1423
+
+  - namespace: aws:elasticbeanstalk:customoption
+    option_name: VpcId
+    value: vpc-46ed1423
+
+  - namespace: aws:ec2:vpc
+    option_name: Subnets
+    value: subnet-6cca371b
+
+  - namespace: aws:ec2:vpc
+    option_name: ELBSubnets
+    value: subnet-6cca371b

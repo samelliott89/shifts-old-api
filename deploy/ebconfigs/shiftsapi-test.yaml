@@ -2,3 +2,31 @@ option_settings:
   - namespace: 'aws:elasticbeanstalk:application:environment'
     option_name: NODE_ENV
     value: 'Test'
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: InstanceType
+    value: t2.micro
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: SecurityGroups
+    value: sg-2f65c24a
+
+  - namespace: aws:autoscaling:launchconfiguration
+    option_name: EC2KeyName
+    value: shiftsapi-test
+
+  - namespace: aws:ec2:vpc
+    option_name: VPCId
+    value: vpc-8de910e8
+
+  - namespace: aws:elasticbeanstalk:customoption
+    option_name: VpcId
+    value: vpc-8de910e8
+
+  - namespace: aws:ec2:vpc
+    option_name: Subnets
+    value: subnet-fdcf328a
+
+  - namespace: aws:ec2:vpc
+    option_name: ELBSubnets
+    value: subnet-fdcf328a
