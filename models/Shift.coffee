@@ -95,6 +95,7 @@ exports.helpers =
                 }).run()
         ]
 
+        # TODO: Use models.requireFriendship() here instead to reject if they're not friends
         if opts.req?.user?.id
             promises.push friendshipHelpers.getFriendshipStatus opts.req.user.id, ownerID
 

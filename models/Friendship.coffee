@@ -4,6 +4,7 @@ module.exports = {helpers: {}}
 bluebird = Promise = require 'bluebird'
 _ = require 'underscore'
 
+_errs = require '../errors'
 thinky = require './thinky'
 r = thinky.r
 userHelpers = require('./User').helpers
@@ -68,6 +69,13 @@ getFriendshipStatus = (user1, user2) ->
 
     bluebird.all promises
         .then _evaluateFriendship
+
+requireFriendship = (user1, user2) ->
+    getFriendshipStatus user1, user2
+        .then (friendship) ->
+            unless friendship is status.MUTUAL
+                return Promise.reject new _errs.InvalidPermissions()
+            return
 
 getFriends = (userID) ->
     userAsFriend = r.table('Friendship')
@@ -137,5 +145,6 @@ _.extend module.exports.helpers, {
     deleteFriendship
     getPendingFriendships
     mapFriendStatus
+    requireFriendship
     FRIENDSHIP_STATUS
 }
