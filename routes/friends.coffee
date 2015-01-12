@@ -1,3 +1,5 @@
+bluebird = Promise = require 'bluebird'
+
 models = require '../models'
 _errs = require '../errors'
 
@@ -31,8 +33,15 @@ _errs = require '../errors'
 
 exports.getFriends = (req, res, next) ->
     userID = req.param 'userID'
-    models.getFriends userID
-        .then (friends) ->
+
+    # models.requireFriendship will reject the promise if they're not mutual friends
+    promises = [
+        models.getFriends userID
+        models.requireFriendship req.user.id, userID
+    ]
+
+    bluebird.all promises
+        .then ([friends, friendshipStatus]) ->
             res.json {users: friends}
         .catch (err) -> _errs.handleRethinkErrors err, next
 

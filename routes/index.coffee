@@ -25,7 +25,7 @@ module.exports = (app) ->
         .post userRoutes.changePassword
 
     app.route '/api/users/:userID/friends'
-        .get auth.currentUserRequired, friendRoutes.getFriends
+        .get auth.authRequired, friendRoutes.getFriends # Friendship is checked in controller
         .post auth.currentUserRequired, friendRoutes.createFriendship
         .delete auth.currentUserRequired, friendRoutes.deleteFriendship
 
