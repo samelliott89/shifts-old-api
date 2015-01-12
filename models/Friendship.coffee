@@ -73,7 +73,7 @@ getFriendshipStatus = (user1, user2) ->
 requireFriendship = (user1, user2) ->
     getFriendshipStatus user1, user2
         .then (friendship) ->
-            unless friendship is status.MUTUAL
+            unless friendship is status.MUTUAL or user1 is user2
                 return Promise.reject new _errs.InvalidPermissions()
             return
 
