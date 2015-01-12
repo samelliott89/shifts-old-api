@@ -9,8 +9,14 @@ _errs = require '../errors'
 
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
-    models.getUser userID, {req, clean: true}
-        .then (user) ->
+    promises = [
+        models.getUser userID, {req, clean: true}
+        models.getFriends userID
+    ]
+
+    bluebird.all promises
+        .then ([user, friendships]) ->
+            user.counts = { connections: friendships.length }
             res.json {user}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
