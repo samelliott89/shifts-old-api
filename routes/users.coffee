@@ -94,7 +94,7 @@ exports.changePassword = (req, res, next) ->
             delete user.pwResetToken
             user.save()
         .then (user) ->
-            res.json {status: 'success'}
+            res.json {success: true}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 

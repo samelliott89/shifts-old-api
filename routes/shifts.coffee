@@ -57,7 +57,7 @@ exports.addShifts = (req, res) ->
         return shift
 
     models.Shift.save shifts
-        .done (result) -> res.json {cool: 'Successfully created shifts!'}
+        .done (result) -> res.json {success: true}
 
 exports.getShift = (req, res, next) ->
     getCurrentUsersShift req
@@ -84,6 +84,6 @@ exports.deleteShift = (req, res, next) ->
 
     getCurrentUsersShift req
         .then (shift) -> models.deleteShift shiftID
-        .then -> res.status(204).end()
+        .then -> res.json({success: true}).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next

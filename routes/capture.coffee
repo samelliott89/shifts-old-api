@@ -10,7 +10,7 @@ exports.addCapture = (req, res) ->
             processed: false
 
         models.Capture.save capture
-            .done (result) -> res.json {status: 'success'}
+            .done (result) -> res.json {success: true}
     else
         _addFakeShifts = ->
             fakeShifts = [
@@ -45,6 +45,6 @@ exports.addCapture = (req, res) ->
                 return shift
 
             models.Shift.save shifts
-                .done (result) -> res.json {status: 'success'}
+                .done (result) -> res.json {success: true}
 
         setTimeout _addFakeShifts, 3 * 1000
