@@ -1,11 +1,14 @@
 _ = require 'underscore'
 bluebird = require 'bluebird'
 jwt = require 'jsonwebtoken'
+mandrill = require 'mandrill-api/mandrill'
 
 auth = require '../auth'
 config = require '../config'
 models = require '../models'
 _errs = require '../errors'
+
+mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
@@ -57,12 +60,49 @@ exports.requestPasswordReset = (req, res, next) ->
         .then (user) ->
             resetObject = {id: user.id}
             resetToken = jwt.sign resetObject, config.SECRET, {expiresInMinutes: config.PW_RESET_DURATION}
-            console.log 'Generated reset token:', resetToken
+            console.log "Generated reset token for #{req.body.email}: #{resetToken}"
             user.pwResetToken = resetToken
             user.save()
         .then (user) ->
-            res.json {success: true}
+            resetUrl = "https://api.getshifts.co/api/users/0/changePassword?t=#{user.pwResetToken}"
+            messageHTML = """
+            Hey,
+
+            You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a>
+            and enter a new password.
+
+            If you haven't, you can safely ignore this email.
+
+            If you have any questions, just reply to this email and we'll do our best to help you out.
+
+            Cheers,
+            Sam + Josh
+            """
+            message = {
+                html: messageHTML
+                subject: "Shifts Password Reset"
+                from_email: "hi@getshifts.co"
+                from_name: "Shifts"
+                to: [{
+                    email: user.email
+                    name: user.displayName?
+                }]
+                important: true
+                track_opens: true
+                track_clicks: true
+                auto_text: true
+                tags: ['shifts-transactional', 'resetpw']
+            }
+
+            _chimpSuccess = (result) ->
+                res.json {success: true}
+
+            _chimpFailure = (err) ->
+                throw new _errs.ServerError 'Error sending password reset email'
+
+            mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
         .catch (err) ->
+            console.log 'caught error :(', err
             _errs.handleRethinkErrors err, next
 
 exports.changePassword = (req, res, next) ->

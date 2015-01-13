@@ -10,6 +10,7 @@ auth = require '../auth'
 friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 helpers = require './helpers'
+_errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email']
@@ -68,7 +69,7 @@ getUser = (key, opts={}) -> new Promise (resolve, reject) ->
                 user = user[0]
 
             unless user
-                return reject helpers.ERROR_NOT_FOUND
+                return reject new _errs.NotFound()
 
             if opts.clean and opts.req
                 user = user.clean opts.req

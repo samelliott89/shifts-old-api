@@ -20,7 +20,7 @@ exports.errorHandler = (originalError, req, res, next) ->
         error = new _errs.ServerError 'Error verifying auth token'
     else
         console.log 'UNEXPECTED ERROR:'
-        console.log originalError.stack
+        console.log originalError.stack or originalError
         error = new _errs.ServerError()
 
     res.status(error.status).json {

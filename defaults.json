@@ -7,5 +7,6 @@
     "ELASTIC_SEARCH_INDEX": "shiftsapp",
     "RETHINKDB_HOST": "localhost",
     "RETHINKDB_PORT": 28015,
-    "RETHINKDB_DB": "shiftsapi"
+    "RETHINKDB_DB": "shiftsapi",
+    "MANDRILL_API_KEY": "__fill-in-from-env-var__"
 }
