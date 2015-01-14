@@ -1,8 +1,11 @@
-jwt  = require 'jsonwebtoken'
+jwt     = require 'jsonwebtoken'
+bugsnag = require 'bugsnag'
 
 _errs  = require './errors'
 thinky = require './models/thinky'
 rethinkDBErrors = thinky.Errors
+
+bugsnag.register 'bb98dd9f26cdc21068ca92133cde0ee1'
 
 
 exports.isAuthed = (req, res, next) ->
@@ -21,6 +24,7 @@ exports.errorHandler = (originalError, req, res, next) ->
     else
         console.log 'UNEXPECTED ERROR:'
         console.log originalError.stack or originalError
+        bugsnag.notify(originalError, {severity: 'error'})
         error = new _errs.ServerError()
 
     res.status(error.status).json {

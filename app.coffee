@@ -1,7 +1,6 @@
 cors             = require 'cors'
 morgan           = require 'morgan'
 express          = require 'express'
-bugsnag          = require 'bugsnag'
 expressJwt       = require 'express-jwt'
 bodyParser       = require 'body-parser'
 cookieParser     = require 'cookie-parser'
@@ -13,8 +12,6 @@ config           = require './config'
 routes           = require './routes'
 middlewares      = require './middlewares'
 customValidators = require './validators'
-
-# bugsnag.register 'f443a1d6e5c1382943e7a87859659a4a'
 
 app = express()
 
