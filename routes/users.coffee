@@ -60,23 +60,24 @@ exports.requestPasswordReset = (req, res, next) ->
         .then (user) ->
             resetObject = {id: user.id}
             resetToken = jwt.sign resetObject, config.SECRET, {expiresInMinutes: config.PW_RESET_DURATION}
-            console.log "Generated reset token for #{req.body.email}: #{resetToken}"
             user.pwResetToken = resetToken
             user.save()
         .then (user) ->
-            resetUrl = "https://api.getshifts.co/api/users/0/changePassword?t=#{user.pwResetToken}"
+            resetUrl = "https://api.getshifts.co/resetPassword?t=#{user.pwResetToken}"
             messageHTML = """
-            Hey,
+            <p>Hey,</p>
 
-            You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a>
-            and enter a new password.
+            <p>You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a>
+                and enter a new password.</p>
 
-            If you haven't, you can safely ignore this email.
+            <p>If you haven't, you can safely ignore this email.</p>
 
-            If you have any questions, just reply to this email and we'll do our best to help you out.
+            <p>If you have any questions, just reply to this email and we'll do our best to help you out.</p>
 
-            Cheers,
-            Sam + Josh
+            <p>
+                Cheers,<br/>
+                Sam + Josh
+            </p>
             """
             message = {
                 html: messageHTML
@@ -85,7 +86,7 @@ exports.requestPasswordReset = (req, res, next) ->
                 from_name: "Shifts"
                 to: [{
                     email: user.email
-                    name: user.displayName?
+                    name: user.displayName
                 }]
                 important: true
                 track_opens: true
@@ -94,10 +95,17 @@ exports.requestPasswordReset = (req, res, next) ->
                 tags: ['shifts-transactional', 'resetpw']
             }
 
-            _chimpSuccess = (result) ->
-                res.json {success: true}
+            _chimpSuccess = ([result]) ->
+                invalidstatus = ['rejected', 'invalid']
+                if result and not result.reject_reason
+                    res.json {success: true}
+                else
+                    console.log 'Could not send password reset email: '
+                    console.log result
+                    next new _errs.ServerError 'Error sending password reset email'
 
             _chimpFailure = (err) ->
+                console.log err
                 throw new _errs.ServerError 'Error sending password reset email'
 
             mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure

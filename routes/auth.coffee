@@ -20,12 +20,12 @@ exports.register = (req, res, next) ->
             next new _errs.ValidationFailed {email:msg: 'The supplied email address is already taken'}
 
         .catch (err) ->
-            unless models.helpers.notFound err
-                _errs.handleRethinkErrors err, next
+            unless err instanceof _errs.NotFound
+                return next err
 
             newUser = new models.User userFields
             newUser.setPassword userFields.password
-            newUser.traits = { protoUser: true }
+            newUser.traits = {}
 
             newUser.saveAll()
                 .then (user) ->
