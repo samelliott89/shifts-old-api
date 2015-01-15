@@ -14,6 +14,7 @@ Shift = thinky.createModel 'Shift',
     title: String
     start: Date
     end: Date
+    created: Date
     ownerID: String
 
 Shift.ensureIndex 'start'

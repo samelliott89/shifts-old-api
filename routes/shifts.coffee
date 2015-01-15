@@ -48,6 +48,7 @@ exports.addShifts = (req, res) ->
 
         shift.start = new Date shift.start
         shift.end = new Date shift.end
+        shift.created = new Date()
 
         shift = new models.Shift shift
 
