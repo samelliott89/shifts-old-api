@@ -34,11 +34,12 @@ User = thinky.createModel 'User',
     email:        String
     password:     String
     traits:       Object
+    created:      Date
     pwResetToken: String
     profilePhoto: {
-        type: String
-        id: String
-        href: String
+        type:     String
+        id:       String
+        href:     String
     }
 
 User.ensureIndex 'email'

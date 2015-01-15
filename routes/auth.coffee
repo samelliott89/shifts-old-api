@@ -26,6 +26,7 @@ exports.register = (req, res, next) ->
             newUser = new models.User userFields
             newUser.setPassword userFields.password
             newUser.traits = {}
+            newUser.created = new Date()
 
             newUser.saveAll()
                 .then (user) ->
