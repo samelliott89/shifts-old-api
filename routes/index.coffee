@@ -35,11 +35,9 @@ module.exports = (app) ->
     app.route '/api/users/:userID/shifts'
         .get    auth.authRequired, shiftRoutes.getShiftsForUser
         .post   auth.currentUserRequired, shiftRoutes.addShifts
-        .put    auth.currentUserRequired, shiftRoutes.bulkEditShifts
 
     app.route '/api/shifts/:shiftID'
         .get    auth.authRequired, shiftRoutes.getShift
-        .put    auth.authRequired, shiftRoutes.editShift
         .delete auth.authRequired, shiftRoutes.deleteShift
 
     app.route '/api/users/:userID/captures'

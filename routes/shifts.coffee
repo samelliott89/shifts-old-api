@@ -1,4 +1,5 @@
 _ = require 'underscore'
+Promise = require 'bluebird'
 q = require 'q'
 
 auth = require '../auth'
@@ -33,32 +34,50 @@ exports.getShiftsForUser = (req, res, next) ->
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
-exports.addShifts = (req, res) ->
+exports.addShifts = (req, res, next) ->
     req.checkBody('shifts', 'Shifts must be an array').isArray()
     req.checkBody('shifts', 'Shifts must have valid a start date').shiftsHaveStartDate()
     req.checkBody('shifts', 'Shifts must have valid a end date').shiftsHaveEndDate()
     req.checkBody('shifts', 'Shifts must end after they begin').shiftsEndIsAfterStart()
     _errs.handleValidationErrors {req}
 
-    rawShifts = req.body.shifts
+    checkPermissions = Promise.resolve []
+    shiftIDsToEdit = _.pluck req.body.shifts, 'id'
+        .filter (id) -> id isnt undefined
 
-    shifts = req.body.shifts.map (shift) ->
+    if shiftIDsToEdit.length
+        # Possibly editing
+        checkPermissions = models.Shift
+            .getAll(shiftIDsToEdit...)
+            .filter {ownerID: req.user.id}
+            .run()
+
+    shifts = req.body.shifts.map (_shift) ->
         # Only include whitelisted fields
-        shift = _.pick shift, VALID_SHIFT_FIELDS
+        shift = _.pick _shift, VALID_SHIFT_FIELDS
+        shift = new models.Shift shift
 
         shift.start = new Date shift.start
         shift.end = new Date shift.end
-        shift.created = new Date()
 
-        shift = new models.Shift shift
+        if _shift.id
+            shift.id = _shift.id
+            shift.updated = new Date()
+        else
+            shift.created = new Date()
 
-        # req.user isnt a proper User object, so we assign the relationship
-        # the 'manual' way. models.Shift.filter().joinAll() will still work.
         shift.ownerID = req.user.id
         return shift
 
-    models.Shift.save shifts
-        .done (result) -> res.json {success: true}
+    checkPermissions
+        .then (result) ->
+            unless result.length is shiftIDsToEdit.length
+                return Promise.reject new _errs.InvalidPermissions 'Authentication provided invalid permissions to edit these shifts'
+
+            models.Shift.insert(shifts, {conflict: 'update'}).run()
+        .then (result) ->
+            res.json {success: true}
+        .catch next
 
 exports.getShift = (req, res, next) ->
     getCurrentUsersShift req
@@ -66,19 +85,6 @@ exports.getShift = (req, res, next) ->
             res.json {shift}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
-
-exports.editShift = (req, res, next) ->
-    getCurrentUsersShift req
-        .then (shift) ->
-            newShift = _.pick req.body, VALID_SHIFT_FIELDS
-            _.extend shift, newShift
-            shift.save()
-            res.json {shift}
-        .catch (err) ->
-            _errs.handleRethinkErrors err, next
-
-exports.bulkEditShifts = (req, res) ->
-    res.json {page: 'bulkEditShifts'}
 
 exports.deleteShift = (req, res, next) ->
     shiftID = req.param 'shiftID'
