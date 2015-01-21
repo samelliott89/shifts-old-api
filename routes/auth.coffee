@@ -43,6 +43,7 @@ exports.login = (req, res, next) ->
         .then (user) ->
             if auth.checkPassword user, req.body.password
                 token = auth.createToken user
+                user = user.clean()
                 res.json {user, token}
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
