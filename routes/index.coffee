@@ -1,53 +1,57 @@
-auth        = require '../auth'
-shiftRoutes = require './shifts'
-userRoutes  = require './users'
-authRoutes  = require './auth'
-searchRoutes  = require './search'
-captureRoutes  = require './capture'
-friendRoutes  = require './friends'
-pageRoutes  = require './pages'
-_errs = require '../errors'
+auth      = require '../auth'
+
+shiftV1   = require './v1/shifts'
+userV1    = require './v1/users'
+authV1    = require './v1/auth'
+searchV1  = require './v1/search'
+captureV1 = require './v1/capture'
+friendV1  = require './v1/friends'
+pagesV1   = require './v1/pages'
+_errs     = require '../errors'
 
 module.exports = (app) ->
-    app.route('/resetPassword').get(pageRoutes.resetPassword)
+    app.route('/resetPassword').get(pagesV1.resetPassword)
 
     app.route '/api'
-        .get userRoutes.apiIndex
+        .get userV1.apiIndex
 
     app.route '/api/users/:userID'
-        .get userRoutes.getUser
-        .post auth.currentUserRequired, userRoutes.editUser
+        .get userV1.getUser
+        .post auth.currentUserRequired, userV1.editUser
 
     app.route '/api/requestPasswordReset'
-        .post userRoutes.requestPasswordReset
+        .post userV1.requestPasswordReset
 
     app.route '/api/users/:userID/changePassword'
-        .post userRoutes.changePassword
+        .post userV1.changePassword
 
     app.route '/api/users/:userID/friends'
-        .get auth.authRequired, friendRoutes.getFriends # Friendship is checked in controller
-        .post auth.currentUserRequired, friendRoutes.createFriendship
-        .delete auth.currentUserRequired, friendRoutes.deleteFriendship
+        .get auth.authRequired, friendV1.getFriends # Friendship is checked in controller
+        .post auth.currentUserRequired, friendV1.createFriendship
+        .delete auth.currentUserRequired, friendV1.deleteFriendship
 
     app.route '/api/users/:userID/friends/pending'
-        .get auth.currentUserRequired, friendRoutes.getPendingFriendships
+        .get auth.currentUserRequired, friendV1.getPendingFriendships
+
+    app.route '/api/users/:userID/feed'
+        .get auth.currentUserRequired, shiftV1.getShiftFeed
 
     app.route '/api/users/:userID/shifts'
-        .get    auth.authRequired, shiftRoutes.getShiftsForUser
-        .post   auth.currentUserRequired, shiftRoutes.addShifts
+        .get    auth.authRequired, shiftV1.getShiftsForUser
+        .post   auth.currentUserRequired, shiftV1.addShifts
 
     app.route '/api/shifts/:shiftID'
-        .get    auth.authRequired, shiftRoutes.getShift
-        .delete auth.authRequired, shiftRoutes.deleteShift
+        .get    auth.authRequired, shiftV1.getShift
+        .delete auth.authRequired, shiftV1.deleteShift
 
     app.route '/api/users/:userID/captures'
-        .post   auth.currentUserRequired, captureRoutes.addCapture
+        .post   auth.currentUserRequired, captureV1.addCapture
 
     app.route '/api/search/users'
-        .get    searchRoutes.userSearch
+        .get    searchV1.userSearch
 
-    app.post '/api/auth/register', authRoutes.register
-    app.post '/api/auth/login', authRoutes.login
-    app.get '/api/auth/token', auth.authRequired, authRoutes.refreshToken
+    app.post '/api/auth/register', authV1.register
+    app.post '/api/auth/login', authV1.login
+    app.get '/api/auth/token', auth.authRequired, authV1.refreshToken
 
     app.use (req, res, next) -> next new _errs.NotFound()

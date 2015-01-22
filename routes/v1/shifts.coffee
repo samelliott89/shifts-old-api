@@ -1,10 +1,11 @@
 _ = require 'underscore'
+moment = require 'moment-timezone'
 Promise = require 'bluebird'
 q = require 'q'
 
-auth = require '../auth'
-models = require '../models'
-_errs = require '../errors'
+auth = require '../../auth'
+models = require '../../models'
+_errs = require '../../errors'
 
 VALID_SHIFT_FIELDS = ['start', 'end', 'title']
 
@@ -22,6 +23,17 @@ getCurrentUsersShift = (req) ->
             dfd.reject err
 
     return dfd.promise
+
+exports.getShiftFeed = (req, res, next) ->
+    clientTzOffset = new Number(req.query['tzOffset'] or "0")
+
+    console.log 'clientTzOffset (' + typeof(clientTzOffset) + ') :', clientTzOffset
+
+    models.getShiftsForUserAndCoworkers req.user.id
+        .then (result) ->
+            {shifts, users} = result
+            res.json result
+        .catch next
 
 exports.getShiftsForUser = (req, res, next) ->
     userID = req.param 'userID'

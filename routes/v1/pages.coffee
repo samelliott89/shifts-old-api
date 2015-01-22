@@ -1,7 +1,7 @@
 jwt = require 'jsonwebtoken'
 
-auth = require '../auth'
-config = require '../config'
+auth = require '../../auth'
+config = require '../../config'
 
 module.exports.resetPassword = (req, res, next) ->
     _render = (context)->

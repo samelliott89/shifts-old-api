@@ -1,4 +1,4 @@
-models = require '../models'
+models = require '../../models'
 
 exports.addCapture = (req, res) ->
 

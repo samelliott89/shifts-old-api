@@ -25,6 +25,47 @@ Shift.belongsTo User, 'owner', 'ownerID', 'id'
 
 exports.model = Shift
 
+_getUsersAndCorworkersShifts = ({userID, shiftsSince}) ->
+    unless userID
+        throw new Error 'Param userID is required. This must be the user ID of the currently logged in user.'
+
+    unless shiftsSince
+        shiftsSince = new Date()
+        shiftsSince.setDate(shiftsSince.getDate() - 1)
+
+    r.expr(
+        # Get list of friends IDs
+        r.table 'Friendship'
+            .getAll userID, {index: 'friendID'}
+            # Make sure the owner of the shifts doesnt show up in coworkers
+            .filter (row) -> row('userID').ne(userID)
+            .map (row) -> row('userID')
+            .coerceTo('array')
+            .setIntersection(
+                r.table 'Friendship'
+                    .getAll userID, {index: 'userID'}
+                    .map (row) -> row('friendID')
+                    .coerceTo('array')
+            )
+            .add [userID]
+            .eqJoin(
+                (doc) -> doc,
+                r.table('User')
+            )
+            .without({left: 'id'}).zip()
+
+    ).do (users) ->
+        shifts = users.eqJoin(
+            'id'
+            r.table('Shift'),
+            {index: 'ownerID'}
+        )
+        .map (row) -> row('right').merge({owner: row('left')})
+        .orderBy 'start'
+
+        r.expr {shifts, users}
+
+
 _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
     unless currentUserID
         throw new Error 'Param currentUserID is required. This must be the user ID of the currently logged in user.'
@@ -83,6 +124,8 @@ _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
 
 exports.helpers =
     getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
+
+    getShiftsForUserAndCoworkers: (userID) -> _getUsersAndCorworkersShifts({userID}).run()
 
     getShiftsForUser: (ownerID, opts = {}) ->
         oneDay = 1000 * 60 * 60 * 24

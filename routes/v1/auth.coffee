@@ -1,9 +1,9 @@
 _ = require 'underscore'
 
-auth = require '../auth'
-_errs = require '../errors'
-models = require '../models'
-config = require '../config'
+auth = require '../../auth'
+_errs = require '../../errors'
+models = require '../../models'
+config = require '../../config'
 
 validRegistrationFields = ['email', 'password', 'displayName', 'profilePhoto']
 

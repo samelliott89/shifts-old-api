@@ -3,10 +3,10 @@ bluebird = require 'bluebird'
 jwt = require 'jsonwebtoken'
 mandrill = require 'mandrill-api/mandrill'
 
-auth = require '../auth'
-config = require '../config'
-models = require '../models'
-_errs = require '../errors'
+auth = require '../../auth'
+config = require '../../config'
+models = require '../../models'
+_errs = require '../../errors'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 

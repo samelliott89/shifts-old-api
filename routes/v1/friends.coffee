@@ -1,7 +1,7 @@
 bluebird = Promise = require 'bluebird'
 
-models = require '../models'
-_errs = require '../errors'
+models = require '../../models'
+_errs = require '../../errors'
 
 # Operations on friends must always happen on your own user object - you never
 # access the friends resource of another user.

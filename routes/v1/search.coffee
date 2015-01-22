@@ -2,9 +2,9 @@ _ = require 'underscore'
 request = require 'request'
 elasticsearch = require 'elasticsearch'
 
-config = require '../config'
-models = require '../models'
-_errs = require '../errors'
+config = require '../../config'
+models = require '../../models'
+_errs = require '../../errors'
 
 esClient = new elasticsearch.Client
     host: config.ELASTIC_SEARCH_HOST
