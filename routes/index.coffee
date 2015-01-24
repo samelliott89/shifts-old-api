@@ -84,7 +84,4 @@ module.exports = (app) ->
     app.post '/api/auth/login', authV1.login
     app.post '/api/requestPasswordReset', userV1.requestPasswordReset
 
-    console.log '\n\n##\n# Express route stack\n##'
-    console.log app._router.stack
-
     app.use (req, res, next) -> next new _errs.NotFound()
