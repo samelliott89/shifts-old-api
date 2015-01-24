@@ -75,6 +75,9 @@ module.exports = (app) ->
 
     app.route('/resetPassword').get(pagesV1.resetPassword)
 
+    # DEBUG - remove this soon
+    app.route('/testErrors/:mode/:error').get(require('./v1/test').throwError)
+
     app.post '/v1/auth/register', authV1.register
     app.post '/v1/auth/login', authV1.login
     app.post '/v1/requestPasswordReset', userV1.requestPasswordReset

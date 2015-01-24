@@ -36,11 +36,7 @@ routes app
 
 app.use middlewares.errorHandler
 
-# TODO: evaluate how we use bugsnag properly
-# app.use bugsnag.errorHandler
-
 port = Number config.PORT
-console.log 'starting on port', port
 server = app.listen port, ->
     {address, port} = server.address()
     console.log "\n### Shifts API listening at http://#{address}:#{port}"
