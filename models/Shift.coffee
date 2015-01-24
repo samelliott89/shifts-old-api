@@ -125,7 +125,18 @@ _getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
 exports.helpers =
     getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
 
-    getShiftsForUserAndCoworkers: (userID) -> _getUsersAndCorworkersShifts({userID}).run()
+    getShiftsForUserAndCoworkers: (userID) ->
+        _getUsersAndCorworkersShifts({userID}).run()
+            .then ({shifts, users}) ->
+                output = {}
+                output.shifts = _.map shifts, (shift) ->
+                    shift.owner = userHelpers.cleanUser shift.owner
+                    return shift
+
+                output.users = _.map users, (user) ->
+                    userHelpers.cleanUser user
+
+                return output
 
     getShiftsForUser: (ownerID, opts = {}) ->
         oneDay = 1000 * 60 * 60 * 24
