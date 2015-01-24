@@ -1,3 +1,5 @@
+_ = require 'underscore'
+
 auth      = require '../auth'
 
 shiftV1   = require './v1/shifts'
@@ -9,49 +11,80 @@ friendV1  = require './v1/friends'
 pagesV1   = require './v1/pages'
 _errs     = require '../errors'
 
+createRoutes = (app, prefixes, routes) ->
+    exprRoutes = []
+
+    for url, methods of v1Routes
+        for prefix in prefixes
+            exprRoutes.push(app.route(prefix + url))
+
+        for method, routeFuncs of methods
+            if _.isFunction routeFuncs
+                routeFuncs = [auth.authRequired, routeFuncs]
+
+            for exprRoute in exprRoutes
+                exprRoute[method](routeFuncs...)
+
+perms = {
+    currentUser: (func) ->
+        return [auth.currentUserRequired, func]
+}
+
+v1Routes = {
+    '/': {get: userV1.apiIndex}
+
+    '/api/auth/token':
+        get:    authV1.refreshToken
+
+    '/users/:userID':
+        get:    userV1.getUser
+        post:   perms.currentUser userV1.editUser
+
+    '/users/:userID/changePassword':
+        post:   userV1.changePassword
+
+    '/users/:userID/friends':
+        get:    friendV1.getFriends
+        post:   perms.currentUser friendV1.createFriendship
+        delete: perms.currentUser friendV1.deleteFriendship
+
+    '/users/:userID/friends/pending':
+        get:    perms.currentUser friendV1.getPendingFriendships
+
+    '/users/:userID/feed':
+        get:    perms.currentUser shiftV1.getShiftFeed
+
+    '/users/:userID/shifts':
+        get:    shiftV1.getShiftsForUser
+        post:   perms.currentUser shiftV1.addShifts
+
+    '/shifts/:shiftID':
+        get:    shiftV1.getShift
+        delete: shiftV1.deleteShift
+
+    '/users/:userID/captures':
+        post:   perms.currentUser captureV1.addCapture
+
+    '/search/users':
+        get:    searchV1.userSearch
+}
+
 module.exports = (app) ->
+
+    createRoutes app, ['/v1', '/api'], v1Routes
+
     app.route('/resetPassword').get(pagesV1.resetPassword)
 
-    app.route '/api'
-        .get userV1.apiIndex
+    app.post '/v1/auth/register', authV1.register
+    app.post '/v1/auth/login', authV1.login
+    app.post '/v1/requestPasswordReset', userV1.requestPasswordReset
 
-    app.route '/api/users/:userID'
-        .get userV1.getUser
-        .post auth.currentUserRequired, userV1.editUser
-
-    app.route '/api/requestPasswordReset'
-        .post userV1.requestPasswordReset
-
-    app.route '/api/users/:userID/changePassword'
-        .post userV1.changePassword
-
-    app.route '/api/users/:userID/friends'
-        .get auth.authRequired, friendV1.getFriends # Friendship is checked in controller
-        .post auth.currentUserRequired, friendV1.createFriendship
-        .delete auth.currentUserRequired, friendV1.deleteFriendship
-
-    app.route '/api/users/:userID/friends/pending'
-        .get auth.currentUserRequired, friendV1.getPendingFriendships
-
-    app.route '/api/users/:userID/feed'
-        .get auth.currentUserRequired, shiftV1.getShiftFeed
-
-    app.route '/api/users/:userID/shifts'
-        .get    auth.authRequired, shiftV1.getShiftsForUser
-        .post   auth.currentUserRequired, shiftV1.addShifts
-
-    app.route '/api/shifts/:shiftID'
-        .get    auth.authRequired, shiftV1.getShift
-        .delete auth.authRequired, shiftV1.deleteShift
-
-    app.route '/api/users/:userID/captures'
-        .post   auth.currentUserRequired, captureV1.addCapture
-
-    app.route '/api/search/users'
-        .get    searchV1.userSearch
-
+    # Legacy - remove these at the end of Feb.
     app.post '/api/auth/register', authV1.register
     app.post '/api/auth/login', authV1.login
-    app.get '/api/auth/token', auth.authRequired, authV1.refreshToken
+    app.post '/api/requestPasswordReset', userV1.requestPasswordReset
+
+    console.log '\n\n##\n# Express route stack\n##'
+    console.log app._router.stack
 
     app.use (req, res, next) -> next new _errs.NotFound()
