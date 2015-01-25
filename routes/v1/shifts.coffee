@@ -25,14 +25,11 @@ getCurrentUsersShift = (req) ->
     return dfd.promise
 
 exports.getShiftFeed = (req, res, next) ->
-    clientTzOffset = new Number(req.query['tzOffset'] or "0")
-
-    console.log 'clientTzOffset (' + typeof(clientTzOffset) + ') :', clientTzOffset
 
     models.getShiftsForUserAndCoworkers req.user.id
-        .then (result) ->
-            {shifts, users} = result
-            res.json result
+        .then ({shifts, users}) ->
+            users = _.filter users, (user) -> user.id isnt req.user.id
+            res.json {shifts, users}
         .catch next
 
 exports.getShiftsForUser = (req, res, next) ->
