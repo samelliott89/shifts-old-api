@@ -60,6 +60,7 @@ _getUsersAndCorworkersShifts = ({userID, shiftsSince}) ->
             r.table('Shift'),
             {index: 'ownerID'}
         )
+        .filter (row) -> row('right')('end').gt shiftsSince
         .map (row) -> row('right').merge({owner: row('left')})
         .orderBy 'start'
 
