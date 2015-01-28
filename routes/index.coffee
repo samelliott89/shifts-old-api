@@ -40,9 +40,6 @@ v1Routes = {
         get:    userV1.getUser
         post:   perms.currentUser userV1.editUser
 
-    '/users/:userID/changePassword':
-        post:   userV1.changePassword
-
     '/users/:userID/friends':
         get:    friendV1.getFriends
         post:   perms.currentUser friendV1.createFriendship
@@ -77,14 +74,15 @@ module.exports = (app) ->
     app.route('/testErrors/:mode/:error').get(require('./v1/test').throwError)
 
     # These are outside of v1Routes because they don't require auth
-    app.route('/resetPassword').get(pagesV1.resetPassword)
-    app.post '/v1/auth/register', authV1.register
-    app.post '/v1/auth/login', authV1.login
-    app.post '/v1/requestPasswordReset', userV1.requestPasswordReset
+    app.get  '/resetPassword',                   pagesV1.resetPassword
+    app.post '/v1/users/:userID/changePassword', userV1.changePassword
+    app.post '/v1/auth/register',                authV1.register
+    app.post '/v1/auth/login',                   authV1.login
+    app.post '/v1/requestPasswordReset',         userV1.requestPasswordReset
 
     # Legacy - remove these at the end of Feb.
-    app.post '/api/auth/register', authV1.register
-    app.post '/api/auth/login', authV1.login
-    app.post '/api/requestPasswordReset', userV1.requestPasswordReset
+    app.post '/api/auth/register',               authV1.register
+    app.post '/api/auth/login',                  authV1.login
+    app.post '/api/requestPasswordReset',        userV1.requestPasswordReset
 
     app.use (req, res, next) -> next new _errs.NotFound()

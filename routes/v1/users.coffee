@@ -137,7 +137,7 @@ exports.changePassword = (req, res, next) ->
         .then (user) ->
             if req.isAuthenticated
                 unless auth.checkPassword user, req.body.oldPassword
-                    throw new _errs.AuthFailed {password:msg: 'Password is incorrect'}
+                    throw new _errs.AuthFailed {password:msg: 'Old password is incorrect'}
             else
                 # This check probably isnt needed, but it does invalidate previously
                 # sent (but not yet expired) tokens
