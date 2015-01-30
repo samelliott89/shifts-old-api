@@ -9,7 +9,6 @@ auth = require '../auth'
 
 friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
-helpers = require './helpers'
 _errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']

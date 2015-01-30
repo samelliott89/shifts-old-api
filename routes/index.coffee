@@ -1,15 +1,16 @@
 _ = require 'underscore'
 
 auth      = require '../auth'
+_errs      = require '../errors'
 
-shiftV1   = require './v1/shifts'
-userV1    = require './v1/users'
-authV1    = require './v1/auth'
-searchV1  = require './v1/search'
-captureV1 = require './v1/capture'
-friendV1  = require './v1/friends'
-pagesV1   = require './v1/pages'
-_errs     = require '../errors'
+authV1     = require './v1/auth'
+userV1     = require './v1/users'
+pagesV1    = require './v1/pages'
+shiftV1    = require './v1/shifts'
+searchV1   = require './v1/search'
+friendV1   = require './v1/friends'
+captureV1  = require './v1/capture'
+settingsV1 = require './v1/settings'
 
 createRoutes = (app, prefixes, routes) ->
     exprRoutes = []
@@ -39,6 +40,10 @@ v1Routes = {
     '/users/:userID':
         get:    userV1.getUser
         post:   perms.currentUser userV1.editUser
+
+    '/users/:userID/settings':
+        get:    perms.currentUser settingsV1.getSettings
+        post:   perms.currentUser settingsV1.updateSettings
 
     '/users/:userID/friends':
         get:    friendV1.getFriends
