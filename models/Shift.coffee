@@ -31,7 +31,6 @@ _getUsersAndCorworkersShifts = ({userID, shiftsSince}) ->
 
     unless shiftsSince
         shiftsSince = new Date()
-        shiftsSince.setDate(shiftsSince.getDate() - 1)
 
     r.expr(
         # Get list of friends IDs
