@@ -13,6 +13,8 @@ _errs = require '../errors'
 
 defaultSettings = {
     'startOfWeek': 0
+    'softNotifcationPermission': undefined
+    'shiftReminderMinutes': 60 * 2
 }
 validSettings = _.keys defaultSettings
 
