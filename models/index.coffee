@@ -1,5 +1,7 @@
 _ = require 'underscore'
+thinky = require './thinky'
 
+exports.r = thinky.r
 exports.helpers = require './helpers'
 
 userModelDef = require './User'

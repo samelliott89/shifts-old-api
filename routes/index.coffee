@@ -12,16 +12,20 @@ friendV1   = require './v1/friends'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
 
-createRoutes = (app, prefixes, routes) ->
-    exprRoutes = []
+admin = require './admin'
 
-    for url, methods of v1Routes
+createRoutes = (app, routes, {prefixes, middleware}) ->
+    exprRoutes = []
+    prefixes ?= ['']
+
+    for url, methods of routes
         for prefix in prefixes
-            exprRoutes.push(app.route(prefix + url))
+            combinedUrl = prefix + url
+            exprRoutes.push(app.route(combinedUrl))
 
         for method, routeFuncs of methods
             if _.isFunction routeFuncs
-                routeFuncs = [auth.authRequired, routeFuncs]
+                routeFuncs = [middleware..., routeFuncs]
 
             for exprRoute in exprRoutes
                 exprRoute[method](routeFuncs...)
@@ -34,7 +38,7 @@ perms = {
 v1Routes = {
     '/': {get: userV1.apiIndex}
 
-    '/api/auth/token':
+    '/auth/token':
         get:    authV1.refreshToken
 
     '/users/:userID':
@@ -71,9 +75,21 @@ v1Routes = {
         get:    searchV1.userSearch
 }
 
+adminRoutes = {
+    '/get': {get: admin.get}
+}
+
 module.exports = (app) ->
 
-    createRoutes app, ['/v1', '/api'], v1Routes
+    createRoutes app, v1Routes, {
+        prefixes: ['/v1', '/api']
+        middleware: [auth.authRequired]
+    }
+
+    createRoutes app, adminRoutes, {
+        prefixes: ['/admin']
+        middleware: [auth.adminRequired]
+    }
 
     # DEBUG - remove this soon
     app.route('/testErrors/:mode/:error').get(require('./v1/test').throwError)
