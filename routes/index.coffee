@@ -74,9 +74,6 @@ v1Routes = {
 
     '/search/users':
         get:    searchV1.userSearch
-
-    '/intergrations/debug':
-        post:   intergrationsV1.debug
 }
 
 adminRoutes = {
@@ -96,6 +93,8 @@ module.exports = (app) ->
     }
 
     app.route('/intergrations/debug').post intergrationsV1.debug
+    app.route('/intergrations/debug').get auth.adminRequired, intergrationsV1.listDebugs
+    app.route('/intergrations/debug/:id').get intergrationsV1.getDebugHtml
 
     # These are outside of v1Routes because they don't require auth
     app.get  '/resetPassword',                   pagesV1.resetPassword
