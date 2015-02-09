@@ -11,6 +11,7 @@ searchV1   = require './v1/search'
 friendV1   = require './v1/friends'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
+intergrationsV1 = require './v1/intergrations'
 
 admin = require './admin'
 
@@ -73,6 +74,9 @@ v1Routes = {
 
     '/search/users':
         get:    searchV1.userSearch
+
+    '/intergrations/debug':
+        post:   intergrationsV1.debug
 }
 
 adminRoutes = {
@@ -91,8 +95,7 @@ module.exports = (app) ->
         middleware: [auth.adminRequired]
     }
 
-    # DEBUG - remove this soon
-    app.route('/testErrors/:mode/:error').get(require('./v1/test').throwError)
+    app.route('/intergrations/debug').post intergrationsV1.debug
 
     # These are outside of v1Routes because they don't require auth
     app.get  '/resetPassword',                   pagesV1.resetPassword

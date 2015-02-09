@@ -23,3 +23,7 @@ _.extend exports, captureModelDef.helpers
 friendshipModelDef = require './Friendship'
 exports.Friendship = friendshipModelDef.model
 _.extend exports, friendshipModelDef.helpers
+
+DebugDumpModelDef = require './DebugDump'
+exports.DebugDump = DebugDumpModelDef.model
+_.extend exports, DebugDumpModelDef.helpers
