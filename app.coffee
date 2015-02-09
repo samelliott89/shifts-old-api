@@ -23,7 +23,7 @@ app.use responseTime()
 app.use cors()
 app.use morgan 'dev'
 app.use cookieParser()
-app.use bodyParser.json()
+app.use bodyParser.json({limit: '8mb'})
 app.use expressValidator {customValidators}
 
 # Setup auth
