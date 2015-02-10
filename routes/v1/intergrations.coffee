@@ -20,11 +20,13 @@ exports.listDebugs = (req, res, next) ->
         .run()
         .then (dumps) ->
             dumps = _.map dumps, (dump) ->
+                protocol = dump.location?.protocol? or 'http:'
                 {
                     id: dump.id
                     created: dump.created
-                    location: dump.location
+                    href: dump.location?.href
                     identifier: dump.identifier
+                    _previewLink: protocol + '//api.getshifts.co/intergrations/debug/' + dump.id + '?clean=true'
                 }
             res.json {dumps}
         .catch next
