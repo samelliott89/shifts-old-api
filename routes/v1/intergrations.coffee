@@ -1,6 +1,9 @@
 _ = require 'underscore'
 models = require '../../models'
 
+bmRegex = /(src=\"https:\/\/s3-ap-southeast-2.amazonaws.com\/pages.getshifts.co\/debugBookmarklet.js\?r=[\d.]*\")/g
+linkRegex = /(src|href)=(['"])\//g
+
 exports.debug = (req, res, next) ->
     {debugData} = req.body
     debugData = _.omit debugData, 'id'
@@ -20,7 +23,7 @@ exports.listDebugs = (req, res, next) ->
                 {
                     id: dump.id
                     created: dump.created
-                    href: dump.location?.href
+                    location: dump.location
                     identifier: dump.identifier
                 }
             res.json {dumps}
@@ -31,5 +34,13 @@ exports.getDebugHtml = (req, res, next) ->
         .get req.params['id']
         .run()
         .then (dump) ->
-            res.send(dump.pageHtml or '<pre>pageHtml is undefined</pre>')
+            html = dump.pageHtml or '<pre>pageHtml is undefined</pre>'
+
+            if req.query['clean']
+                console.log 'Cleaning'
+                html = html.replace bmRegex, 'replaced'
+                urlPrefix = dump.location.protocol + '//' + dump.location.host + '/'
+                html = html.replace linkRegex, "$1=$2#{urlPrefix}"
+
+            res.send html
         .catch next
