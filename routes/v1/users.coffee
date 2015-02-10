@@ -15,11 +15,15 @@ exports.getUser = (req, res, next) ->
     promises = [
         models.getUser userID, {req, clean: true}
         models.getFriends userID
+        models.getShiftsForUser userID, {req}
     ]
 
     bluebird.all promises
-        .then ([user, friendships]) ->
-            user.counts = { connections: friendships.length }
+        .then ([user, friendships, shifts]) ->
+            user.counts = {
+                connections: friendships.length
+                shifts: shifts.length
+            }
             res.json {user}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
