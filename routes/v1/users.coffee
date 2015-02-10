@@ -15,7 +15,7 @@ exports.getUser = (req, res, next) ->
     promises = [
         models.getUser userID, {req, clean: true}
         models.getFriends userID
-        models.getShiftsForUser userID, {req}
+        models.getShiftsForUser userID, {req, throwOnInvalidPermission: false}
     ]
 
     bluebird.all promises
