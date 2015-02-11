@@ -19,7 +19,7 @@ _sendWelcomeEmail = (user) ->
     <p>Thanks so much for joining Robby. The app designed to make managing your schedule really easy.</p>
 
     <p>To get the most out of Robby we suggest you start adding your shifts straight away. This can be done easily through our
-    intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules">support</a>
+    intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules?utm_source=welcomeEmail&utm_medium=email&utm_campaign=supportedSchedules">support</a>
     your online schedule at work. If we don't current support your scheudle, feel free to reach out to us and we'll see what we can do!</p>
 
     <p>You can also <em>connect</em> with people you work with in order to view their scheudle, see when they have days off and when you're
@@ -54,8 +54,6 @@ _sendWelcomeEmail = (user) ->
     }
 
     _chimpSuccess = ([result]) ->
-        console.log 'Mailchimp success:'
-        console.log arguments
         invalidstatus = ['rejected', 'invalid']
         if not result and result.reject_reason
             console.log 'Could not send welcome email: '
@@ -64,7 +62,6 @@ _sendWelcomeEmail = (user) ->
 
     _chimpFailure = (err) ->
         console.log 'Mailchimp error:'
-        console.log arguments
         console.log err
         throw new _errs.ServerError 'Error sending welcome email'
 
