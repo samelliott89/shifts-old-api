@@ -32,9 +32,10 @@ _sendWelcomeEmail = (user) ->
         Sam + Josh
     </p>
     """
-    sendInMinutes = 5
+    sendInMinutes = 60
     sendAt = new Date()
     sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
+    sendAtUTC = sendAt.toISOString().replace('T', ' ').split('.')[0]
 
     message = {
         html: messageHTML
@@ -49,11 +50,12 @@ _sendWelcomeEmail = (user) ->
         track_opens: true
         track_clicks: true
         auto_text: true
-        send_at: sendAt.toISOString().replace('T', ' ').split('.')[0]
-        tags: ['robby-transactional', 'welcome-email']
+        tags: ['shifts-transactional', 'welcome-email']
     }
 
     _chimpSuccess = ([result]) ->
+        console.log 'Mailchimp success:'
+        console.log arguments
         invalidstatus = ['rejected', 'invalid']
         if not result and result.reject_reason
             console.log 'Could not send welcome email: '
@@ -61,10 +63,12 @@ _sendWelcomeEmail = (user) ->
             throw new _errs.ServerError 'Error sending welcome email'
 
     _chimpFailure = (err) ->
+        console.log 'Mailchimp error:'
+        console.log arguments
         console.log err
         throw new _errs.ServerError 'Error sending welcome email'
 
-    mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
+    mandrillClient.messages.send {message, send_at: sendAtUTC}, _chimpSuccess, _chimpFailure
 
 exports.register = (req, res, next) ->
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
