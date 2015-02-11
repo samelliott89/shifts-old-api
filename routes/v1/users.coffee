@@ -85,9 +85,9 @@ exports.requestPasswordReset = (req, res, next) ->
             """
             message = {
                 html: messageHTML
-                subject: "Shifts Password Reset"
-                from_email: "hi@getshifts.co"
-                from_name: "Shifts"
+                subject: "Robby Password Reset"
+                from_email: "hi@heyrobby.com"
+                from_name: "Robby"
                 to: [{
                     email: user.email
                     name: user.displayName
