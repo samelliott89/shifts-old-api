@@ -20,7 +20,7 @@ exports.listDebugs = (req, res, next) ->
         .run()
         .then (dumps) ->
             dumps = _.map dumps, (dump) ->
-                protocol = dump.location?.protocol? or 'http:'
+                protocol = dump.location?.protocol or 'http:'
                 {
                     id: dump.id
                     created: dump.created
