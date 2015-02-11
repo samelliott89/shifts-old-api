@@ -96,7 +96,7 @@ exports.requestPasswordReset = (req, res, next) ->
                 track_opens: true
                 track_clicks: true
                 auto_text: true
-                tags: ['robby-transactional', 'resetpw']
+                tags: ['shifts-transactional', 'resetpw']
             }
 
             _chimpSuccess = ([result]) ->
