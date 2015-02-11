@@ -1,11 +1,70 @@
 _ = require 'underscore'
+mandrill = require 'mandrill-api/mandrill'
 
 auth = require '../../auth'
 _errs = require '../../errors'
 models = require '../../models'
 config = require '../../config'
 
+
+console.log 'config.MANDRILL_API_KEY:', config.MANDRILL_API_KEY
+mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
+
 validRegistrationFields = ['email', 'password', 'displayName', 'profilePhoto']
+
+_sendWelcomeEmail = (user) ->
+    messageHTML = """
+    <p>Hey #{user.displayName},</p>
+
+    <p>Thanks so much for joining Robby. The app designed to make managing your schedule really easy.</p>
+
+    <p>To get the most out of Robby we suggest you start adding your shifts straight away. This can be done easily through our
+    intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules">support</a>
+    your online schedule at work. If we don't current support your scheudle, feel free to reach out to us and we'll see what we can do!</p>
+
+    <p>You can also <em>connect</em> with people you work with in order to view their scheudle, see when they have days off and when you're
+    working with them next.<p>
+
+    <p>If you have any questions or feeback, just reply to this email and we'll definitely help you out.</p>
+
+    <p>
+        Cheers,<br/>
+        Sam + Josh
+    </p>
+    """
+    sendInMinutes = 5
+    sendAt = new Date()
+    sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
+
+    message = {
+        html: messageHTML
+        subject: "Welcome to Robby!"
+        from_email: "sam@heyrobby.com"
+        from_name: "Robby"
+        to: [{
+            email: user.email
+            name: user.displayName
+        }]
+        important: true
+        track_opens: true
+        track_clicks: true
+        auto_text: true
+        send_at: sendAt.toISOString().replace('T', ' ').split('.')[0]
+        tags: ['robby-transactional', 'welcome-email']
+    }
+
+    _chimpSuccess = ([result]) ->
+        invalidstatus = ['rejected', 'invalid']
+        if not result and result.reject_reason
+            console.log 'Could not send welcome email: '
+            console.log result
+            throw new _errs.ServerError 'Error sending welcome email'
+
+    _chimpFailure = (err) ->
+        console.log err
+        throw new _errs.ServerError 'Error sending welcome email'
+
+    mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
 
 exports.register = (req, res, next) ->
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
@@ -32,6 +91,8 @@ exports.register = (req, res, next) ->
                 .then (user) ->
                     token = auth.createToken user
                     res.json {user, token}
+                    # Send welcome email to new user after response is sent back to client
+                    _sendWelcomeEmail newUser
                 .catch _errs.handleRethinkErrors err
 
 exports.login = (req, res, next) ->
