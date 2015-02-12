@@ -27,7 +27,6 @@ exports.errorHandler = (originalError, req, res, next) ->
 
     if originalError.status and originalError.name
         error = originalError
-        sendError(originalError, _.extend({severity: 'info'}, bugsnagOptions))
 
     else if originalError instanceof rethinkDBErrors.DocumentNotFound
         error = new _errs.NotFound()
