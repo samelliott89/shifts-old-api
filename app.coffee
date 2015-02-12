@@ -18,7 +18,7 @@ app = express()
 app.engine 'hbs', expHandlebars({defaultLayout: 'main'})
 app.set 'view engine', 'hbs'
 
-# app.use bugsnag.requestHandler
+app.set 'trust proxy', true
 app.use responseTime()
 app.use cors()
 app.use morgan 'dev'
