@@ -23,7 +23,12 @@ exports.isAuthed = (req, res, next) ->
     next()
 
 exports.errorHandler = (originalError, req, res, next) ->
-    bugsnagOptions = {userId: req.user?.id or req.ip}
+    bugsnagOptions = {
+        userId: req.user?.id or req.ip
+        metaData: {
+            url: req.originalUrl
+        }
+    }
 
     if originalError.status and originalError.name
         error = originalError
