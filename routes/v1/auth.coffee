@@ -32,7 +32,7 @@ _sendWelcomeEmail = (user) ->
         Sam + Josh
     </p>
     """
-    sendInMinutes = 60
+    sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
     sendAt = new Date()
     sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
     sendAtUTC = sendAt.toISOString().replace('T', ' ').split('.')[0]
