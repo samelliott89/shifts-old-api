@@ -142,6 +142,7 @@ exports.helpers =
         oneDay = 1000 * 60 * 60 * 24
         shiftsFrom = new Date()
         shiftsFrom.setTime shiftsFrom.getTime() - oneDay
+        opts.throwOnInvalidPermission ?= true
 
         promises = [
             _getShiftsWithCoworkers({
@@ -162,7 +163,11 @@ exports.helpers =
                 if typeof friendshipStatus isnt undefined and
                    friendshipStatus isnt friendshipHelpers.FRIENDSHIP_STATUS.MUTUAL and
                    opts.req?.user?.id isnt ownerID
-                    throw new _errs.InvalidPermissions()
+
+                    if opts.throwOnInvalidPermission
+                        throw new _errs.InvalidPermissions()
+                    else
+                        return []
 
                 # Clean shifts and the owner object on them
                 shifts = _.chain shifts
