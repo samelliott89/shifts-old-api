@@ -20,9 +20,9 @@ _sendWelcomeEmail = (user) ->
 
     <p>To get the most out of Robby we suggest you start adding your shifts straight away. This can be done easily through our
     intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules?utm_source=welcomeEmail&utm_medium=email&utm_campaign=supportedSchedules">support</a>
-    your online schedule at work. If we don't current support your scheudle, feel free to reach out to us and we'll see what we can do!</p>
+    your online schedule at work. If we don't current support your schedule, feel free to reach out to us and we'll see what we can do!</p>
 
-    <p>You can also <em>connect</em> with people you work with in order to view their scheudle, see when they have days off and when you're
+    <p>You can also <em>connect</em> with people you work with in order to view their schedule, see when they have days off and when you're
     working with them next.<p>
 
     <p>If you have any questions or feeback, just reply to this email and we'll definitely help you out.</p>
@@ -32,7 +32,7 @@ _sendWelcomeEmail = (user) ->
         Sam + Josh
     </p>
     """
-    sendInMinutes = 60
+    sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
     sendAt = new Date()
     sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
     sendAtUTC = sendAt.toISOString().replace('T', ' ').split('.')[0]

@@ -3,6 +3,10 @@ option_settings:
     option_name: NODE_ENV
     value: 'Prod'
 
+  - namespace: 'aws:elasticbeanstalk:application:environment'
+    option_name: WELCOME_EMAIL_DURATION
+    value: 60
+
   - namespace: aws:autoscaling:launchconfiguration
     option_name: InstanceType
     value: t2.small
