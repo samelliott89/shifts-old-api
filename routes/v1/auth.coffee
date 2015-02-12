@@ -6,8 +6,6 @@ _errs = require '../../errors'
 models = require '../../models'
 config = require '../../config'
 
-
-console.log 'config.MANDRILL_API_KEY:', config.MANDRILL_API_KEY
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 validRegistrationFields = ['email', 'password', 'displayName', 'profilePhoto']
