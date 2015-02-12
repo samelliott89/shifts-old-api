@@ -8,5 +8,6 @@
     "RETHINKDB_HOST": "localhost",
     "RETHINKDB_PORT": 28015,
     "RETHINKDB_DB": "shiftsapi",
-    "MANDRILL_API_KEY": "__fill-in-from-env-var__"
+    "MANDRILL_API_KEY": "__fill-in-from-env-var__",
+    "WELCOME_EMAIL_DURATION": 5
 }
