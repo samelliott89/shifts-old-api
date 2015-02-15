@@ -14,16 +14,15 @@ _sendWelcomeEmail = (user) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
-    <p>Thanks so much for joining Robby. The app designed to make managing your schedule really easy.</p>
+    <p>Josh and Sam here from Robby. We're guessing it's not everday you download a new app
+    so we just wanted to make sure everything is in place for you to feel welcome and at home.</p>
 
-    <p>To get the most out of Robby we suggest you start adding your shifts straight away. This can be done easily through our
-    intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules?utm_source=welcomeEmail&utm_medium=email&utm_campaign=supportedSchedules">support</a>
-    your online schedule at work. If we don't current support your schedule, feel free to reach out to us and we'll see what we can do!</p>
+    <p>We hope you've gotten the hang of Robby, but if we could suggest one thing to
+    kick things off, it would be to add your first weeks or fortnights schedule. Robby works best when you upload a full schedule
+    and you're <em>connected</em> with those you work with.</p>
 
-    <p>You can also <em>connect</em> with people you work with in order to view their schedule, see when they have days off and when you're
-    working with them next.<p>
-
-    <p>If you have any questions or feeback, just reply to this email and we'll definitely help you out.</p>
+    <p>Before we go, we just want to let you know that we're here almost 24/7 to answer any questions or respond to any feedback.
+    Please let us know if you if you need any help, feature ideas or just want to say hi.</p>
 
     <p>
         Cheers,<br/>
@@ -37,7 +36,7 @@ _sendWelcomeEmail = (user) ->
 
     message = {
         html: messageHTML
-        subject: "Welcome to Robby!"
+        subject: "Sam and Josh here from Robby!"
         from_email: "sam@heyrobby.com"
         from_name: "Robby"
         to: [{
