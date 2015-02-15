@@ -17,7 +17,7 @@ _sendWelcomeEmail = (user) ->
     <p>Sam here, cofounder of Robby. I'm guessing it's not everyday you download a new app
     so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
     
-    <p>Hopefully by now you've gotten the hang of Robby. If you havent already, we suggest adding your first
+    <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
     weeks or fortnights schedule. Robby works best when you have all your upcomming shifts and
     you've connected with your friends and coworkers.</p>
 
