@@ -14,19 +14,19 @@ _sendWelcomeEmail = (user) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
-    <p>Josh and Sam here from Robby. We're guessing it's not everyday you download a new app
-    so we just wanted to make sure everything is in place for you to feel welcome and at home.</p>
+    <p>Sam here, cofounder of Robby. I'm guessing it's not everyday you download a new app
+    so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
+    
+    <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
+    weeks or fortnights schedule. Robby works best when you have all your upcomming shifts and
+    you've connected with your friends and coworkers.</p>
 
-    <p>We hope you've gotten the hang of Robby, but if we could suggest one thing to
-    kick things off, it would be to add your first weeks or fortnights schedule. Robby works best when you upload a full schedule
-    and you're <em>connected</em> with those you work with.</p>
-
-    <p>Before we go, we just want to let you know that we're here to answer any questions or respond to any feedback.
-    Please let us know if you if you need any help, feature ideas or just want to say hi.</p>
+    <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
+    Please let us know if you if you need any help, have feature ideas or just want to say hi.</p>
 
     <p>
         Cheers,<br/>
-        Sam + Josh
+        Sam
     </p>
     """
     sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
