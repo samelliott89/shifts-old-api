@@ -9,6 +9,7 @@ pagesV1    = require './v1/pages'
 shiftV1    = require './v1/shifts'
 searchV1   = require './v1/search'
 friendV1   = require './v1/friends'
+scraperV1  = require './v1/scraper'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
 intergrationsV1 = require './v1/intergrations'
@@ -77,6 +78,7 @@ module.exports = (app) ->
     ##
     # Bookmarklet and other intergrations
     ##
+    app.route('/v1/parse/bookmarklet')   .post                    scraperV1.recieveBookmarkletScrape
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
     app.route('/intergrations/debug')    .get auth.adminRequired, intergrationsV1.listDebugs
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
