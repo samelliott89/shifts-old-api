@@ -2,6 +2,7 @@ _ = require 'underscore'
 crypto = require 'crypto'
 bluebird = require 'bluebird'
 
+auth = require '../auth'
 models = require '../models'
 r = models.r
 
@@ -46,3 +47,11 @@ exports.get = (req, res, next) ->
 
     else
         res.json {results: []}
+
+exports.getAuthToken = (req, res, next) ->
+    models.User.get(req.query.userID or '')
+        .run()
+        .then (user) ->
+            token = auth.createToken user
+            res.json {token, user}
+        .catch next

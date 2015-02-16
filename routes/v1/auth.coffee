@@ -14,20 +14,19 @@ _sendWelcomeEmail = (user) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
-    <p>Thanks so much for joining Robby. The app designed to make managing your schedule really easy.</p>
+    <p>Sam here, cofounder of Robby. I'm guessing it's not everyday you download a new app
+    so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
+    
+    <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
+    weeks or fortnights schedule. Robby works best when you have all your upcomming shifts and
+    you've connected with your friends and coworkers.</p>
 
-    <p>To get the most out of Robby we suggest you start adding your shifts straight away. This can be done easily through our
-    intuitive user interface or automatically if we <a href="http://heyrobby.com/supported-schedules?utm_source=welcomeEmail&utm_medium=email&utm_campaign=supportedSchedules">support</a>
-    your online schedule at work. If we don't current support your schedule, feel free to reach out to us and we'll see what we can do!</p>
-
-    <p>You can also <em>connect</em> with people you work with in order to view their schedule, see when they have days off and when you're
-    working with them next.<p>
-
-    <p>If you have any questions or feeback, just reply to this email and we'll definitely help you out.</p>
+    <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
+    Please let us know if you if you need any help, have feature ideas or just want to say hi.</p>
 
     <p>
         Cheers,<br/>
-        Sam + Josh
+        Sam
     </p>
     """
     sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
@@ -37,7 +36,7 @@ _sendWelcomeEmail = (user) ->
 
     message = {
         html: messageHTML
-        subject: "Welcome to Robby!"
+        subject: "Sam and Josh here from Robby!"
         from_email: "sam@heyrobby.com"
         from_name: "Robby"
         to: [{

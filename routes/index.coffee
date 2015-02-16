@@ -10,7 +10,6 @@ shiftV1    = require './v1/shifts'
 searchV1   = require './v1/search'
 friendV1   = require './v1/friends'
 captureV1  = require './v1/capture'
-scraperV1  = require './v1/scraper'
 settingsV1 = require './v1/settings'
 intergrationsV1 = require './v1/intergrations'
 
@@ -66,6 +65,7 @@ module.exports = (app) ->
         .get                              shiftV1.getShiftsForUser
         .post   auth.currentUserRequired, shiftV1.addShifts
 
+
     app.route '/v1/shifts/:shiftID'
         .get    auth.authRequired,        shiftV1.getShift
         .delete auth.authRequired,        shiftV1.deleteShift
@@ -77,7 +77,6 @@ module.exports = (app) ->
     ##
     # Bookmarklet and other intergrations
     ##
-    app.route('/v1/parse/bookmarklet')   .post                    scraperV1.recieveBookmarkletScrape
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
     app.route('/intergrations/debug')    .get auth.adminRequired, intergrationsV1.listDebugs
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
@@ -86,7 +85,8 @@ module.exports = (app) ->
     ##
     # Admin and misc routes
     ##
-    app.route('/admin/get').get(admin.get)
+    app.route('/_admin/get')     .get auth.adminRequired, admin.get
+    app.route('/_admin/getToken').get auth.adminRequired, admin.getAuthToken
 
 
     # 404 handler
