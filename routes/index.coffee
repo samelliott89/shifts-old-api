@@ -78,6 +78,7 @@ v1Routes = {
 
 adminRoutes = {
     '/get': {get: admin.get}
+    '/getToken': {get: admin.getAuthToken}
 }
 
 module.exports = (app) ->
