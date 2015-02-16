@@ -1,3 +1,5 @@
+_  = require 'underscore'
+
 _errs  = require '../../errors'
 models  = require '../../models'
 auth  = require './auth'
@@ -31,22 +33,23 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                         source: models.SHIFT_SOURCE_BOOKMARKLET
                     }
 
+                console.log 'inserting shifts:', newShifts
+
                 models.Shift.insert(newShifts, {conflict: 'update'}).run()
-            .then (newShifts) ->
-                newShiftIds = _.pluck newShifts, 'id'
-                newParse = _.extend {shifts: newShiftIds}, parseObj
-                bluebird.all = [
-                    models.Parse.insert(newParse).run()
-                    models.Shift.getAll(oldShiftsToDelete...).delete().execute()
-                ]
+            .then ({generated_keys}) ->
+                newParse = _.extend {shifts: generated_keys}, parseObj
+                promises = [models.Parse.insert(newParse).run()]
+
+                if oldShiftsToDelete.length
+                    promises.push models.Shift.getAll(oldShiftsToDelete...).delete().execute()
+
+                bluebird.all promises
             .then ([newParse, shiftDeleteCursor]) ->
                 shiftDeleteCursor.toArray()
             .then (shiftDeleteResult) ->
                 console.log shiftDeleteResult
                 res.json {success: true, result: shiftDeleteResult}
             .catch next
-
-        res.json {shifts, parseKey}
 
     onLoginFailure = (err) ->
         next err
