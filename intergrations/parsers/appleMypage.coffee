@@ -55,8 +55,8 @@ module.exports = (parseData) ->
             shiftEnd.add {days: 1}
 
         shifts.push {
-            start: shiftStart
-            end: shiftEnd
+            start: shiftStart.toDate()
+            end: shiftEnd.toDate()
         }
 
     return {shifts, parseKey: weekStartingRaw.toLowerCase()}
