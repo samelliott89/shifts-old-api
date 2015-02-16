@@ -8,7 +8,8 @@ exports.getSettings = (req, res, next) ->
 
     models.Settings.filter({ownerID: userID}).run()
         .then ([settings]) ->
-            settings ?= models.defaultSettings
+            settings ?= {}
+            settings = _.defaults settings, models.defaultSettings
             delete settings.ownerID
             res.json {settings}
         .catch next
