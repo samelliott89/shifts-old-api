@@ -56,12 +56,10 @@ _sendWelcomeEmail = (user) ->
         if not result and result.reject_reason
             console.log 'Could not send welcome email: '
             console.log result
-            throw new _errs.ServerError 'Error sending welcome email'
 
     _chimpFailure = (err) ->
         console.log 'Mailchimp error:'
         console.log err
-        throw new _errs.ServerError 'Error sending welcome email'
 
     mandrillClient.messages.send {message, send_at: sendAtUTC}, _chimpSuccess, _chimpFailure
 
