@@ -110,7 +110,7 @@ exports.requestPasswordReset = (req, res, next) ->
 
             _chimpFailure = (err) ->
                 console.log err
-                throw new _errs.ServerError 'Error sending password reset email'
+                next new _errs.ServerError 'Error sending password reset email'
 
             mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
         .catch (err) ->
