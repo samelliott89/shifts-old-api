@@ -2,6 +2,8 @@ _ = require 'underscore'
 thinky = require './thinky'
 
 exports.r = thinky.r
+
+exports.Errors = thinky.Errors
 exports.helpers = require './helpers'
 
 userModelDef = require './User'
@@ -27,3 +29,7 @@ _.extend exports, friendshipModelDef.helpers
 DebugDumpModelDef = require './DebugDump'
 exports.DebugDump = DebugDumpModelDef.model
 _.extend exports, DebugDumpModelDef.helpers
+
+ParseModelDef = require './Parse'
+exports.Parse = ParseModelDef.model
+_.extend exports, ParseModelDef.helpers
