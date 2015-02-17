@@ -63,7 +63,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                     promises.push models.Shift.getAll(oldShiftsToDelete...).delete().execute()
 
                 bluebird.all promises
-            .then () ->
+            .then ->
                 res.json {success: true}
             .catch next
 
@@ -74,5 +74,3 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
     fakeNext = onLoginFailure
 
     auth.login req, fakeResponse, fakeNext
-
-    # res.json
