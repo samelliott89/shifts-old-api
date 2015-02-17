@@ -10,19 +10,25 @@ mypageLocaleMapper = {
 START_OF_WEEK_REGEX = /\s{2,}(.+)/
 
 MOMENT_FORMATS = {
-    shiftTime: 'MMM DD YYYY hh:mmA Z'
+    en:
+        shiftTime: 'MMM DD YYYY hh:mmA Z'
+
+    fr:
+        shiftTime: 'DD MMM YYYY hh:mmA Z'
 }
 
 trim = (str) -> str.replace(/^\s+|\s+$/g,'')
+
 parseShiftTime = ({weekStarting, time, timezoneOffset, dayIndex, locale}) ->
     dateRaw = "#{weekStarting} #{time} #{timezoneOffset}"
-    date = moment dateRaw, MOMENT_FORMATS.shiftTime, locale
+    console.log 'dateRaw:', dateRaw
+    format = MOMENT_FORMATS[locale].shiftTime
+    date = moment dateRaw, format, locale
     date.add {days: dayIndex}
     return date
 
 module.exports = (parseData) ->
     locale = mypageLocaleMapper[parseData.locale] or 'en'
-    console.log 'Started appleMypage parser'
     $ = cheerio.load parseData.html
 
     # First, find the 'schedule begins' header, extract the date part and remove extra characters
@@ -30,6 +36,9 @@ module.exports = (parseData) ->
     weekStartingRaw = $('.cellHeader3').text()
     weekStartingRaw = weekStartingRaw.match(START_OF_WEEK_REGEX)[1]
     weekStartingRaw = weekStartingRaw.replace(/,/g, '')
+
+    console.log 'weekStartingRaw:', weekStartingRaw
+
     shifts = []
 
     # Now, iterate over the days (table rows).

@@ -2,8 +2,8 @@ _ = require 'underscore'
 thinky = require './thinky'
 
 exports.r = thinky.r
-
 exports.Errors = thinky.Errors
+exports.Query = thinky.Query
 exports.helpers = require './helpers'
 
 userModelDef = require './User'

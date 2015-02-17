@@ -2,6 +2,7 @@ _  = require 'underscore'
 
 _errs  = require '../../errors'
 models  = require '../../models'
+config  = require '../../config'
 auth  = require './auth'
 intergrations  = require '../../intergrations'
 
@@ -17,10 +18,10 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
         {shifts, parseKey} = intergrations.parseBookmarkletScrape(req.body.parserName, req.body.parseData)
         oldShiftsToDelete = []
 
-        parseObj = {parseKey, ownerID: user.id}
+        ownerParseKey = user.id + parseKey
 
         models.Parse
-            .filter parseObj
+            .getAll ownerParseKey, {index: 'ownerParseKey'}
             .run()
             .then (previousParses) ->
                 for prev in previousParses
@@ -33,22 +34,37 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                         source: models.SHIFT_SOURCE_BOOKMARKLET
                     }
 
-                console.log 'inserting shifts:', newShifts
-
                 models.Shift.insert(newShifts, {conflict: 'update'}).run()
             .then ({generated_keys}) ->
-                newParse = _.extend {shifts: generated_keys}, parseObj
-                promises = [models.Parse.insert(newParse).run()]
+                newParse = {
+                    parseKey,
+                    ownerID: user.id
+                    shifts: generated_keys
+                }
+
+                updatedParseObj = {
+                    parseKey: '$REPLACED_' + parseKey
+                    shifts: []
+                }
+
+                promises = [
+                    models.Parse
+                        .getAll ownerParseKey, {index: 'ownerParseKey'}
+                        .update updatedParseObj
+                        .do ->
+                            models.r.db config.RETHINKDB_DB
+                                .table 'Parse'
+                                .insert newParse
+
+                        .execute()
+                ]
 
                 if oldShiftsToDelete.length
                     promises.push models.Shift.getAll(oldShiftsToDelete...).delete().execute()
 
                 bluebird.all promises
-            .then ([newParse, shiftDeleteCursor]) ->
-                shiftDeleteCursor.toArray()
-            .then (shiftDeleteResult) ->
-                console.log shiftDeleteResult
-                res.json {success: true, result: shiftDeleteResult}
+            .then () ->
+                res.json {success: true}
             .catch next
 
     onLoginFailure = (err) ->
