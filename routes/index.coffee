@@ -18,6 +18,7 @@ admin = require './admin'
 
 module.exports = (app) ->
 
+    app.route('/api').get(userV1.apiIndex)
     app.route('/v1').get(userV1.apiIndex)
 
     ##
