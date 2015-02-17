@@ -20,7 +20,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
 
         ownerParseKey = user.id + parseKey
 
-        models.Parse
+        models.Parse_
             .getAll ownerParseKey, {index: 'ownerParseKey'}
             .run()
             .then (previousParses) ->
@@ -40,6 +40,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                     parseKey,
                     ownerID: user.id
                     shifts: generated_keys
+                    parserName: req.body.parserName
                 }
 
                 updatedParseObj = {
