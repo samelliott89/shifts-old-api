@@ -59,9 +59,9 @@ module.exports = (app) ->
 
 
     ##
-    # Shift and feed management
+    # Calendar feed
     ##
-    app.route '/v1/calendar/:calendarID'
+    app.route '/v1/calendar/:calendarID/feed.ics'
         .get                           calendarV1.getCalFeed
 
     app.route '/v1/users/:userID/calendar'

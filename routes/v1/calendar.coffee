@@ -44,7 +44,7 @@ exports.getCalFeedItem = (req, res, next) ->
             newCalendar = new models.Calendar {ownerID: userID}
             newCalendar.save()
         .then (calendar) ->
-            calFeedPath = "/v1/calendar/#{calendar.id}"
+            calFeedPath = "/v1/calendar/#{calendar.id}/feed.ics"
             calendar.path = calFeedPath
 
             if req.query.redirect
