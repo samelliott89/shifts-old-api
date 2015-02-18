@@ -5,8 +5,10 @@ r = thinky.r
 
 _errs = require '../errors'
 userModelDef = require './User'
+CalendarModelDef = require './Calendar'
 User = userModelDef.model
 userHelpers = userModelDef.helpers
+Calendar = CalendarModelDef.model
 friendshipHelpers = require('./Friendship').helpers
 
 Shift = thinky.createModel 'Shift',
@@ -100,6 +102,17 @@ exports.helpers =
                     userHelpers.cleanUser user
 
                 return output
+
+    getShiftsViaCalendar: (calendarID, daysBack = 7) ->
+        shiftsSince = new Date()
+        shiftsSince.setDate shiftsSince.getDate() - daysBack
+
+        Calendar.getAll calendarID
+            .eqJoin 'ownerID', r.table('Shift'), {index: 'ownerID'}
+            .pluck 'right'
+            .map (row) -> row 'right'
+            .filter (shift) -> shift('start').gt shiftsSince
+            .run()
 
     getShiftsForUser: (ownerID, opts = {}) ->
         oneDay = 1000 * 60 * 60 * 24
