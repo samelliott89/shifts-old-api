@@ -66,60 +66,21 @@ _getUsersAndCorworkersShifts = ({userID, shiftsSince}) ->
         r.expr {shifts, users}
 
 
-_getShiftsWithCoworkers = ({shiftOwnerID, currentUserID, shiftsSince}) ->
-    unless currentUserID
-        throw new Error 'Param currentUserID is required. This must be the user ID of the currently logged in user.'
-
+_getShiftsWithCoworkers = ({shiftOwnerID, shiftsSince}) ->
     shiftsSince ?= new Date()
 
-    r.expr(
-        # Get list of friends IDs
-        r.table 'Friendship'
-            .getAll currentUserID, {index: 'friendID'}
-            # Make sure the owner of the shifts doesnt show up in coworkers
-            .filter (row) -> row('userID').ne(shiftOwnerID)
-            .map (row) -> row('userID')
-            .coerceTo('array')
-            .setIntersection(
-                r.table 'Friendship'
-                    .getAll currentUserID, {index: 'userID'}
-                    .map (row) -> row('friendID')
-                    .coerceTo('array')
-            )
-    ).do (friendIDs) ->
-        r.table 'Shift'
-            # Get all shifts for the current user since a specified date
-            .getAll shiftOwnerID, {index: 'ownerID'}
-            .filter (shift) -> shift('start').gt shiftsSince
+    r.table 'Shift'
+        # Get all shifts for the current user since a specified date
+        .getAll shiftOwnerID, {index: 'ownerID'}
+        .filter (shift) -> shift('start').gt shiftsSince
 
-            # Join the owner onto the shifts
-            .eqJoin 'ownerID', r.table('User')
+        # Join the owner onto the shifts
+        .eqJoin 'ownerID', r.table('User')
 
-            # Now, for each shift...
-            .map (_shift) ->
-                shift = _shift('left')
-
-                # Find all shifts my friends are working on the same day I'm working
-                coworkerShifts = friendIDs.eqJoin(
-                        (doc) -> doc,
-                        r.table('Shift'),
-                        {index: 'ownerID'}
-                    )
-                    # remove the {left, right} artefact of using eqJoin()
-                    .without({left: 'id'}).zip()
-                    .filter (coShift) ->
-                        # Ensure the coworkers shift is on the same day as the user's shift
-                        coShift('start').during(
-                            shift('start').date(),
-                            shift('end').date(),
-                            {leftBound: "open", rightBound: "open"}
-                        )
-                    # Join the owner onto each coworker shift
-                    .eqJoin 'ownerID', r.table('User')
-                    .map (row) ->
-                        row('left').merge({owner: row('right')})
-                # Finally merge them onto the shift (and unpack the {left, right} from the original owner merge)
-                shift.merge {owner: _shift('right'), coworkers: coworkerShifts}
+        # Now, for each shift...
+        .map (_shift) ->
+            shift = _shift('left')
+            shift.merge {owner: _shift('right')}
 
 
 exports.helpers =
@@ -142,15 +103,14 @@ exports.helpers =
 
     getShiftsForUser: (ownerID, opts = {}) ->
         oneDay = 1000 * 60 * 60 * 24
-        shiftsFrom = new Date()
-        shiftsFrom.setTime shiftsFrom.getTime() - oneDay
+        shiftsSince = new Date()
+        shiftsSince.setTime shiftsSince.getTime() - oneDay
         opts.throwOnInvalidPermission ?= true
 
         promises = [
             _getShiftsWithCoworkers({
                     shiftOwnerID: ownerID
-                    currentUserID: opts.req.user.id
-                    shiftsSince: shiftsFrom
+                    shiftsSince: shiftsSince
                 }).run()
         ]
 
@@ -175,7 +135,7 @@ exports.helpers =
                 shifts = _.chain shifts
                     # Reject shifts when the start date is more than 24 hours ago
                     .reject (shift) ->
-                        shift.start < shiftsFrom
+                        shift.start < shiftsSince
                     .each((shift) ->
                         shift.owner = userHelpers.cleanUser shift.owner, opts.req # opts.req might be undefined, but that's OK
                         _.each shift.coworkers, (coShift) ->
