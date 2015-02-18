@@ -12,6 +12,7 @@ friendV1   = require './v1/friends'
 scraperV1  = require './v1/scraper'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
+calendarV1 = require './v1/calendar'
 intergrationsV1 = require './v1/intergrations'
 
 admin = require './admin'
@@ -60,6 +61,16 @@ module.exports = (app) ->
     ##
     # Shift and feed management
     ##
+    app.route '/v1/calendar/:calendarID'
+        .get                           calendarV1.getCalFeed
+
+    app.route '/v1/users/:userID/calendar'
+        .get auth.currentUserRequired, calendarV1.getCalFeedItem
+
+
+    ##
+    # Shift and feed management
+    ##
     app.route '/v1/users/:userID/feed'
         .get    auth.currentUserRequired, shiftV1.getShiftFeed
 
@@ -67,6 +78,8 @@ module.exports = (app) ->
         .get                              shiftV1.getShiftsForUser
         .post   auth.currentUserRequired, shiftV1.addShifts
 
+    app.route '/v1/calendar/:calendarID'
+        .get                              calendarV1.getCalFeed
 
     app.route '/v1/shifts/:shiftID'
         .get    auth.authRequired,        shiftV1.getShift
