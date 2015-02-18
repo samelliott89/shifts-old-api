@@ -1,20 +1,10 @@
-_ = require 'underscore'
-moment = require 'moment-timezone'
-Promise = require 'bluebird'
-q = require 'q'
 icalendar = require 'icalendar'
-
-auth = require '../../auth'
-models = require '../../models'
-_errs = require '../../errors'
-
 icalendar.PRODID = '-//Shifts Inc//robby calendar feed'
+
+models = require '../../models'
 
 exports.getCalFeed = (req, res, next) ->
     calendarID = req.param 'calendarID'
-
-    # This checks to make sure the current user has permission,
-    # and throws InvalidPermissions error if not
 
     models.getShiftsViaCalendar calendarID
         .then (shifts) ->
@@ -29,8 +19,7 @@ exports.getCalFeed = (req, res, next) ->
 
             res.send ical.toString()
 
-        .catch (err) ->
-            _errs.handleRethinkErrors err, next
+        .catch next
 
 exports.getCalFeedItem = (req, res, next) ->
     userID = req.param 'userID'
