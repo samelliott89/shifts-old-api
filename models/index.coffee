@@ -33,3 +33,7 @@ _.extend exports, DebugDumpModelDef.helpers
 ParseModelDef = require './Parse'
 exports.Parse = ParseModelDef.model
 _.extend exports, ParseModelDef.helpers
+
+CalendarModelDef = require './Calendar'
+exports.Calendar = CalendarModelDef.model
+_.extend exports, CalendarModelDef.helpers
