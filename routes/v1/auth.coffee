@@ -22,7 +22,7 @@ _sendWelcomeEmail = (user) ->
     you've connected with your friends and coworkers.</p>
 
     <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
-    Please let us know if you if you need any help, have feature ideas or just want to say hi.</p>
+    Please let us know if you need any help, have feature ideas or just want to say hi.</p>
 
     <p>
         Cheers,<br/>
