@@ -9,5 +9,6 @@
     "RETHINKDB_PORT": 28015,
     "RETHINKDB_DB": "shiftsapi",
     "MANDRILL_API_KEY": "__fill-in-from-env-var__",
-    "WELCOME_EMAIL_DURATION": 5
+    "WELCOME_EMAIL_DURATION": 5,
+    "SEGMENT_IO": "__fill-in-from-env-var__"
 }
