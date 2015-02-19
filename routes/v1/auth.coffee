@@ -16,18 +16,21 @@ _sendWelcomeEmail = (user) ->
 
     <p>Sam here, cofounder of Robby. I'm guessing it's not everyday you download a new app
     so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
-    
+
     <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
-    weeks or fortnights schedule. Robby works best when you have all your upcomming shifts and
+    week's or fortnight's schedule. Robby works best when you have all your upcoming shifts and
     you've connected with your friends and coworkers.</p>
 
     <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
-    Please let us know if you if you need any help, have feature ideas or just want to say hi.</p>
+    Please let us know if you need any help, have feature ideas or just want to say hi.</p>
 
     <p>
         Cheers,<br/>
         Sam
     </p>
+
+    <p>P.S You can find what online schedules we currently support <a href="http://heyrobby.com/supported-schedules">here.</a>
+    If you have an online work schedule, please let us know.</p>
     """
     sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
     sendAt = new Date()
