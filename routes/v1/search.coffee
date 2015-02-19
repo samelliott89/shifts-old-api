@@ -70,8 +70,9 @@ exports.userSearch = (req, res, next) ->
         type: 'User'
         body: query: constant_score: filter: fquery:
             query:
-                match_phrase_prefix:
-                    displayName: searchQuery
+                multi_match:
+                    query: searchQuery
+                    fields: ['displayName', 'bio', 'email']
             _cache: true
 
     esClient.search esSearch
