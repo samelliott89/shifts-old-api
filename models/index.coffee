@@ -1,5 +1,6 @@
 _ = require 'underscore'
 thinky = require './thinky'
+{importModel} = require './modelHelpers'
 
 exports.r = thinky.r
 exports.Errors = thinky.Errors
@@ -36,4 +37,4 @@ _.extend exports, ParseModelDef.helpers
 
 CalendarModelDef = require './Calendar'
 exports.Calendar = CalendarModelDef.model
-_.extend exports, CalendarModelDef.helpers
+_.extend exports, CalendarModelDef.helpersimportModel 'Link',       exports
