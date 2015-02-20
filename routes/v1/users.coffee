@@ -161,3 +161,12 @@ exports.apiIndex = (req, res) ->
         message: 'Shifts API'
         isAuthenticated: req.isAuthenticated
         user: req.user
+        links: [
+            {
+                href: 'mailto:feedback@heyrobby.com'
+                text: 'Send feedback'
+            }, {
+                href: 'http://heyrobby.com/supported-schedules'
+                text: 'Supported schedules'
+            }
+        ]
