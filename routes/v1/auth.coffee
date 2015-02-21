@@ -28,9 +28,6 @@ _sendWelcomeEmail = (user) ->
         Cheers,<br/>
         Sam
     </p>
-
-    <p>P.S You can find what online schedules we currently support <a href="http://heyrobby.com/supported-schedules">here.</a>
-    If you have an online work schedule, please let us know.</p>
     """
     sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
     sendAt = new Date()
