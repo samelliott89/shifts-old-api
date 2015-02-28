@@ -1,0 +1,175 @@
+<html>
+    <head>
+        {{#if parser}}
+            <script>
+                window.PARSER = {{{parser}}}
+            </script>
+        {{/if}}
+
+        <script>
+            window.SHOW_PANE = '{{show}}'
+        </script>
+    </head>
+
+    <body>
+
+        <div class="frame -js-login {{#equal show 'login'}}show{{/equal}}">
+            <div class="header">
+                <img src="http://i.imgur.com/JEX1zXy.png" alt="Robby" class="header__img">
+            </div>
+
+            <div class="main">
+                <p>Login to add these shifts to your Robby schedule.</p>
+
+                <form class="-js-loginForm">
+                    <div class="input-stack">
+                        <input type="text" class="input -stacked-top -js-email" placeholder="Email">
+                        <input type="password" class="input -stacked-bottom -js-pass" placeholder="Password">
+                        <div class="input-stack__line"></div>
+                    </div>
+
+                    <button class="button" type="submit">Login &amp; Add Schedule</button>
+                </form>
+            </div>
+
+            <div class="footer">
+                <ul class="footer__links">
+                    <li class="footer__link"><a href="#">About Robby</a></li>
+                    <li class="footer__link"><a href="#">Help &amp; Instructions</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div class="frame -js-loggedIn {{#equal show 'loggedIn'}}show{{/equal}}">
+            <div class="header">
+                <img src="http://i.imgur.com/JEX1zXy.png" alt="Robby" class="header__img">
+            </div>
+
+            <div class="main">
+                <div class="user">
+                    {{#if user.profilePhoto}}
+                        <img class="user__pic" src="{{user.profilePhoto.href}}/-/scale_crop/160x160/">
+                    {{/if}}
+
+                    {{#if user.defaultPhoto}}
+                        <img class="user__pic" src="{{user.defaultPhoto}}&s=160">
+                    {{/if}}
+
+                    <p class="user__name">{{user.displayName}}</p>
+
+                    <p class="small"><a href="#">Not {{user.displayName}}? Log out.</a></p>
+                </div>
+
+                <form class="-js-loggedInSubmit">
+                    <button class="button" type="submit">Add Schedule</button>
+                </form>
+            </div>
+
+            <div class="footer">
+                <ul class="footer__links">
+                    <li class="footer__link"><a href="#">About Robby</a></li>
+                    <li class="footer__link"><a href="#">Help &amp; Instructions</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div class="frame -js-success">
+            <div class="header">
+                <img src="http://i.imgur.com/JEX1zXy.png" alt="Robby" class="header__img">
+            </div>
+
+            <div class="main">
+                <div class="success">
+                    <div class="success__tick">
+                        &#10003;
+                    </div>
+                    <div class="success__text">
+                        Awesome!
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 20px">
+                    <span class="-js-shiftCount"></span> shifts <span class="-js-action"></span> Robby.
+                </p>
+
+                <div class="small">
+                    <label class="-js-rememberLabel"><input class="-js-rememberMe" type="checkbox"> Keep me logged in.</label>
+                </div>
+            </div>
+
+            <div class="footer">
+                <ul class="footer__links">
+                    <li class="footer__link"><a href="#">About Robby</a></li>
+                    <li class="footer__link"><a href="#">Help &amp; Instructions</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div class="frame -js-noSupport {{#equal show 'noSupport'}}show{{/equal}}">
+            <div class="header">
+                <img src="http://i.imgur.com/JEX1zXy.png" alt="Robby" class="header__img">
+            </div>
+
+            <div class="main">
+                <p>Sorry, but this website is not currently supported.</p>
+                <p>Enter your email and we'll notify you when we support this site.</p>
+
+                <form class="-js-eoiForm">
+                    <input type="text" class="input -js-eoiEmail" placeholder="Enter email">
+                    <button class="button">Submit</button>
+                </form>
+
+                <div class="-js-eoiSuccess" style="display: none;">
+                    <em>Cheers. We'll let you know soon.</em>
+                </div>
+
+
+            </div>
+
+            <div class="footer">
+                <ul class="footer__links">
+                    <li class="footer__link"><a href="#">About Robby</a></li>
+                    <li class="footer__link"><a href="#">Help &amp; Instructions</a></li>
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div class="frame -js-alert {{#equal show 'alert'}}show{{/equal}}">
+            <div class="header">
+                <img src="http://i.imgur.com/JEX1zXy.png" alt="Robby" class="header__img">
+            </div>
+
+            <div class="main">
+                <div class="alert {{alertClass}} -js-alertBody">
+                    {{#if fullMsg}}
+                        <p>{{{fullMsg}}}</p>
+                    {{else}}
+                        <p>Oops - an unexpected error has occured.</p>
+                        <p class="-js-reason">
+                            <strong>{{{msg}}}</strong>
+                        </p>
+                        <p>Please try again later. If this continues to happen, please <a href="#">contact support</a>.</p>
+                    {{/if}}
+                </div>
+            </div>
+
+            <div class="footer">
+                <ul class="footer__links">
+                    <li class="footer__link"><a href="#">About Robby</a></li>
+                    <li class="footer__link"><a href="#">Help &amp; Instructions</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <link href="//{{BOOKMARKLET_ASSET_ROOT}}/frame.min.css" rel="stylesheet" type="text/css">
+        <script src="//{{BOOKMARKLET_ASSET_ROOT}}/iframe.min.js"></script>
+    </body>
+</html>
