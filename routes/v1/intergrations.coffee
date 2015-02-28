@@ -9,10 +9,19 @@ exports.debug = (req, res, next) ->
     debugData = _.omit debugData, 'id'
     debugData.created = new Date()
 
-    obj = new models.DebugDump(debugData)
-    obj.save()
-        .then ->
-            res.json {'success': true}
+    if (debugData.type is 'eoi') and (debugData.attachedDump)
+
+        promise = models.DebugDump
+            .get debugData.attachedDump
+            .update {eoiEmail: debugData.email}
+            .run()
+
+    else
+        obj = new models.DebugDump(debugData)
+        promise = obj.save()
+
+    promise
+        .then (dump) -> res.json {success: true, id: dump.id}
         .catch next
 
 exports.listDebugs = (req, res, next) ->
