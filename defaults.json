@@ -5,9 +5,17 @@
     "PORT": 5012,
     "ELASTIC_SEARCH_HOST": "localhost:9200",
     "ELASTIC_SEARCH_INDEX": "shiftsapp",
+
     "RETHINKDB_HOST": "localhost",
     "RETHINKDB_PORT": 28015,
     "RETHINKDB_DB": "shiftsapi",
+
+    "RETHINKDB_DUMP_HOST": "localhost",
+    "RETHINKDB_DUMP_PORT": 28015,
+    "RETHINKDB_DUMP_DB": "shiftsdump",
+
     "MANDRILL_API_KEY": "__fill-in-from-env-var__",
-    "WELCOME_EMAIL_DURATION": 5
+    "WELCOME_EMAIL_DURATION": 5,
+    "BOOKMARKLET_ASSET_ROOT": "localhost:5016",
+    "AUTH_COOKIE_NAME": "authToken"
 }

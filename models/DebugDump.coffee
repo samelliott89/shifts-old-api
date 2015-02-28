@@ -1,4 +1,4 @@
-thinky = require './thinky'
+thinky = require './dumpThinky'
 
 DebugDump = thinky.createModel 'DebugDump', {}
 
