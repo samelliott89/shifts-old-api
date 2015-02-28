@@ -1,22 +1,24 @@
-_  = require 'underscore'
-
-_errs  = require '../../errors'
-models  = require '../../models'
-config  = require '../../config'
-auth  = require './auth'
-intergrations  = require '../../intergrations'
-
+_        = require 'underscore'
+jwt      = require 'jsonwebtoken'
 bluebird = require 'bluebird'
 
+auth           = require '../../auth'
+_errs          = require '../../errors'
+models         = require '../../models'
+config         = require '../../config'
+intergrations  = require '../../intergrations'
+authRoutes     = require './auth'
+
+
 exports.recieveBookmarkletScrape = (req, res, next) ->
-    req.checkBody('parseData', 'Parse data required').notEmpty()
-    req.checkBody('parserName', 'Parse name required').notEmpty()
-    # Email and password validated by login function
-    _errs.handleValidationErrors {req}
 
     onLoginSuccess = ({user}) ->
-        {shifts, parseKey} = intergrations.parseBookmarkletScrape(req.body.parserName, req.body.parseData)
+        authToken = auth.createToken {id: user.id}
+        res.cookie 'sessionAuthToken', authToken, {httpOnly: true}
+
+        {shifts, parseKey} = intergrations.parseBookmarkletScrape req.body.parserName, req.body.parseData
         oldShiftsToDelete = []
+        shiftCount = 0
 
         ownerParseKey = user.id + parseKey
 
@@ -34,6 +36,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                         source: models.SHIFT_SOURCE_BOOKMARKLET
                     }
 
+                shiftCount = newShifts.length
                 models.Shift.insert(newShifts, {conflict: 'update'}).run()
             .then ({generated_keys}) ->
                 newParse = {
@@ -65,13 +68,38 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
 
                 bluebird.all promises
             .then ->
-                res.json {success: true}
+                res.json {
+                    success: true
+                    rememberMeIsSet: !!req.cookies[config.AUTH_COOKIE_NAME]
+                    shiftCount: shiftCount
+                    action: if oldShiftsToDelete.length then 'updated in' else 'added to'
+                }
             .catch next
 
     onLoginFailure = (err) ->
         next err
 
-    fakeResponse = {json: onLoginSuccess}
-    fakeNext = onLoginFailure
+    req.checkBody('parseData', 'Parse data required').notEmpty()
+    req.checkBody('parserName', 'Parse name required').notEmpty()
+    # Email and password validated by login function
+    _errs.handleValidationErrors {req}
 
-    auth.login req, fakeResponse, fakeNext
+    _loginViaUsernamePassword = ->
+        fakeResponse = {json: onLoginSuccess}
+        fakeNext = onLoginFailure
+
+        authRoutes.login req, fakeResponse, fakeNext
+
+    authToken = req.cookies[config.AUTH_COOKIE_NAME]
+    unless authToken
+        return _loginViaUsernamePassword()
+
+    try
+        authDetails = jwt.verify authToken, config.SECRET
+    catch e
+        res.clearCookie config.AUTH_COOKIE_NAME
+        return _loginViaUsernamePassword()
+
+    models.getUser authDetails.id, {clean: true, req: {} }
+        .then (user) -> onLoginSuccess {user}
+        .catch next
