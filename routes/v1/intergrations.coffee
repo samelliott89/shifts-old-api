@@ -15,12 +15,10 @@ exports.debug = (req, res, next) ->
     debugData.created = new Date()
 
     if (debugData.type is 'eoi') and (debugData.attachedDump)
-
         promise = models.DebugDump
             .get debugData.attachedDump
             .update {eoiEmail: debugData.email}
             .run()
-
     else
         obj = new models.DebugDump(debugData)
         promise = obj.save()
