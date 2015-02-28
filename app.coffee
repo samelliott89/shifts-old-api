@@ -15,7 +15,19 @@ customValidators = require './validators'
 
 app = express()
 
-app.engine 'hbs', expHandlebars({defaultLayout: 'main'})
+hbs = expHandlebars.create {
+    helpers:
+        'equal': (lvalue, rvalue, options) ->
+            if arguments.length < 3
+                throw new Error 'Handlebars Helper equal needs 2 parameters'
+
+            if lvalue != rvalue
+                return options.inverse this
+            else
+                options.fn this
+}
+
+app.engine 'hbs', hbs.engine
 app.set 'view engine', 'hbs'
 
 app.set 'trust proxy', true
