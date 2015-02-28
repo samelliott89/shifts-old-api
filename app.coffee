@@ -1,3 +1,4 @@
+_                = require 'underscore'
 cors             = require 'cors'
 morgan           = require 'morgan'
 express          = require 'express'
@@ -37,6 +38,9 @@ app.use morgan 'dev'
 app.use cookieParser()
 app.use bodyParser.json({limit: '8mb'})
 app.use expressValidator {customValidators}
+
+# Attach config into locals, so it can be used by templates
+_.extend app.locals, config
 
 # Setup auth
 app.use expressJwt
