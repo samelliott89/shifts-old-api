@@ -114,3 +114,20 @@ exports.login = (req, res, next) ->
 exports.refreshToken = (req, res) ->
     token = auth.createToken req.user
     res.json {token}
+
+exports.saveAuthCookie = (req, res) ->
+    sessionAuthToken = req.cookies.sessionAuthToken
+    unless sessionAuthToken
+        throw new _errs.ValidationFailed 'Session auth token not present'
+
+    expires = new Date()
+    expires.setDate expires.getDate() + 60
+    console.log 'setting cookie to expire in', expires
+    res.cookie config.AUTH_COOKIE_NAME, sessionAuthToken, { expires, httpOnly: true }
+    res.clearCookie 'sessionAuthToken'
+    res.json {success: true}
+
+exports.clearAuthCookie = (req, res) ->
+    res.clearCookie 'sessionAuthToken'
+    res.clearCookie config.AUTH_COOKIE_NAME
+    res.json {success: true}
