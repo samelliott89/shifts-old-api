@@ -1,5 +1,6 @@
 _ = require 'underscore'
 jwt = require 'jsonwebtoken'
+cheerio = require 'cheerio'
 
 models = require '../../models'
 config = require '../../config'
@@ -51,8 +52,11 @@ exports.getDebugHtml = (req, res, next) ->
             html = dump.pageHtml or '<pre>pageHtml is undefined</pre>'
 
             if req.query['clean']
-                console.log 'Cleaning'
-                html = html.replace bmRegex, 'replaced'
+                $ = cheerio.load html
+                $('#rostergenius-script').remove()
+                $('#robby-script').remove()
+                $('.xrby-parent').remove()
+                html = $.html()
                 urlPrefix = dump.location.protocol + '//' + dump.location.host + '/'
                 html = html.replace linkRegex, "$1=$2#{urlPrefix}"
 
