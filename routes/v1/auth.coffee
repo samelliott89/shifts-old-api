@@ -99,8 +99,10 @@ exports.login = (req, res, next) ->
     models.getUser req.body.email, {includePassword: true}
         .then (user) ->
             if auth.checkPassword user, req.body.password
+                {traits} = user
                 token = auth.createToken user
                 user = user.clean()
+                user.traits = traits
                 res.json {user, token}
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}

@@ -98,15 +98,14 @@ module.exports = (app) ->
     app.route('/v1/parse/bookmarklet')   .post                    scraperV1.recieveBookmarkletScrape
     app.route('/v1/parse/frame')         .get                     intergrationsV1.frame
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
-    app.route('/intergrations/debug')    .get auth.adminRequired, intergrationsV1.listDebugs
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
 
     ##
     # Admin and misc routes
     ##
-    app.route('/_admin/get')     .get auth.adminRequired, admin.get
-    app.route('/_admin/getToken').get auth.adminRequired, admin.getAuthToken
-
+    app.route('/_admin/get')      .get auth.adminRequired, admin.get
+    app.route('/_admin/getToken') .get auth.adminRequired, admin.getAuthToken
+    app.route('/_admin/pageDumps').get auth.adminRequired, admin.listPageDumps
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()

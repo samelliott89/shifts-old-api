@@ -55,3 +55,16 @@ exports.getAuthToken = (req, res, next) ->
             token = auth.createToken user
             res.json {token, user}
         .catch next
+
+exports.listPageDumps = (req, res, next) ->
+    models.DebugDump
+        .orderBy models.r.desc('created')
+        .without 'pageHtml'
+        .run()
+        .then (dumps) ->
+            dumps = _.map dumps, (dump) ->
+                protocol = dump.location?.protocol or 'http:'
+                dump._previewLink = "#{protocol}//api.getshifts.co/intergrations/debug/#{dump.id}?clean=true"
+                return dump
+            res.json {dumps}
+        .catch next

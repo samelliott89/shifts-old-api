@@ -28,22 +28,6 @@ exports.debug = (req, res, next) ->
         .then (dump) -> res.json {success: true, id: dump.id}
         .catch next
 
-exports.listDebugs = (req, res, next) ->
-    models.DebugDump
-        .run()
-        .then (dumps) ->
-            dumps = _.map dumps, (dump) ->
-                protocol = dump.location?.protocol or 'http:'
-                {
-                    id: dump.id
-                    created: dump.created
-                    href: dump.location?.href
-                    identifier: dump.identifier
-                    _previewLink: protocol + '//api.getshifts.co/intergrations/debug/' + dump.id + '?clean=true'
-                }
-            res.json {dumps}
-        .catch next
-
 exports.getDebugHtml = (req, res, next) ->
     models.DebugDump
         .get req.params['id']
