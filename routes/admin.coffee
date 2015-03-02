@@ -4,6 +4,7 @@ bluebird = require 'bluebird'
 
 auth = require '../auth'
 models = require '../models'
+_errs = require '../errors'
 r = models.r
 
 hex = '0-9a-f'
@@ -68,3 +69,14 @@ exports.listPageDumps = (req, res, next) ->
                 return dump
             res.json {dumps}
         .catch next
+
+exports.updatePageDumps = (req, res, next) ->
+    if req.body.action is 'delete'
+        models.DebugDump
+            .getAll(req.body.ids...)
+            .delete()
+            .execute (err, result) ->
+                res.json {success: true, result}
+            .catch next
+    else
+        throw new _errs.NotFound 'Action not supported'
