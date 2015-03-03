@@ -41,7 +41,6 @@ module.exports.adminRequired = (req, res, next) ->
     else
         return next new _errs.InvalidPermissions()
 
-
 module.exports.createToken = (user) ->
     user = _.pick user, vaidJwtFields
-    token = jwt.sign user, config.SECRET, { expiresInMinutes: config.SESSION_DURATION }
+    jwt.sign user, config.SECRET, { expiresInMinutes: config.SESSION_DURATION }

@@ -1,4 +1,4 @@
 #!/bin/sh
 source ./deploy/circleci/predeploy.sh
-export ENV_NAME="shiftsapi-test"
+export ENV_NAME="test-api"
 source ./deploy/circleci/deploy.sh

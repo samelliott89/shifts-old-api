@@ -25,11 +25,14 @@ module.exports = (app) ->
     ##
     # Main authentication
     ##
-    app.route('/v1/auth/token')          .get  auth.authRequired, authV1.refreshToken
-    app.route('/v1/auth/register')       .post authV1.register
-    app.route('/v1/auth/login')          .post authV1.login
-    app.route('/resetPassword')          .get  pagesV1.resetPassword
-    app.route('/v1/requestPasswordReset').post userV1.requestPasswordReset
+    app.route('/v1/auth/token')          .get    auth.authRequired, authV1.refreshToken
+    app.route('/v1/auth/register')       .post   authV1.register
+    app.route('/v1/auth/login')          .post   authV1.login
+    app.route('/resetPassword')          .get    pagesV1.resetPassword
+    app.route('/v1/requestPasswordReset').post   userV1.requestPasswordReset
+    app.route('/v1/auth/cookie')         .post   authV1.saveAuthCookie
+    app.route('/v1/auth/cookie')         .delete authV1.clearAuthCookie
+
 
 
     ##
@@ -93,17 +96,17 @@ module.exports = (app) ->
     # Bookmarklet and other intergrations
     ##
     app.route('/v1/parse/bookmarklet')   .post                    scraperV1.recieveBookmarkletScrape
+    app.route('/v1/parse/frame')         .get                     intergrationsV1.frame
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
-    app.route('/intergrations/debug')    .get auth.adminRequired, intergrationsV1.listDebugs
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
-
 
     ##
     # Admin and misc routes
     ##
-    app.route('/_admin/get')     .get auth.adminRequired, admin.get
-    app.route('/_admin/getToken').get auth.adminRequired, admin.getAuthToken
-
+    app.route('/_admin/get')      .get auth.adminRequired, admin.get
+    app.route('/_admin/getToken') .get auth.adminRequired, admin.getAuthToken
+    app.route('/_admin/pageDumps').get auth.adminRequired, admin.listPageDumps
+    app.route('/_admin/pageDumps').put auth.adminRequired, admin.updatePageDumps
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()

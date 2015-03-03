@@ -8,7 +8,6 @@ _ = require 'underscore'
 auth = require '../auth'
 
 thinky = require './thinky'
-helpers = require './helpers'
 _errs = require '../errors'
 
 defaultSettings = {

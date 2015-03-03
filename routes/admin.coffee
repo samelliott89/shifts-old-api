@@ -4,6 +4,7 @@ bluebird = require 'bluebird'
 
 auth = require '../auth'
 models = require '../models'
+_errs = require '../errors'
 r = models.r
 
 hex = '0-9a-f'
@@ -55,3 +56,27 @@ exports.getAuthToken = (req, res, next) ->
             token = auth.createToken user
             res.json {token, user}
         .catch next
+
+exports.listPageDumps = (req, res, next) ->
+    models.DebugDump
+        .orderBy models.r.desc('created')
+        .without 'pageHtml'
+        .run()
+        .then (dumps) ->
+            dumps = _.map dumps, (dump) ->
+                protocol = dump.location?.protocol or 'http:'
+                dump._previewLink = "#{protocol}//api.getshifts.co/intergrations/debug/#{dump.id}?clean=true"
+                return dump
+            res.json {dumps}
+        .catch next
+
+exports.updatePageDumps = (req, res, next) ->
+    if req.body.action is 'delete'
+        models.DebugDump
+            .getAll(req.body.ids...)
+            .delete()
+            .execute (err, result) ->
+                res.json {success: true, result}
+            .catch next
+    else
+        throw new _errs.NotFound 'Action not supported'
