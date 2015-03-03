@@ -13,6 +13,7 @@ config           = require './config'
 routes           = require './routes'
 middlewares      = require './middlewares'
 customValidators = require './validators'
+analytics = require './analytics'
 
 app = express()
 
@@ -56,3 +57,5 @@ port = Number config.PORT
 server = app.listen port, ->
     {address, port} = server.address()
     console.log "\n### Shifts API listening at http://#{address}:#{port}"
+    analytics.track null, 'API Startup'
+
