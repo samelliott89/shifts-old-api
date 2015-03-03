@@ -1,4 +1,5 @@
 models = require '../../models'
+analytics = require '../../analytics'
 
 exports.addCapture = (req, res) ->
 
@@ -10,7 +11,9 @@ exports.addCapture = (req, res) ->
             processed: false
 
         models.Capture.save capture
-            .done (result) -> res.json {success: true}
+            .done (result) ->
+                analytics.track req, 'Roster Capture'
+                res.json {success: true}
     else
         _addFakeShifts = ->
             fakeShifts = [
