@@ -5,6 +5,7 @@ auth = require '../../auth'
 _errs = require '../../errors'
 models = require '../../models'
 config = require '../../config'
+analytics = require '../../analytics'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
@@ -36,7 +37,7 @@ _sendWelcomeEmail = (user) ->
 
     message = {
         html: messageHTML
-        subject: "Sam and Josh here from Robby!"
+        subject: "Sam here from Robby!"
         from_email: "sam@heyrobby.com"
         from_name: "Robby"
         to: [{
@@ -86,6 +87,7 @@ exports.register = (req, res, next) ->
             newUser.saveAll()
                 .then (user) ->
                     token = auth.createToken user
+                    analytics.track {user:id: user.id}, 'Register'
                     res.json {user, token}
                     # Send welcome email to new user after response is sent back to client
                     _sendWelcomeEmail newUser
@@ -103,13 +105,15 @@ exports.login = (req, res, next) ->
                 token = auth.createToken user
                 user = user.clean()
                 user.traits = traits
+                analytics.track {user:id: user.id}, 'Login'
                 res.json {user, token}
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
-
+                analytics.track null, 'Failed login', {type: 'Password is incorrect'}
         .catch (err) ->
             if err instanceof _errs.NotFound
                 err = new _errs.AuthFailed {email:msg: 'No account exists for this email'}
+                analytics.track null, 'Failed login', {type: 'No account exists for this email'}
 
             next err
 
