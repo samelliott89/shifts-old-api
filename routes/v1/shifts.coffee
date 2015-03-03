@@ -96,7 +96,7 @@ exports.addShifts = (req, res, next) ->
                 analytics.track req, 'Edit Shift'
 
             if _eventAdd
-                analytics.track req, 'Add Schedule', {method: 'manual'}
+                analytics.track req, 'Add Schedule', {method: 'manual', shiftCount: shifts.length}
 
             res.json {success: true}
         .catch next
@@ -114,6 +114,7 @@ exports.deleteShift = (req, res, next) ->
     getCurrentUsersShift req
         .then (shift) -> models.deleteShift shiftID
         .then ->
+            analytics.track req, 'Delete Shift'
             res.json({success: true}).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next
