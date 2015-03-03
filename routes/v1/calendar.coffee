@@ -2,6 +2,7 @@ icalendar = require 'icalendar'
 icalendar.PRODID = '-//Shifts Inc//robby calendar feed'
 
 models = require '../../models'
+analytics = require '../../analytics'
 
 exports.getCalFeed = (req, res, next) ->
     calendarID = req.param 'calendarID'
@@ -32,6 +33,7 @@ exports.getCalFeedItem = (req, res, next) ->
             return calendarFeed if calendarFeed
             newCalendar = new models.Calendar {ownerID: userID}
             newCalendar.save()
+            analytics.track req, 'Create Calendar'
         .then (calendar) ->
             calFeedPath = "/v1/calendar/#{calendar.id}/feed.ics"
             calendar.path = calFeedPath
@@ -40,4 +42,5 @@ exports.getCalFeedItem = (req, res, next) ->
                 res.redirect calFeedPath
             else
                 res.json {calendar}
+
         .catch next
