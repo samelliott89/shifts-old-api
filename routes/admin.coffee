@@ -72,6 +72,10 @@ exports.listPageDumps = (req, res, next) ->
 
 exports.updatePageDumps = (req, res, next) ->
     if req.body.action is 'delete'
+
+        req.checkBody('ids', 'Must supply list of page dump IDs to operate on').isArray()
+        _errs.handleValidationErrors {req}
+
         models.DebugDump
             .getAll(req.body.ids...)
             .delete()
@@ -80,3 +84,21 @@ exports.updatePageDumps = (req, res, next) ->
             .catch next
     else
         throw new _errs.NotFound 'Action not supported'
+
+
+exports.listRosterCaptures = (req, res, next) ->
+    models.Capture
+        .filter {processed: false}
+        .orderBy 'rejected', 'created'
+        .getJoin()
+        .run()
+        .then (captures) ->
+            captures.forEach (cap) ->
+                cap.owner = models.cleanUser cap.owner, req
+                cap.photo = {
+                    href: "http://www.ucarecdn.com/#{cap.ucImageID}"
+                    id: cap.ucImageID
+                    type: 'uploadcare'
+                }
+            res.json {captures}
+        .catch next

@@ -107,6 +107,7 @@ module.exports = (app) ->
     app.route('/_admin/getToken') .get auth.adminRequired, admin.getAuthToken
     app.route('/_admin/pageDumps').get auth.adminRequired, admin.listPageDumps
     app.route('/_admin/pageDumps').put auth.adminRequired, admin.updatePageDumps
+    app.route('/_admin/captures') .get auth.adminRequired, admin.listRosterCaptures
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()

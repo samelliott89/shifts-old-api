@@ -8,6 +8,8 @@ Capture = thinky.createModel 'Capture',
     ucImageID: String
     tzOffset: Number
     processed: Boolean
+    created: Date
+    updated: Date
 
 Capture.belongsTo User.model, 'owner', 'ownerID', 'id'
 
