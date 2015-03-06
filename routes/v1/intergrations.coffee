@@ -77,7 +77,6 @@ exports.frame = (req, res, next) ->
             for parser in parsers
                 for urlRegexStr in parser.validUrls
                     urlRegex = new RegExp urlRegexStr
-                    console.log urlRegex
                     if urlRegex.test req.query.url
                         foundParser = parser
 
