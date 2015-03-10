@@ -87,6 +87,7 @@ _getShiftsWithCoworkers = ({shiftOwnerID, shiftsSince}) ->
 
 exports.helpers =
     SHIFT_SOURCE_BOOKMARKLET: 'bookmarklet'
+    SHIFT_SOURCE_CAPTURE: 'capture'
 
     getShift: (shiftID) -> Shift.get(shiftID).getJoin().run()
 

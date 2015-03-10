@@ -84,21 +84,3 @@ exports.updatePageDumps = (req, res, next) ->
             .catch next
     else
         throw new _errs.NotFound 'Action not supported'
-
-
-exports.listRosterCaptures = (req, res, next) ->
-    models.Capture
-        .filter {processed: false}
-        .orderBy 'rejected', 'created'
-        .getJoin()
-        .run()
-        .then (captures) ->
-            captures.forEach (cap) ->
-                cap.owner = models.cleanUser cap.owner, req
-                cap.photo = {
-                    href: "http://www.ucarecdn.com/#{cap.ucImageID}"
-                    id: cap.ucImageID
-                    type: 'uploadcare'
-                }
-            res.json {captures}
-        .catch next
