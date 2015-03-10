@@ -19,6 +19,11 @@ class ValidationFailed extends HttpError
     message: 'The data supplied failed validation'
     status: 400
 
+class BadRequest extends HttpError
+    name: 'BadRequest'
+    message: 'The request is invalid and cannot be processed'
+    status: 400
+
 class AuthFailed extends HttpError
     name: 'AuthFailed'
     message: 'Failed to authenticate with supplied credentials'
@@ -50,6 +55,7 @@ exports.AuthRequired = AuthRequired
 exports.InvalidPermissions = InvalidPermissions
 exports.NotFound = NotFound
 exports.ServerError = ServerError
+exports.BadRequest = BadRequest
 
 exports.handleValidationErrors = ({req, next}) ->
     errors = req.validationErrors true

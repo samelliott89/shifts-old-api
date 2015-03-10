@@ -72,6 +72,10 @@ exports.listPageDumps = (req, res, next) ->
 
 exports.updatePageDumps = (req, res, next) ->
     if req.body.action is 'delete'
+
+        req.checkBody('ids', 'Must supply list of page dump IDs to operate on').isArray()
+        _errs.handleValidationErrors {req}
+
         models.DebugDump
             .getAll(req.body.ids...)
             .delete()
