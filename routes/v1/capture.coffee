@@ -5,10 +5,10 @@ exports.addCapture = (req, res, next) ->
     capture = new models.Capture
         ownerID: req.user.id
         ucImageID: req.body.ucImageID
-        tzOffset: req.body.tzOffset
+        tzName: req.body.tzName
         processed: false
         created: new Date()
 
     models.Capture.save capture
-        .then (result) -> res.json {success: true}
+        .then (result) -> res.json {capture: capture}
         .catch next

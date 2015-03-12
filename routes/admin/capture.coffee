@@ -8,7 +8,7 @@ r = models.r
 exports.listRosterCaptures = (req, res, next) ->
     models.Capture
         .filter {processed: false}
-        .orderBy 'rejected', models.r.desc('created')
+        .orderBy 'rejected', models.r.asc('created')
         .getJoin()
         .run()
         .then (captures) ->
