@@ -1,8 +1,8 @@
-# Analytics = require 'analytics-node'
+Analytics = require 'analytics-node'
 config  = require './config'
-# analytics = new Analytics config.SEGMENT_IO_KEY
+analytics = new Analytics config.SEGMENT_IO_KEY
 
-# exports.segment = analytics
+exports.segment = analytics
 exports.track = (req, eventName, eventProperies = {}) ->
     ev = {
         event: eventName
@@ -14,4 +14,4 @@ exports.track = (req, eventName, eventProperies = {}) ->
     else
         ev.anonymousId = 'anon-user'
 
-    # analytics.track ev
+    analytics.track ev
