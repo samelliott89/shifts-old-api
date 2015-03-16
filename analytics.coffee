@@ -2,7 +2,7 @@
 config  = require './config'
 # analytics = new Analytics config.SEGMENT_IO_KEY
 
-exports.segment = analytics
+# exports.segment = analytics
 exports.track = (req, eventName, eventProperies = {}) ->
     ev = {
         event: eventName
