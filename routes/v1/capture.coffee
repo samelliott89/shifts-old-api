@@ -7,11 +7,11 @@ config = require '../../config'
 env = (config.NODE_ENV or 'dev').toLowerCase()
 
 if env is 'prod'
-    robbyToolsUrl = 'http://tools.heyrobby.com'
+    robbyToolsUrl = 'http://tools.heyrobby.com/#/capture'
 else if env is 'test'
-    robbyToolsUrl = 'http://test-robbytools.elasticbeanstalk.com'
+    robbyToolsUrl = 'http://test-robbytools.elasticbeanstalk.com/#/capture'
 else
-    robbyToolsUrl = 'http://localhost:5017'
+    robbyToolsUrl = 'http://localhost:5017/#/capture'
 
 sendSlackNotification = (capture) ->
     msg = "New roster capture has been added. <#{robbyToolsUrl}|Convert it now!> (remember to tell this channel that you've got it)"
