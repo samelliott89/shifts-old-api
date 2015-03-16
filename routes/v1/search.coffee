@@ -5,6 +5,7 @@ elasticsearch = require 'elasticsearch'
 config = require '../../config'
 models = require '../../models'
 _errs = require '../../errors'
+analytics = require '../../analytics'
 
 esClient = new elasticsearch.Client
     host: config.ELASTIC_SEARCH_HOST
@@ -75,11 +76,14 @@ exports.userSearch = (req, res, next) ->
                     fields: ['displayName', 'bio', 'email']
             _cache: true
 
+    analytics.track req, 'Search', {searchQuery: searchQuery}
+
     esClient.search esSearch
         .then (resp) ->
             results = _.map resp.hits.hits, (result) ->
                 cleanedResult = models.cleanUser result._source, req
                 return cleanedResult
+
 
             res.json {results}
         .catch next

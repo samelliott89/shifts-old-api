@@ -1,4 +1,5 @@
 models = require '../../models'
+analytics = require '../../analytics'
 
 exports.addCapture = (req, res, next) ->
 
@@ -10,5 +11,7 @@ exports.addCapture = (req, res, next) ->
         created: new Date()
 
     models.Capture.save capture
-        .then (result) -> res.json {capture: capture}
+        .then (result) ->
+            analytics.track req, 'Roster Capture'
+            res.json {capture: capture}
         .catch next

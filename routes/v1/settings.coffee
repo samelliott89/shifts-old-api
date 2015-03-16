@@ -2,6 +2,7 @@ _ = require 'underscore'
 
 models = require '../../models'
 _errs = require '../../errors'
+analytics = require '../../analytics'
 
 exports.getSettings = (req, res, next) ->
     userID = req.params.userID
@@ -26,6 +27,8 @@ exports.updateSettings = (req, res, next) ->
             changes = changes[0]
             settings = _.extend {}, models.defaultSettings, changes.new_val
             delete settings.ownerID
+
+            analytics.track req, 'Update Settings'
 
             res.json {settings}
         .catch next

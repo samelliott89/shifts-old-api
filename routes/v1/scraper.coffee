@@ -8,6 +8,8 @@ models         = require '../../models'
 config         = require '../../config'
 intergrations  = require '../../intergrations'
 authRoutes     = require './auth'
+analytics      = require '../../analytics'
+
 
 
 exports.recieveBookmarkletScrape = (req, res, next) ->
@@ -61,6 +63,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
                                 .insert newParse
 
                         .execute()
+                        analytics.track req, 'Add Schedule', {method: 'scraper', shiftCount: newShifts.length}
                 ]
 
                 if oldShiftsToDelete.length
@@ -68,6 +71,7 @@ exports.recieveBookmarkletScrape = (req, res, next) ->
 
                 bluebird.all promises
             .then ->
+                analytics.track req, 'Shifts Parse'
                 res.json {
                     success: true
                     rememberMeIsSet: !!req.cookies[config.AUTH_COOKIE_NAME]

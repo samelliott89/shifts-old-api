@@ -16,6 +16,7 @@
 
     "MANDRILL_API_KEY": "__fill-in-from-env-var__",
     "WELCOME_EMAIL_DURATION": 5,
+    "SEGMENT_IO_KEY": "__fill-in-from-env-var__",
     "BOOKMARKLET_ASSET_ROOT": "localhost:5016",
     "AUTH_COOKIE_NAME": "authToken"
 }

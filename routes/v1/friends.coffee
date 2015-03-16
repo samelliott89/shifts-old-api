@@ -2,6 +2,7 @@ bluebird = Promise = require 'bluebird'
 
 models = require '../../models'
 _errs = require '../../errors'
+analytics = require '../../analytics'
 
 # Operations on friends must always happen on your own user object - you never
 # access the friends resource of another user.
@@ -72,8 +73,10 @@ exports.createFriendship = (req, res, next) ->
             switch previousStatus
                 when models.FRIENDSHIP_STATUS.NONE, models.FRIENDSHIP_STATUS.USER2_TO_ACCEPT
                     statusToReturn = 'USER2_TO_ACCEPT'
+                    analytics.track req, 'Connection Request', {userID: userID, friendID: friendID}
                 when models.FRIENDSHIP_STATUS.MUTUAL, models.FRIENDSHIP_STATUS.USER1_TO_ACCEPT
                     statusToReturn = 'MUTUAL'
+                    analytics.track req, 'Connection Establish', {userID: userID, friendID: friendID}
 
             res.json {status: statusToReturn}
 
@@ -90,6 +93,7 @@ exports.deleteFriendship = (req, res, next) ->
 
     models.deleteFriendship userID, friendID
         .then ([result1, result2]) ->
+            analytics.track req, 'Delete Connection', {userID: userID, friendID: friendID}
             res.json({success: true}).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next

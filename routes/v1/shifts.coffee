@@ -6,6 +6,7 @@ q = require 'q'
 auth = require '../../auth'
 models = require '../../models'
 _errs = require '../../errors'
+analytics = require '../../analytics'
 
 VALID_SHIFT_FIELDS = ['start', 'end', 'title']
 
@@ -50,6 +51,9 @@ exports.addShifts = (req, res, next) ->
     req.checkBody('shifts', 'Shifts must end after they begin').shiftsEndIsAfterStart()
     _errs.handleValidationErrors {req}
 
+    _eventEdit = false
+    _eventAdd = false
+
     checkPermissions = Promise.resolve []
     shiftIDsToEdit = _.pluck req.body.shifts, 'id'
         .filter (id) -> id isnt undefined
@@ -72,8 +76,10 @@ exports.addShifts = (req, res, next) ->
         if _shift.id
             shift.id = _shift.id
             shift.updated = new Date()
+            _eventEdit = true
         else
             shift.created = new Date()
+            _eventAdd = true
 
         shift.ownerID = req.user.id
         return shift
@@ -85,6 +91,13 @@ exports.addShifts = (req, res, next) ->
 
             models.Shift.insert(shifts, {conflict: 'update'}).run()
         .then (result) ->
+
+            if _eventEdit
+                analytics.track req, 'Edit Shift'
+
+            if _eventAdd
+                analytics.track req, 'Add Schedule', {method: 'manual', shiftCount: shifts.length}
+
             res.json {success: true}
         .catch next
 
@@ -100,6 +113,8 @@ exports.deleteShift = (req, res, next) ->
 
     getCurrentUsersShift req
         .then (shift) -> models.deleteShift shiftID
-        .then -> res.json({success: true}).end()
+        .then ->
+            analytics.track req, 'Delete Shift'
+            res.json({success: true}).end()
         .catch (err) ->
             _errs.handleRethinkErrors err, next

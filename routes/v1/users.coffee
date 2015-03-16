@@ -7,6 +7,7 @@ auth = require '../../auth'
 config = require '../../config'
 models = require '../../models'
 _errs = require '../../errors'
+analytics = require '../../analytics'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
@@ -54,6 +55,7 @@ exports.editUser = (req, res, next) ->
         .then (user) ->
             user = user.clean {req}
             res.json {user}
+            analytics.track req, 'Update User'
         .catch next
 
 exports.requestPasswordReset = (req, res, next) ->
@@ -66,6 +68,7 @@ exports.requestPasswordReset = (req, res, next) ->
             resetToken = jwt.sign resetObject, config.SECRET, {expiresInMinutes: config.PW_RESET_DURATION}
             user.pwResetToken = resetToken
             user.save()
+            analytics.track {user:id: user.id}, 'Reset Password'
         .then (user) ->
             resetUrl = "https://api.getshifts.co/resetPassword?t=#{user.pwResetToken}"
             messageHTML = """
@@ -153,6 +156,7 @@ exports.changePassword = (req, res, next) ->
             user.save()
         .then (user) ->
             res.json {success: true}
+            analytics.track req, 'Update Password'
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
