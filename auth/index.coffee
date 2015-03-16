@@ -2,7 +2,7 @@ module.exports = {}
 
 _ = require 'underscore'
 jwt = require 'jsonwebtoken'
-bcrypt = require 'bcrypt'
+bcrypt = require 'bcrypt-nodejs'
 
 models = require '../models'
 config = require '../config'

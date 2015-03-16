@@ -19,7 +19,7 @@
   "homepage": "https://github.com/Shifts/shifts-api",
   "dependencies": {
     "analytics-node": "^1.2.0",
-    "bcrypt": "^0.8.0",
+    "bcrypt-nodejs": "0.0.3",
     "bluebird": "^2.3.2",
     "body-parser": "^1.7.0",
     "bugsnag": "^1.5.1",
