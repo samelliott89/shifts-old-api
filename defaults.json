@@ -18,5 +18,7 @@
     "WELCOME_EMAIL_DURATION": 5,
     "SEGMENT_IO_KEY": "__fill-in-from-env-var__",
     "BOOKMARKLET_ASSET_ROOT": "localhost:5016",
-    "AUTH_COOKIE_NAME": "authToken"
+    "AUTH_COOKIE_NAME": "authToken",
+
+    "CAPTURE_SLACK_NOTIFY_URL": "https://hooks.slack.com/services/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"
 }

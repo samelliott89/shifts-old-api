@@ -12,7 +12,7 @@ thinky = require './thinky'
 _errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
-safeOwnUserFields = safeUserFields.concat ['email']
+safeOwnUserFields = safeUserFields.concat ['email', 'traits']
 
 cleanUser = (user, req, opts = {}) ->
     if (req?.user?.id is user.id) or req?.user?.traits?.admin
