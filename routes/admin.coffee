@@ -5,6 +5,7 @@ bluebird = require 'bluebird'
 auth = require '../auth'
 models = require '../models'
 _errs = require '../errors'
+analytics = require '../analytics'
 r = models.r
 
 hex = '0-9a-f'
@@ -84,3 +85,10 @@ exports.updatePageDumps = (req, res, next) ->
             .catch next
     else
         throw new _errs.NotFound 'Action not supported'
+
+exports.identifyAllUsers = (req, res, next) ->
+    models.User.run()
+        .then (allUsers) ->
+            allUsers.forEach analytics.identify
+            res.json {success: true, note: 'This operation in asynchronous.'}
+        .catch next

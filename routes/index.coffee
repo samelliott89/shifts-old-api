@@ -108,6 +108,7 @@ module.exports = (app) ->
     app.route('/_admin/getToken') .get auth.adminRequired, admin.getAuthToken
     app.route('/_admin/pageDumps').get auth.adminRequired, admin.listPageDumps
     app.route('/_admin/pageDumps').put auth.adminRequired, admin.updatePageDumps
+    app.route('/_admin/identifyAllUsers').get auth.adminRequired, admin.identifyAllUsers
 
     app.route('/_admin/captures')                   .get auth.adminRequired, captureAdmin.listRosterCaptures
     app.route('/_admin/captures/:captureID')        .put auth.adminRequired, captureAdmin.updateCapture
