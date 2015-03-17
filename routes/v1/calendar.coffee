@@ -32,8 +32,8 @@ exports.getCalFeedItem = (req, res, next) ->
         .then ([calendarFeed]) ->
             return calendarFeed if calendarFeed
             newCalendar = new models.Calendar {ownerID: userID}
-            newCalendar.save()
             analytics.track req, 'Create Calendar'
+            newCalendar.save()
         .then (calendar) ->
             calFeedPath = "/v1/calendar/#{calendar.id}/feed.ics"
             calendar.path = calFeedPath
