@@ -27,6 +27,8 @@ getCurrentUsersShift = (req) ->
 
 exports.getShiftFeed = (req, res, next) ->
 
+    analytics.track req, 'View Shift Feed'
+
     models.getShiftsForUserAndCoworkers req.user.id
         .then ({shifts, users}) ->
             users = _.filter users, (user) -> user.id isnt req.user.id
