@@ -26,7 +26,7 @@ exports.identify = (user) ->
         cleanedUser["hasTrait_#{traitName}"] = true
         traits.push traitName
 
-    user.traits = traits.join ','
+    cleanedUser.traits = traits.join ','
 
     if cleanedUser.profilePhoto?.href
         cleanedUser.profilePhoto = cleanedUser.profilePhoto.href
