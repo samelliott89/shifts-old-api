@@ -94,6 +94,7 @@ exports.register = (req, res, next) ->
                 .catch _errs.handleRethinkErrors err
 
 exports.login = (req, res, next) ->
+    console.log 'LOGGING IN!'
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
     req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
     _errs.handleValidationErrors {req}
@@ -103,10 +104,11 @@ exports.login = (req, res, next) ->
             if auth.checkPassword user, req.body.password
                 {traits} = user
                 token = auth.createToken user
-                user = user.clean()
-                user.traits = traits
-                analytics.track {user:id: user.id}, 'Login'
-                res.json {user, token}
+                cleanUser = user.clean()
+                cleanUser.traits = traits
+                analytics.track {user:id: cleanUser.id}, 'Login'
+                analytics.identify user
+                res.json {user: cleanUser, token}
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
                 analytics.track null, 'Failed login', {type: 'Password is incorrect'}

@@ -15,7 +15,7 @@ safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email', 'traits']
 
 cleanUser = (user, req, opts = {}) ->
-    if (req?.user?.id is user.id) or req?.user?.traits?.admin
+    if (req?.user?.id is user.id) or (req?.user?.traits?.admin) or (opts.includeExtra)
         fields = safeOwnUserFields
     else
         fields = safeUserFields
@@ -42,7 +42,7 @@ User = thinky.createModel 'User',
     }
 
 User.ensureIndex 'email'
-User.define 'clean', (req) -> cleanUser this, req
+User.define 'clean', (req, opts = {}) -> cleanUser this, req, opts
 
 User.define 'setPassword', (newPassword) ->
     @password = auth.hashPassword newPassword
