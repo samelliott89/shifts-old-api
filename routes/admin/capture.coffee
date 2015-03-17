@@ -5,6 +5,47 @@ models = require '../../models'
 _errs = require '../../errors'
 r = models.r
 
+_sendNotificationEmail = (user, shifts) ->
+    messageHTML = """
+    <p>Hey #{user.displayName},</p>
+
+    <p>Your Schedule Capture was successful - #{shifts.length} shifts have been added to your profile.</p>
+
+    <p>If you have any questions, just reply to this email and we'll help you out.</p>
+    """
+    sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
+    sendAt = new Date()
+    sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
+    sendAtUTC = sendAt.toISOString().replace('T', ' ').split('.')[0]
+
+    message = {
+        html: messageHTML
+        subject: "Sam here from Robby!"
+        from_email: "hi@heyrobby.com"
+        from_name: "Robby Schedule Capture"
+        to: [{
+            email: user.email
+            name: user.displayName
+        }]
+        important: true
+        track_opens: true
+        track_clicks: true
+        auto_text: true
+        tags: ['shifts-transactional', 'capture-successful']
+    }
+
+    _chimpSuccess = ([result]) ->
+        invalidstatus = ['rejected', 'invalid']
+        if not result and result.reject_reason
+            console.log 'Could not send welcome email: '
+            console.log result
+
+    _chimpFailure = (err) ->
+        console.log 'Mailchimp error:'
+        console.log err
+
+    mandrillClient.messages.send {message, send_at: sendAtUTC}, _chimpSuccess, _chimpFailure
+
 exports.listRosterCaptures = (req, res, next) ->
     models.Capture
         .filter {processed: false}
@@ -39,7 +80,7 @@ exports.updateCapture = (req, res, next) ->
         .catch next
 
 exports.addCaptureShifts = (req, res, next) ->
-    console.log 'Recieved addCaptureShifts'
+    shifts = null
 
     req.checkBody('shifts', 'Shifts must be an array').isArray()
     req.checkBody('shifts', 'Shifts must have valid a start date').shiftsHaveStartDate()
@@ -70,7 +111,11 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Shift.insert(shifts).run()
         .then (result) ->
-            models.Capture.get(captureID).update({processed: true}).run()
+            _sendNotificationEmail user, shifts
+            models.Capture.get(captureID).update({
+                processed: true
+                processedBy: req.user.id
+            }).run()
         .then (result) ->
             res.json {success: true}
         .catch next
