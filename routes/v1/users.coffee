@@ -56,8 +56,8 @@ exports.editUser = (req, res, next) ->
             user.save()
         .then (user) ->
             user = user.clean {req}
-            res.json {user}
             analytics.track req, 'Update User'
+            res.json {user}
         .catch next
 
 exports.requestPasswordReset = (req, res, next) ->
@@ -163,8 +163,8 @@ exports.changePassword = (req, res, next) ->
             delete user.pwResetToken
             user.save()
         .then (user) ->
-            res.json {success: true}
             analytics.track req, 'Update Password'
+            res.json {success: true}
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
