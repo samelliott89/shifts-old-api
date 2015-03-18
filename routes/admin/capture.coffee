@@ -13,18 +13,14 @@ _sendNotificationEmail = (user, shifts) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
-    <p>Your Schedule Capture was successful - #{shifts.length} shifts have been added to your profile.</p>
+    <p>Your Schedule Capture was successful - #{shifts.length} shifts have been added to your Robby profile.</p>
 
     <p>If you have any questions, just reply to this email and we'll help you out.</p>
     """
-    sendInMinutes = parseInt(config.WELCOME_EMAIL_DURATION)
-    sendAt = new Date()
-    sendAt.setMinutes(sendAt.getMinutes() + sendInMinutes)
-    sendAtUTC = sendAt.toISOString().replace('T', ' ').split('.')[0]
 
     message = {
         html: messageHTML
-        subject: "Sam here from Robby!"
+        subject: "Your new shifts have been added to Robby"
         from_email: "hi@heyrobby.com"
         from_name: "Robby Schedule Capture"
         to: [{
@@ -48,7 +44,7 @@ _sendNotificationEmail = (user, shifts) ->
         console.log 'Mailchimp error:'
         console.log err
 
-    mandrillClient.messages.send {message, send_at: sendAtUTC}, _chimpSuccess, _chimpFailure
+    mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
 
 exports.listRosterCaptures = (req, res, next) ->
     models.Capture

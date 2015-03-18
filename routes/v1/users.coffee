@@ -11,6 +11,8 @@ analytics = require '../../analytics'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
+console.log 'config.MANDRILL_API_KEY:', config.MANDRILL_API_KEY
+
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
     promises = [
@@ -67,8 +69,8 @@ exports.requestPasswordReset = (req, res, next) ->
             resetObject = {id: user.id}
             resetToken = jwt.sign resetObject, config.SECRET, {expiresInMinutes: config.PW_RESET_DURATION}
             user.pwResetToken = resetToken
-            user.save()
             analytics.track {user:id: user.id}, 'Reset Password'
+            user.save()
         .then (user) ->
             resetUrl = "https://api.getshifts.co/resetPassword?t=#{user.pwResetToken}"
             messageHTML = """
@@ -103,15 +105,21 @@ exports.requestPasswordReset = (req, res, next) ->
             }
 
             _chimpSuccess = ([result]) ->
+                console.log 'Password reset email: _chimpSuccess'
+                console.log arguments
                 invalidstatus = ['rejected', 'invalid']
-                if result and not result.reject_reason
-                    res.json {success: true}
-                else
+
+                if (not result) or (result.status in invalidstatus)
                     console.log 'Could not send password reset email: '
                     console.log result
                     next new _errs.ServerError 'Error sending password reset email'
+                    return
+
+                res.json {success: true}
 
             _chimpFailure = (err) ->
+                console.log 'Password reset email: _chimpFailure'
+                console.log arguments
                 console.log err
                 next new _errs.ServerError 'Error sending password reset email'
 
