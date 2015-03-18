@@ -1,9 +1,13 @@
 _ = require 'underscore'
 bluebird = require 'bluebird'
 
+config = require '../../config'
 models = require '../../models'
 _errs = require '../../errors'
 r = models.r
+
+mandrill = require 'mandrill-api/mandrill'
+mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 _sendNotificationEmail = (user, shifts) ->
     messageHTML = """
@@ -75,12 +79,12 @@ exports.updateCapture = (req, res, next) ->
         .insert(capture, {conflict: 'update', returnChanges: true})
         .run()
         .then ({changes}) ->
-            console.log changes
             res.json {capture: changes[0].new_val}
         .catch next
 
 exports.addCaptureShifts = (req, res, next) ->
     shifts = null
+    owner = null
 
     req.checkBody('shifts', 'Shifts must be an array').isArray()
     req.checkBody('shifts', 'Shifts must have valid a start date').shiftsHaveStartDate()
@@ -94,7 +98,10 @@ exports.addCaptureShifts = (req, res, next) ->
         .get captureID
         .getJoin()
         .run()
-        .then ({owner, processed}) ->
+        .then (capture) ->
+            owner = capture.owner
+            processed = capture.processed
+
             if processed
                 throw new _errs.BadRequest 'The requested capture has already been processed'
                 return
@@ -111,7 +118,7 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Shift.insert(shifts).run()
         .then (result) ->
-            _sendNotificationEmail user, shifts
+            _sendNotificationEmail owner, shifts
             models.Capture.get(captureID).update({
                 processed: true
                 processedBy: req.user.id
