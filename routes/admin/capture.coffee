@@ -70,6 +70,11 @@ exports.updateCapture = (req, res, next) ->
     ]
 
     capture = _.pick req.body, whitelistedFields
+
+    if req.body.delete
+        capture.processed = true
+        capture.processedBy = req.user.id
+
     capture.id = req.params['captureID']
     models.Capture
         .insert(capture, {conflict: 'update', returnChanges: true})
