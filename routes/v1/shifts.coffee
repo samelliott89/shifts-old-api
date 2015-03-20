@@ -26,7 +26,6 @@ getCurrentUsersShift = (req) ->
     return dfd.promise
 
 exports.getShiftFeed = (req, res, next) ->
-
     analytics.track req, 'View Shift Feed'
 
     models.getShiftsForUserAndCoworkers req.user.id
@@ -38,9 +37,11 @@ exports.getShiftFeed = (req, res, next) ->
 exports.getShiftsForUser = (req, res, next) ->
     userID = req.param 'userID'
 
-    # This checks to make sure the current user has permission,
-    # and throws InvalidPermissions error if not
-    models.getShiftsForUser userID, {req}
+    shiftsSince = undefined
+    if req.query['shiftsSince']
+        shiftsSince = new Date(req.query['shiftsSince'])
+
+    models.getShiftsForUser userID, {req, shiftsSince}
         .then (shifts) ->
             res.json {shifts}
         .catch (err) ->

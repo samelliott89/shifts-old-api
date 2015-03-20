@@ -116,15 +116,17 @@ exports.helpers =
             .run()
 
     getShiftsForUser: (ownerID, opts = {}) ->
-        oneDay = 1000 * 60 * 60 * 24
-        shiftsSince = new Date()
-        shiftsSince.setTime shiftsSince.getTime() - oneDay
+
+        unless opts.shiftsSince
+            opts.shiftsSince = new Date()
+            opts.shiftsSince.setDate opts.shiftsSince.getDate() - 1
+
         opts.throwOnInvalidPermission ?= true
 
         promises = [
             _getShiftsWithCoworkers({
                     shiftOwnerID: ownerID
-                    shiftsSince: shiftsSince
+                    shiftsSince: opts.shiftsSince
                 }).run()
         ]
 
@@ -149,7 +151,7 @@ exports.helpers =
                 shifts = _.chain shifts
                     # Reject shifts when the start date is more than 24 hours ago
                     .reject (shift) ->
-                        shift.start < shiftsSince
+                        shift.start < opts.shiftsSince
                     .each((shift) ->
                         shift.owner = userHelpers.cleanUser shift.owner, opts.req # opts.req might be undefined, but that's OK
                         _.each shift.coworkers, (coShift) ->
