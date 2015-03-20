@@ -13,9 +13,12 @@ _errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email', 'traits']
+adminUserFeilds = safeOwnUserFields.concat ['pwResetToken', 'created']
 
 cleanUser = (user, req, opts = {}) ->
-    if (req?.user?.id is user.id) or (req?.user?.traits?.admin) or (opts.includeExtra)
+    if (req?.user?.traits?.admin)
+        fields = adminUserFeilds
+    else if (req?.user?.id is user.id) or (opts.includeExtra)
         fields = safeOwnUserFields
     else
         fields = safeUserFields
