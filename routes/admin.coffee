@@ -19,7 +19,7 @@ exports.get = (req, res, next) ->
     if uuidRegex.test(query)
         index = 'id'
 
-    if '@' in query
+    if /\w@\w/.test query
         index = 'email'
 
     if index
@@ -30,9 +30,11 @@ exports.get = (req, res, next) ->
                 settings = row('right').without('ownerID')
                 row('left').merge {settings}
             .run()
-            .then ([_user]) ->
-                user = _user
-                console.log 'user id:', user.id
+            .then (results) ->
+                if results.length is 0
+                    return res.json {results: []}
+
+                user = results[0]
 
                 unless user.profilePhoto
                     photoHash = crypto.createHash('md5').update(user.id).digest('hex')
