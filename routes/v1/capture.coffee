@@ -27,8 +27,9 @@ exports.addCapture = (req, res, next) ->
         rejected: false
 
     models.Capture.save capture
-        .then (result) ->
+        .then ([savedCapture]) ->
             analytics.track req, 'Roster Capture'
-            sendSlackNotification()
-            res.json {capture: capture}
+            console.log savedCapture
+            sendSlackNotification savedCapture
+            res.json {capture: savedCapture}
         .catch next

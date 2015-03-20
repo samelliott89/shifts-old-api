@@ -4,7 +4,9 @@ request = require 'request'
 env = (config.NODE_ENV or 'dev').toLowerCase()
 
 module.exports.sendMessage = ({text, channel}) ->
-    return unless env is 'prod'
+    unless env is 'prod'
+        console.log 'Slack:', text
+        return
 
     req = {
         uri: config.CAPTURE_SLACK_NOTIFY_URL

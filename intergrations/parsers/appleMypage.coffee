@@ -37,8 +37,6 @@ module.exports = (parseData) ->
     weekStartingRaw = weekStartingRaw.match(START_OF_WEEK_REGEX)[1]
     weekStartingRaw = weekStartingRaw.replace(/,/g, '')
 
-    console.log 'weekStartingRaw:', weekStartingRaw
-
     shifts = []
 
     # Now, iterate over the days (table rows).
