@@ -2,14 +2,16 @@ _ = require 'underscore'
 bluebird = require 'bluebird'
 
 config = require '../../config'
+slack = require '../../slack'
 models = require '../../models'
 _errs = require '../../errors'
+auth = require '../../auth'
 r = models.r
 
 mandrill = require 'mandrill-api/mandrill'
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
-_sendNotificationEmail = (user, shifts) ->
+_sendNotifications = (user, shifts) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
@@ -34,6 +36,8 @@ _sendNotificationEmail = (user, shifts) ->
         tags: ['shifts-transactional', 'capture-successful']
     }
 
+    slack.sendMessage {text: "Shifts have been added for #{user.displayName}'s capture"}
+
     _chimpSuccess = ([result]) ->
         invalidstatus = ['rejected', 'invalid']
         if not result and result.reject_reason
@@ -46,21 +50,46 @@ _sendNotificationEmail = (user, shifts) ->
 
     mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
 
-exports.listRosterCaptures = (req, res, next) ->
+_cleanCaptures = (captures) ->
+    captures.forEach (cap) ->
+        cap.owner = cap.owner.clean null, {includeExtra: true}
+        cap.photo = {
+            href: "http://www.ucarecdn.com/#{cap.ucImageID}"
+            id: cap.ucImageID
+            type: 'uploadcare'
+        }
+
+    return captures
+
+exports.getPendingCaptures = (req, res, next) ->
     models.Capture
-        .filter {processed: false}
-        .orderBy 'rejected', models.r.asc('created')
+        .filter (row) -> {processed: false}
+        .filter r.row('rejected').not()
+        .orderBy models.r.asc('created')
         .getJoin()
         .run()
-        .then (captures) ->
-            captures.forEach (cap) ->
-                cap.owner = models.cleanUser cap.owner, req
-                cap.photo = {
-                    href: "http://www.ucarecdn.com/#{cap.ucImageID}"
-                    id: cap.ucImageID
-                    type: 'uploadcare'
-                }
-            res.json {captures}
+        .then _cleanCaptures
+        .then (captures) -> res.json {captures}
+        .catch next
+
+exports.getRejectedCaptures = (req, res, next) ->
+    models.Capture
+        .filter {processed: false, rejected: true}
+        .orderBy  models.r.desc('created')
+        .getJoin()
+        .run()
+        .then _cleanCaptures
+        .then (captures) -> res.json {captures}
+        .catch next
+
+exports.getRecentCaptures = (req, res, next) ->
+    models.Capture
+        .filter {processed: true}
+        .orderBy models.r.asc('processedDate')
+        .getJoin()
+        .run()
+        .then _cleanCaptures
+        .then (captures) -> res.json {captures}
         .catch next
 
 exports.updateCapture = (req, res, next) ->
@@ -71,9 +100,17 @@ exports.updateCapture = (req, res, next) ->
 
     capture = _.pick req.body, whitelistedFields
 
-    if req.body.delete
+    if req.body.delete and auth.hasTrait 'admin'
         capture.processed = true
         capture.processedBy = req.user.id
+        capture.processedDate = new Date()
+
+    if req.body.rejected and auth.hasTrait 'outsourced'
+        text = '<!channel>: An odesker has rejected a capture'
+        if capture.rejectedReason
+            text += " because '#{capture.rejectedReason}'"
+
+        slack.sendMessage {text}
 
     capture.id = req.params['captureID']
     models.Capture
@@ -119,10 +156,11 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Shift.insert(shifts).run()
         .then (result) ->
-            _sendNotificationEmail owner, shifts
+            _sendNotifications owner, shifts
             models.Capture.get(captureID).update({
                 processed: true
                 processedBy: req.user.id
+                processedDate: new Date()
             }).run()
         .then (result) ->
             res.json {success: true}

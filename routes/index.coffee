@@ -104,15 +104,20 @@ module.exports = (app) ->
     ##
     # Admin and misc routes
     ##
-    app.route('/_admin/get')      .get auth.adminRequired, admin.get
-    app.route('/_admin/getToken') .get auth.adminRequired, admin.getAuthToken
-    app.route('/_admin/pageDumps').get auth.adminRequired, admin.listPageDumps
-    app.route('/_admin/pageDumps').put auth.adminRequired, admin.updatePageDumps
-    app.route('/_admin/identifyAllUsers').get auth.adminRequired, admin.identifyAllUsers
+    isAdmin = auth.hasTrait 'admin'
+    isOutsourced = auth.hasTrait 'admin', 'outsourced'
 
-    app.route('/_admin/captures')                   .get auth.adminRequired, captureAdmin.listRosterCaptures
-    app.route('/_admin/captures/:captureID')        .put auth.adminRequired, captureAdmin.updateCapture
-    app.route('/_admin/captures/:captureID/shifts') .post auth.adminRequired, captureAdmin.addCaptureShifts
+    app.route('/_admin/get')      .get isAdmin,        admin.get
+    app.route('/_admin/getToken') .get isAdmin,        admin.getAuthToken
+    app.route('/_admin/pageDumps').get isAdmin,        admin.listPageDumps
+    app.route('/_admin/pageDumps').put isAdmin,        admin.updatePageDumps
+    app.route('/_admin/identifyAllUsers').get isAdmin, admin.identifyAllUsers
+
+    app.route('/_admin/captures')                  .get isOutsourced,  captureAdmin.getPendingCaptures
+    app.route('/_admin/captures/rejected')         .get isAdmin,       captureAdmin.getRejectedCaptures
+    app.route('/_admin/captures/recent')           .get isAdmin,       captureAdmin.getRecentCaptures
+    app.route('/_admin/captures/:captureID')       .put isOutsourced,  captureAdmin.updateCapture
+    app.route('/_admin/captures/:captureID/shifts').post isOutsourced, captureAdmin.addCaptureShifts
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()
