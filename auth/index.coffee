@@ -27,7 +27,7 @@ module.exports.currentUserRequired = (req, res, next) ->
     unless req.isAuthenticated
         return next new _errs.AuthRequired()
 
-    if req.param('userID') is req.user.id
+    if (req.param('userID') is req.user.id) or (req.user.traits?.admin)
         next()
     else
         return next new _errs.InvalidPermissions()
