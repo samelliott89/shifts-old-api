@@ -1,7 +1,6 @@
 models = require '../../models'
 
 module.exports.hotfix = (req, res, next) ->
-    console.log 'hotfix!'
     models.Script
         .get('hotfix')
         .run()
