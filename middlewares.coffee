@@ -22,6 +22,13 @@ exports.isAuthed = (req, res, next) ->
     req.isAuthenticated = !!req.user
     next()
 
+exports.robbyTools = (req, res, next) ->
+    # Require 'x-robby-tools' header for using admin permissions
+    if req.user?.traits?.admin and not req.headers['x-robby-tools']
+        delete req.user.traits.admin
+
+    next()
+
 exports.errorHandler = (originalError, req, res, next) ->
     bugsnagOptions = {
         userId: req.user?.id or req.ip

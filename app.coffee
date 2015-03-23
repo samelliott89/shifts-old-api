@@ -48,6 +48,7 @@ app.use expressJwt
     secret: config.SECRET
     credentialsRequired: false
 app.use middlewares.isAuthed
+app.use middlewares.robbyTools
 
 routes app
 
