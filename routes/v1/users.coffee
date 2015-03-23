@@ -11,8 +11,6 @@ analytics = require '../../analytics'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
-console.log 'config.MANDRILL_API_KEY:', config.MANDRILL_API_KEY
-
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
     promises = [

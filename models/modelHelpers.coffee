@@ -1,9 +1,9 @@
 _  = require 'underscore'
 thinky = require './thinky'
 
-exports.createModel = (name, props) ->
+exports.createModel = (name, props, modelOpts = {}) ->
     return {
-        model: thinky.createModel name, props
+        model: thinky.createModel name, props, modelOpts
         helpers: {}
     }
 

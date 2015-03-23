@@ -11,6 +11,7 @@ importModel 'Link',       exports
 importModel 'Shift',      exports
 importModel 'Parse',      exports
 importModel 'Parser',     exports
+importModel 'Script',     exports
 importModel 'Capture',    exports
 importModel 'Calendar',   exports
 importModel 'Settings',   exports

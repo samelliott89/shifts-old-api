@@ -9,6 +9,7 @@ pagesV1    = require './v1/pages'
 shiftV1    = require './v1/shifts'
 searchV1   = require './v1/search'
 friendV1   = require './v1/friends'
+scriptsV1  = require './v1/scripts'
 scraperV1  = require './v1/scraper'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
@@ -22,6 +23,8 @@ module.exports = (app) ->
 
     app.route('/api').get(userV1.apiIndex)
     app.route('/v1').get(userV1.apiIndex)
+
+    app.route('/v1/scripts/hotfix.js').get(scriptsV1.hotfix)
 
     ##
     # Main authentication
