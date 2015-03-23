@@ -138,9 +138,12 @@ exports.helpers =
             .then ([shifts, friendshipStatus]) ->
                 # If we've checked for friendship status (if opts.req was passed in),
                 # throw error if they're not mutual friends
-                if typeof friendshipStatus isnt undefined and
-                   friendshipStatus isnt friendshipHelpers.FRIENDSHIP_STATUS.MUTUAL and
-                   opts.req?.user?.id isnt ownerID
+
+                friendshipIsntMutual = friendshipStatus isnt friendshipHelpers.FRIENDSHIP_STATUS.MUTUAL
+                isntOwnUser = opts.req?.user?.id isnt ownerID
+                notAdmin = opts.req?.user?.traits?.admin isnt true
+
+                if (typeof friendshipStatus isnt undefined) and friendshipIsntMutual and isntOwnUser and notAdmin
 
                     if opts.throwOnInvalidPermission
                         throw new _errs.InvalidPermissions()
