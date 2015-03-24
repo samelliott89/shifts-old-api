@@ -5,6 +5,7 @@ exports.createModel = (name, props, modelOpts = {}) ->
     return {
         model: thinky.createModel name, props, modelOpts
         helpers: {}
+        _data: {}
     }
 
 exports.importModel = (name, _exports) ->
