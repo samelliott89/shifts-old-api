@@ -14,11 +14,12 @@
     "RETHINKDB_DUMP_PORT": 28015,
     "RETHINKDB_DUMP_DB": "shiftsdump",
 
+    "BUGSNAG_API_KEY": "bb98dd9f26cdc21068ca92133cde0ee1",
     "MANDRILL_API_KEY": "__fill-in-from-env-var__",
-    "WELCOME_EMAIL_DURATION": 5,
     "SEGMENT_IO_KEY": "__fill-in-from-env-var__",
     "BOOKMARKLET_ASSET_ROOT": "localhost:5016",
     "AUTH_COOKIE_NAME": "authToken",
+    "WELCOME_EMAIL_DURATION": 5,
 
     "CAPTURE_SLACK_NOTIFY_URL": "https://hooks.slack.com/services/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"
 }
