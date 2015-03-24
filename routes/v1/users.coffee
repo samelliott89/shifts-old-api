@@ -166,31 +166,17 @@ exports.changePassword = (req, res, next) ->
         .catch (err) ->
             _errs.handleRethinkErrors err, next
 
-LINK_UPDATE_INTERVAL = 10 * 60 * 1000
-lastLinkUpdate = 0
-lastLinks = []
-
 exports.apiIndex = (req, res, next) ->
-    _respond = ->
-        res.json _.extend payload, {links: lastLinks}
+    _respond = (links) ->
+        res.json {
+            message: 'Shifts API'
+            isAuthenticated: req.isAuthenticated
+            user: req.user
+            links: links
+        }
 
-    payload = {
-        message: 'Shifts API'
-        isAuthenticated: req.isAuthenticated
-        user: req.user
-    }
-
-    timeElapsed = Date.now() - lastLinkUpdate
-    if timeElapsed > LINK_UPDATE_INTERVAL
-        models.Link
-            .getAll 'sidemenu', {index: 'type'}
-            .run()
-            .then (links) ->
-                lastLinkUpdate = Date.now()
-                lastLinks = links
-                _respond()
-            .catch (err) ->
-                console.log err
-                _respond()
-    else
-        _respond()
+    models.getLinksForType 'sidemenu'
+        .then (links) -> _respond(links)
+        .catch (err)  ->
+            console.log err
+            _respond()
