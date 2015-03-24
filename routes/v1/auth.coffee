@@ -81,7 +81,9 @@ exports.register = (req, res, next) ->
 
             newUser = new models.User userFields
             newUser.setPassword userFields.password
-            newUser.traits = {}
+            newUser.traits = {
+                rosterCapture: true
+            }
             newUser.created = new Date()
 
             newUser.saveAll()
