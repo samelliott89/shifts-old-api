@@ -14,7 +14,6 @@ esClient = new elasticsearch.Client
 esRiverUrl = "http://#{config.ELASTIC_SEARCH_HOST}/_river/rethinkdb/_meta"
 
 _checkESRiverStatus = ->
-    console.log 'Checking ElasticSearch RethinkDB river'
     request esRiverUrl, (err, resp, body) ->
         if err
             console.log 'Couldn\'t connect to Elastic Search at ' + config.ELASTIC_SEARCH_HOST
