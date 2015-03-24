@@ -1,10 +1,8 @@
 config = require './config'
 request = require 'request'
 
-env = (config.NODE_ENV or 'dev').toLowerCase()
-
 module.exports.sendMessage = ({text, channel}) ->
-    unless env is 'prod'
+    unless config.env is 'prod'
         console.log 'Slack:', text
         return
 
