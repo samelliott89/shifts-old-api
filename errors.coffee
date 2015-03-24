@@ -1,5 +1,6 @@
 _ = require 'underscore'
 
+config = require './config'
 thinky = require './models/thinky'
 rethinkDBErrors = thinky.Errors
 
@@ -56,6 +57,11 @@ exports.InvalidPermissions = InvalidPermissions
 exports.NotFound = NotFound
 exports.ServerError = ServerError
 exports.BadRequest = BadRequest
+
+exports.sendError = ->
+    console.log arguments[0]
+    unless config.releaseStage is 'dev'
+        bugsnag.notify arguments...
 
 exports.handleValidationErrors = ({req, next}) ->
     errors = req.validationErrors true
