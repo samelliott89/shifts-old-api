@@ -1,9 +1,8 @@
 models = require '../../models'
 
 module.exports.hotfix = (req, res, next) ->
-    models.Script
-        .get('hotfix')
-        .run()
+
+    models.getScript 'hotfix'
         .then (script) ->
             res.set 'Content-Type', 'text/javascript'
             res.send script.javascript
