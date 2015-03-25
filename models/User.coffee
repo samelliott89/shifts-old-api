@@ -12,13 +12,13 @@ thinky = require './thinky'
 _errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
-safeOwnUserFields = safeUserFields.concat ['email', 'traits']
-adminUserFeilds = safeOwnUserFields.concat ['pwResetToken', 'created']
+safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created']
+adminUserFeilds = safeOwnUserFields.concat ['pwResetToken']
 
 cleanUser = (user, req, opts = {}) ->
     if (req?.user?.traits?.admin)
         fields = adminUserFeilds
-    else if (req?.user?.id is user.id) or (opts.includeExtra)
+    else if (req?.user?.id is user.id) or (opts.includeOwnUserFields)
         fields = safeOwnUserFields
     else
         fields = safeUserFields

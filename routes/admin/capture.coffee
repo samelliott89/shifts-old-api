@@ -52,7 +52,7 @@ _sendNotifications = (user, shifts) ->
 
 _cleanCaptures = (captures) ->
     captures.forEach (cap) ->
-        cap.owner = cap.owner.clean null, {includeExtra: true}
+        cap.owner = cap.owner.clean null, {includeOwnUserFields: true}
         cap.photo = {
             href: "http://www.ucarecdn.com/#{cap.ucImageID}"
             id: cap.ucImageID
