@@ -1,6 +1,9 @@
 Analytics = require 'analytics-node'
 config  = require './config'
-analytics = new Analytics config.SEGMENT_IO_KEY
+
+SEND_ANALYTICS = config.SEGMENT_IO_KEY.length > 1
+if SEND_ANALYTICS
+    analytics = new Analytics config.SEGMENT_IO_KEY
 
 exports.segment = analytics
 exports.track = (req, eventName, eventProperies = {}) ->
@@ -14,10 +17,14 @@ exports.track = (req, eventName, eventProperies = {}) ->
     else
         ev.anonymousId = 'anon-user'
 
+    if not SEND_ANALYTICS
+        console.log 'Suppressing analytics.track:', ev
+        return
+
     analytics.track ev
 
 exports.identify = (user) ->
-    cleanedUser = user.clean null, {includeExtra: true}
+    cleanedUser = user.clean null, {includeOwnUserFields: true}
     cleanedUser['$email'] = cleanedUser.email
     cleanedUser['$name'] = cleanedUser.displayName
     traits = []
@@ -31,10 +38,16 @@ exports.identify = (user) ->
     if cleanedUser.profilePhoto?.href
         cleanedUser.profilePhoto = cleanedUser.profilePhoto.href
 
-    cleanedUser.counts = undefined  if cleanedUser.counts
-    cleanedUser.defaultPhoto = undefined  if cleanedUser.defaultPhoto
+    delete cleanedUser.counts
+    delete cleanedUser.defaultPhoto
 
-    analytics.identify {
+    ev = {
         userId: cleanedUser.id
         traits: cleanedUser
     }
+
+    if not SEND_ANALYTICS
+        console.log 'Suppressing analytics.identify:', ev
+        return
+
+    analytics.identify ev
