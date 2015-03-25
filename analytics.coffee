@@ -1,5 +1,6 @@
 Analytics = require 'analytics-node'
 config  = require './config'
+crypto = require 'crypto'
 
 SEND_ANALYTICS = config.SEGMENT_IO_KEY.length > 1
 if SEND_ANALYTICS
@@ -24,26 +25,34 @@ exports.track = (req, eventName, eventProperies = {}) ->
     analytics.track ev
 
 exports.identify = (user) ->
-    cleanedUser = user.clean null, {includeOwnUserFields: true}
-    cleanedUser['$email'] = cleanedUser.email
-    cleanedUser['$name'] = cleanedUser.displayName
+
+    if user.profilePhoto
+        avatar = "#{user.profilePhoto.href}/-/scale_crop/200x200/"
+    else
+        photoHash = crypto.createHash('md5').update(user.id).digest('hex')
+        avatar = "http://www.gravatar.com/avatar/#{photoHash}?default=retro&s=200"
+
     traits = []
 
     for traitName, traitEnabled of (user.traits or {}) when traitEnabled
-        cleanedUser["hasTrait_#{traitName}"] = true
         traits.push traitName
 
-    cleanedUser.traits = traits.join ','
-
-    if cleanedUser.profilePhoto?.href
-        cleanedUser.profilePhoto = cleanedUser.profilePhoto.href
-
-    delete cleanedUser.counts
-    delete cleanedUser.defaultPhoto
+    userTraits = {
+        id: user.id
+        avatar: avatar
+        email: user.email
+        active: user.active
+        description: user.bio
+        name: user.displayName
+        createdAt: user.created
+        registerSource: user.source
+        futureShifts: user.counts?.shifts
+        connections: user.counts?.connections
+    }
 
     ev = {
-        userId: cleanedUser.id
-        traits: cleanedUser
+        userId: userTraits.id
+        traits: userTraits
     }
 
     if not SEND_ANALYTICS
