@@ -11,6 +11,38 @@ mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 validRegistrationFields = ['email', 'password', 'displayName', 'profilePhoto']
 
+LANDING_PAGE_SUCCESS_HTML = 'Awesome! We\'ve emailed you links to download the app.'
+
+_sendAppLinksEmail = (user) ->
+    templateName = 'landing-welcome'
+    templateContent = [{}]
+    message = {
+        to: [{
+            email: user.email
+            name: user.displayName
+        }]
+        tags: ['shifts-transactional', 'welcome-app-links']
+    }
+
+    mailchimpArgs = {
+        'template_name': templateName
+        'template_content': templateContent
+        'message': message
+        'async': false
+    }
+
+    _chimpSuccess = ([result]) ->
+        invalidstatus = ['rejected', 'invalid']
+        if not result and result.reject_reason
+            console.log 'Could not send welcome email: '
+            console.log result
+
+    _chimpFailure = (err) ->
+        console.log 'Mailchimp error:'
+        console.log err
+
+    mandrillClient.messages.sendTemplate mailchimpArgs, _chimpSuccess, _chimpFailure
+
 _sendWelcomeEmail = (user) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
@@ -67,6 +99,9 @@ exports.register = (req, res, next) ->
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
     req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
     _errs.handleValidationErrors {req}
+    source = req.body.source or 'app'
+
+    isLandingPage = source is 'landingPage'
 
     # Only include whitelisted fields
     userFields = _.pick req.body, validRegistrationFields
@@ -80,19 +115,33 @@ exports.register = (req, res, next) ->
                 return next err
 
             newUser = new models.User userFields
-            newUser.setPassword userFields.password
-            newUser.traits = {
-                rosterCapture: true
-            }
             newUser.created = new Date()
+            newUser.setPassword userFields.password
+            newUser.traits = {rosterCapture: true}
+            newUser.source = source
+
+            if isLandingPage
+                newUser.isInactive = true
 
             newUser.saveAll()
                 .then (user) ->
-                    token = auth.createToken user
-                    analytics.track {user:id: user.id}, 'Register'
-                    res.json {user, token}
-                    # Send welcome email to new user after response is sent back to client
-                    _sendWelcomeEmail newUser
+                    analytics.track {user:id: user.id}, 'Register', {source}
+
+                    if isLandingPage
+                        resPayload = {
+                            successHtml: LANDING_PAGE_SUCCESS_HTML
+                        }
+                    else
+                        token = auth.createToken user
+                        resPayload = {user, token}
+
+                    res.json resPayload
+
+                    # Send emails _after_ response has been sent to the client to ensure minimal errors
+                    if isLandingPage
+                        _sendAppLinksEmail newUser
+                    else
+                        _sendWelcomeEmail newUser
                 .catch _errs.handleRethinkErrors err
 
 exports.login = (req, res, next) ->
@@ -104,13 +153,11 @@ exports.login = (req, res, next) ->
     models.getUser req.body.email, {includePassword: true}
         .then (user) ->
             if auth.checkPassword user, req.body.password
-                {traits} = user
                 token = auth.createToken user
-                cleanUser = user.clean()
-                cleanUser.traits = traits
-                analytics.track {user:id: cleanUser.id}, 'Login'
+                cleanedUser = user.clean null, {includeOwnUserFields: true}
                 analytics.identify user
-                res.json {user: cleanUser, token}
+                analytics.track {user:id: cleanedUser.id}, 'Login'
+                res.json {user: cleanedUser, token}
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
                 analytics.track null, 'Failed login', {type: 'Password is incorrect'}
