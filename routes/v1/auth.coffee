@@ -119,12 +119,15 @@ exports.register = (req, res, next) ->
             newUser.setPassword userFields.password
             newUser.traits = {rosterCapture: true}
             newUser.source = source
+            newUser.active = false
 
-            if isLandingPage
-                newUser.isInactive = true
+            if newUser.displayName is undefined
+                newUser.displayName = newUser.email.split('@')[0]
+                newUser.defaultDisplayNameSet = true
 
             newUser.saveAll()
                 .then (user) ->
+                    analytics.identify user
                     analytics.track {user:id: user.id}, 'Register', {source}
 
                     if isLandingPage
@@ -145,13 +148,13 @@ exports.register = (req, res, next) ->
                 .catch _errs.handleRethinkErrors err
 
 exports.login = (req, res, next) ->
-    console.log 'LOGGING IN!'
     req.checkBody('email', 'Valid email required').notEmpty().isEmail()
     req.checkBody('password', 'Password of minimum 8 characters required').notEmpty().isLength(8)
     _errs.handleValidationErrors {req}
 
     models.getUser req.body.email, {includePassword: true}
         .then (user) ->
+            user.active = true
             if auth.checkPassword user, req.body.password
                 token = auth.createToken user
                 cleanedUser = user.clean null, {includeOwnUserFields: true}
@@ -161,6 +164,8 @@ exports.login = (req, res, next) ->
             else
                 next new _errs.AuthFailed {password:msg: 'Password is incorrect'}
                 analytics.track null, 'Failed login', {type: 'Password is incorrect'}
+
+            user.save()
         .catch (err) ->
             if err instanceof _errs.NotFound
                 err = new _errs.AuthFailed {email:msg: 'No account exists for this email'}
