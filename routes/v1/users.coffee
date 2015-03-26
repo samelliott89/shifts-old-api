@@ -50,6 +50,9 @@ exports.editUser = (req, res, next) ->
                 newUserFields.profilePhoto = _.pick newUserFields.profilePhoto, photoAllowedFields
                 newUserFields.profilePhoto.href = "http://www.ucarecdn.com/#{newUserFields.profilePhoto.id}"
 
+            if req.body.changedDisplayName
+                newUserFields.defaultDisplayNameSet = false
+
             _.extend user, newUserFields
             user.save()
         .then (user) ->

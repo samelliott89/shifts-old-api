@@ -12,7 +12,7 @@ thinky = require './thinky'
 _errs = require '../errors'
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
-safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created']
+safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet']
 adminUserFeilds = safeOwnUserFields.concat ['pwResetToken']
 
 cleanUser = (user, req, opts = {}) ->
