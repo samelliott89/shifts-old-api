@@ -85,7 +85,7 @@ exports.getRejectedCaptures = (req, res, next) ->
 exports.getRecentCaptures = (req, res, next) ->
     models.Capture
         .filter {processed: true}
-        .orderBy models.r.asc('processedDate')
+        .orderBy models.r.desc('processedDate')
         .getJoin()
         .run()
         .then _cleanCaptures
@@ -119,6 +119,19 @@ exports.updateCapture = (req, res, next) ->
         .then ({changes}) ->
             res.json {capture: changes[0].new_val}
         .catch next
+
+exports.claimCapture = (req, res, next) ->
+    captureID = req.params['captureID']
+
+    models.Capture
+        .get captureID
+        .update {claimedByID: req.user.id}
+        .getJoin()
+        .run()
+        .then (capture) ->
+            res.json {capture}
+        .catch next
+
 
 exports.addCaptureShifts = (req, res, next) ->
     shifts = null

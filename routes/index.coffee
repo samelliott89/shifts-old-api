@@ -121,6 +121,7 @@ module.exports = (app) ->
     app.route('/_admin/captures/rejected')         .get  isAdmin,       captureAdmin.getRejectedCaptures
     app.route('/_admin/captures/recent')           .get  isAdmin,       captureAdmin.getRecentCaptures
     app.route('/_admin/captures/:captureID')       .put  isOutsourced,  captureAdmin.updateCapture
+    app.route('/_admin/captures/:captureID/claim') .post isOutsourced,  captureAdmin.claimCapture
     app.route('/_admin/captures/:captureID/shifts').post isOutsourced,  captureAdmin.addCaptureShifts
 
     app.route('/_admin/scripts')                   .get  isAdmin,        scriptsAdmin.getAllScripts
