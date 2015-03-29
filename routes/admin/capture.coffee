@@ -8,47 +8,7 @@ _errs = require '../../errors'
 auth = require '../../auth'
 r = models.r
 
-mandrill = require 'mandrill-api/mandrill'
-mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
-
-_sendNotifications = (adminUser, user, shifts) ->
-    messageHTML = """
-    <p>Hey #{user.displayName},</p>
-
-    <p>Your Schedule Capture was successful - #{shifts.length} shifts have been added to your Robby profile.</p>
-
-    <p>If you have any questions, just reply to this email and we'll help you out.</p>
-    """
-
-    message = {
-        html: messageHTML
-        subject: "Your new shifts have been added to Robby"
-        from_email: "hi@heyrobby.com"
-        from_name: "Robby Schedule Capture"
-        to: [{
-            email: user.email
-            name: user.displayName
-        }]
-        important: true
-        track_opens: true
-        track_clicks: true
-        auto_text: true
-        tags: ['shifts-transactional', 'capture-successful']
-    }
-
-    slack.sendMessage {text: "#{adminUser.displayName} has added #{shifts.length} for #{user.displayName}'s capture."}
-
-    _chimpSuccess = ([result]) ->
-        invalidstatus = ['rejected', 'invalid']
-        if not result and result.reject_reason
-            console.log 'Could not send welcome email: '
-            console.log result
-
-    _chimpFailure = (err) ->
-        console.log 'Mailchimp error:'
-        console.log err
-
-    mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
+mandrill = require '../../services/mandrill'
 
 _cleanCaptures = (captures) ->
     captures.forEach (cap) ->
@@ -60,6 +20,28 @@ _cleanCaptures = (captures) ->
         }
 
     return captures
+
+_sendRejectEmail = (capture, reason) ->
+    models.getUser capture.ownerID
+        .then (owner) ->
+            email = {
+                template_name: 'dynamic-basic-text'
+                message: {
+                    subject: 'There was a problem with your schedule capture'
+                    to: [{email: owner.email, name: owner.displayName }]
+                }
+            }
+
+            imgLink = "http://www.ucarecdn.com/#{capture.ucImageID}/-/preview/1000x1000/-/progressive/yes/"
+
+            mandrill.sendEmail email, {
+                heading: "Your recent schedule capture was not imported"
+                paragraphs: [
+                    "Just letting you know that Robby was unable to find any valid shifts in your <a href=\"#{imgLink}\">recent schedule capture</a>: #{reason}"
+                    'If you believe this is a mistake, or have any questions, just reply to this email or contact us at hi@heyrobby.com'
+                ]
+            }
+
 
 exports.getPendingCaptures = (req, res, next) ->
     models.Capture
@@ -106,6 +88,7 @@ exports.updateCapture = (req, res, next) ->
         capture.processedBy = req.user.id
         capture.processedDate = new Date()
 
+
     if req.body.rejected
         if req.body.owner?.displayName
             captureOwner = "#{req.body.owner?.displayName}'s"
@@ -120,10 +103,15 @@ exports.updateCapture = (req, res, next) ->
 
     capture.id = req.params['captureID']
     models.Capture
-        .insert(capture, {conflict: 'update', returnChanges: true})
+        .get capture.id
+        .update capture
+        .getJoin()
         .run()
-        .then ({changes}) ->
-            res.json {capture: changes[0].new_val}
+        .then (newCapture) ->
+            res.json {capture: newCapture}
+
+            if req.body.rejectedEmail?.length > 3
+                _sendRejectEmail newCapture, req.body.rejectedEmail
         .catch next
 
 exports.claimCapture = (req, res, next) ->
@@ -175,7 +163,28 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Shift.insert(shifts).run()
         .then (result) ->
-            _sendNotifications req.user, owner, shifts
+
+            email = {
+                template_name: 'dynamic-basic-text'
+                message: {
+                    subject: 'Your new shifts have been added to Robby'
+                    to: [{email: owner.email, name: owner.displayName }]
+                }
+            }
+
+            shiftWord = if shifts.length is 1 then 'shift has' else 'shifts have'
+
+            mandrill.sendEmail email, {
+                heading: "Your Schedule Capture was successful"
+                paragraphs: [
+                    "Awesome! <b>#{shifts.length} #{shiftWord} have been added to your Robby profile.</b>"
+                    "If you have any questions, just reply to this email (or email us at hi@heyrobby.com) and we'll sort you out."
+                    " "
+                ]
+            }
+
+            slack.sendMessage {text: "#{req.user.displayName} has added #{shifts.length} for #{owner.displayName}'s capture."}
+
             models.Capture.get(captureID).update({
                 processed: true
                 processedBy: req.user.id
