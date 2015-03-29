@@ -11,7 +11,7 @@ r = models.r
 mandrill = require 'mandrill-api/mandrill'
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
-_sendNotifications = (user, shifts) ->
+_sendNotifications = (adminUser, user, shifts) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
@@ -36,7 +36,7 @@ _sendNotifications = (user, shifts) ->
         tags: ['shifts-transactional', 'capture-successful']
     }
 
-    slack.sendMessage {text: "Shifts have been added for #{user.displayName}'s capture"}
+    slack.sendMessage {text: "#{adminUser.displayName} has added #{shifts.length} for #{user.displayName}'s capture."}
 
     _chimpSuccess = ([result]) ->
         invalidstatus = ['rejected', 'invalid']
@@ -85,7 +85,8 @@ exports.getRejectedCaptures = (req, res, next) ->
 exports.getRecentCaptures = (req, res, next) ->
     models.Capture
         .filter {processed: true}
-        .orderBy models.r.desc('processedDate')
+        .orderBy models.r.desc('created')
+        .limit 30
         .getJoin()
         .run()
         .then _cleanCaptures
@@ -100,13 +101,18 @@ exports.updateCapture = (req, res, next) ->
 
     capture = _.pick req.body, whitelistedFields
 
-    if req.body.delete and auth.hasTrait 'admin'
+    if req.body.delete and req.user.traits.admin
         capture.processed = true
         capture.processedBy = req.user.id
         capture.processedDate = new Date()
 
-    if req.body.rejected and auth.hasTrait 'outsourced'
-        text = '<!channel>: An odesker has rejected a capture'
+    if req.body.rejected
+        if req.body.owner?.displayName
+            captureOwner = "#{req.body.owner?.displayName}'s"
+        else
+            captureOwner = 'a'
+
+        text = "<!channel>: #{req.user.displayName} has rejected #{captureOwner} capture"
         if capture.rejectedReason
             text += " because '#{capture.rejectedReason}'"
 
@@ -169,7 +175,7 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Shift.insert(shifts).run()
         .then (result) ->
-            _sendNotifications owner, shifts
+            _sendNotifications req.user, owner, shifts
             models.Capture.get(captureID).update({
                 processed: true
                 processedBy: req.user.id

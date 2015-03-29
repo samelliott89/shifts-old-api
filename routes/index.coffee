@@ -1,7 +1,8 @@
 _ = require 'underscore'
 
-auth      = require '../auth'
+auth       = require '../auth'
 _errs      = require '../errors'
+models     = require '../models'
 
 authV1     = require './v1/auth'
 userV1     = require './v1/users'
@@ -117,12 +118,12 @@ module.exports = (app) ->
     app.route('/_admin/pageDumps')                 .put  isAdmin,       admin.updatePageDumps
     app.route('/_admin/identifyAllUsers')          .get  isAdmin,       admin.identifyAllUsers
 
-    app.route('/_admin/captures')                  .get  isOutsourced,  captureAdmin.getPendingCaptures
-    app.route('/_admin/captures/rejected')         .get  isAdmin,       captureAdmin.getRejectedCaptures
-    app.route('/_admin/captures/recent')           .get  isAdmin,       captureAdmin.getRecentCaptures
-    app.route('/_admin/captures/:captureID')       .put  isOutsourced,  captureAdmin.updateCapture
-    app.route('/_admin/captures/:captureID/claim') .post isOutsourced,  captureAdmin.claimCapture
-    app.route('/_admin/captures/:captureID/shifts').post isOutsourced,  captureAdmin.addCaptureShifts
+    app.route('/_admin/captures')                  .get  isOutsourced,  models.extendAuthedUser, captureAdmin.getPendingCaptures
+    app.route('/_admin/captures/rejected')         .get  isAdmin,       models.extendAuthedUser, captureAdmin.getRejectedCaptures
+    app.route('/_admin/captures/recent')           .get  isAdmin,       models.extendAuthedUser, captureAdmin.getRecentCaptures
+    app.route('/_admin/captures/:captureID')       .put  isOutsourced,  models.extendAuthedUser, captureAdmin.updateCapture
+    app.route('/_admin/captures/:captureID/claim') .post isOutsourced,  models.extendAuthedUser, captureAdmin.claimCapture
+    app.route('/_admin/captures/:captureID/shifts').post isOutsourced,  models.extendAuthedUser, captureAdmin.addCaptureShifts
 
     app.route('/_admin/scripts')                   .get  isAdmin,        scriptsAdmin.getAllScripts
     app.route('/_admin/scripts/:name')             .post isAdmin,        scriptsAdmin.updateScript

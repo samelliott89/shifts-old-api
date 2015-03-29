@@ -84,8 +84,17 @@ getUser = (key, opts={}) -> new Promise (resolve, reject) ->
             resolve user
         .catch reject
 
+extendAuthedUser = (req, res, next) ->
+    User.get req.user.id
+        .run()
+        .then (user) ->
+            _.extend req.user, user
+            next()
+        .catch next
+
 # Shitty way to get around circular requires
 _.extend module.exports.helpers, {
+    extendAuthedUser,
     cleanUser,
     getUser
 }
