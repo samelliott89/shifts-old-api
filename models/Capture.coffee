@@ -6,7 +6,7 @@ Capture = thinky.createModel 'Capture',
     id: String
     ownerID: String
     ucImageID: String
-    processedBy: String
+    processedByID: String
     claimedByID: String
     tzOffset: Number
     processed: Boolean
@@ -14,7 +14,7 @@ Capture = thinky.createModel 'Capture',
     updated: Date
 
 Capture.belongsTo User.model, 'owner', 'ownerID', 'id'
-Capture.belongsTo User.model, 'processedByUser', 'processedBy', 'id'
+Capture.belongsTo User.model, 'processedBy', 'processedByID', 'id'
 Capture.belongsTo User.model, 'claimedBy', 'claimedByID', 'id'
 
 exports.model = Capture

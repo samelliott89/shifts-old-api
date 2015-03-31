@@ -48,7 +48,7 @@ exports.getPendingCaptures = (req, res, next) ->
         .filter (row) -> {processed: false}
         .filter r.row('rejected').not()
         .orderBy models.r.asc('created')
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then _cleanCaptures
         .then (captures) -> res.json {captures}
@@ -58,7 +58,7 @@ exports.getRejectedCaptures = (req, res, next) ->
     models.Capture
         .filter {processed: false, rejected: true}
         .orderBy  models.r.desc('created')
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then _cleanCaptures
         .then (captures) -> res.json {captures}
@@ -69,7 +69,7 @@ exports.getRecentCaptures = (req, res, next) ->
         .filter {processed: true}
         .orderBy models.r.desc('created')
         .limit 30
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then _cleanCaptures
         .then (captures) -> res.json {captures}
@@ -85,7 +85,7 @@ exports.updateCapture = (req, res, next) ->
 
     if req.body.delete and req.user.traits.admin
         capture.processed = true
-        capture.processedBy = req.user.id
+        capture.processedByID = req.user.id # here
         capture.processedDate = new Date()
 
 
@@ -105,7 +105,7 @@ exports.updateCapture = (req, res, next) ->
     models.Capture
         .get capture.id
         .update capture
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then (newCapture) ->
             res.json {capture: newCapture}
@@ -120,7 +120,7 @@ exports.claimCapture = (req, res, next) ->
     models.Capture
         .get captureID
         .update {claimedByID: req.user.id}
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then (capture) ->
             res.json {capture}
@@ -141,7 +141,7 @@ exports.addCaptureShifts = (req, res, next) ->
 
     models.Capture
         .get captureID
-        .getJoin()
+        .getJoin({owner: true, processedBy: true, claimedBy: true})
         .run()
         .then (capture) ->
             owner = capture.owner
@@ -187,7 +187,7 @@ exports.addCaptureShifts = (req, res, next) ->
 
             models.Capture.get(captureID).update({
                 processed: true
-                processedBy: req.user.id
+                processedByID: req.user.id # here
                 processedDate: new Date()
             }).run()
         .then (result) ->
