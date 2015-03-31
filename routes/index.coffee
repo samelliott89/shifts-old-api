@@ -18,6 +18,7 @@ calendarV1 = require './v1/calendar'
 intergrationsV1 = require './v1/intergrations'
 
 admin        = require './admin'
+statsAdmin   = require './admin/stats.coffee'
 captureAdmin = require './admin/capture.coffee'
 scriptsAdmin = require './admin/scripts.coffee'
 
@@ -127,6 +128,10 @@ module.exports = (app) ->
 
     app.route('/_admin/scripts')                   .get  isAdmin,        scriptsAdmin.getAllScripts
     app.route('/_admin/scripts/:name')             .post isAdmin,        scriptsAdmin.updateScript
+
+    app.route('/_admin/stats/shifts/created')      .get  isAdmin,        statsAdmin.shiftsCreated
+    app.route('/_admin/stats/captures/created')    .get  isAdmin,        statsAdmin.capturesCreated
+    app.route('/_admin/stats/users/created')       .get  isAdmin,        statsAdmin.usersCreated
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()
