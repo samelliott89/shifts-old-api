@@ -51,8 +51,8 @@ _sendWelcomeEmail = (user) ->
     so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
 
     <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
-    week's or fortnight's schedule. Robby works best when you have all your upcoming shifts and
-    you've connected with your friends and coworkers.</p>
+    week's or fortnight's schedule. It super easy, all you have to do is a take a photo of your schedule, however you
+    get it (even from your computer screen) and we take care of the rest.</p>
 
     <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
     Please let us know if you need any help, have feature ideas or just want to say hi.</p>
