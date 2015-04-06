@@ -82,6 +82,7 @@ _sendRejectSlackMessage = ({req, willSendEmail}) ->
     slack.sendMessage {
         text: text
         attachments: [attachment]
+        channel: slack.REJECT_CHANNEL
     }
 
 exports.getPendingCaptures = (req, res, next) ->
