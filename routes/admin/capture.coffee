@@ -42,6 +42,47 @@ _sendRejectEmail = (capture, reason) ->
                 ]
             }
 
+_sendRejectSlackMessage = ({req, willSendEmail}) ->
+    attachment = {fields: []}
+
+    if req.body.rejectedReason.length > 2
+        attachment.fields.push {
+            title: 'Internal reject reason'
+            value: req.body.rejectedReason
+            short: true
+        }
+
+    if willSendEmail
+        attachment.fields.push {
+            title: 'Reject email'
+            value: req.body.rejectedEmail
+            short: true
+        }
+
+    text = ''
+
+    if not req.user.traits.admin
+        text += '<!channel>: '
+
+    text += "#{req.user.displayName} has rejected "
+
+    if req.body.delete
+        text += 'and deleted '
+
+    if req.body.owner?.displayName
+        text += "#{req.body.owner?.displayName}'s "
+    else
+        text += 'a '
+
+    text += 'capture '
+
+    if willSendEmail
+        text += 'with a rejection email'
+
+    slack.sendMessage {
+        text: text
+        attachments: [attachment]
+    }
 
 exports.getPendingCaptures = (req, res, next) ->
     models.Capture
@@ -82,24 +123,15 @@ exports.updateCapture = (req, res, next) ->
     ]
 
     capture = _.pick req.body, whitelistedFields
+    willSendEmail = req.body.rejectedEmail?.length > 2
 
     if req.body.delete and req.user.traits.admin
         capture.processed = true
         capture.processedByID = req.user.id # here
         capture.processedDate = new Date()
 
-
     if req.body.rejected
-        if req.body.owner?.displayName
-            captureOwner = "#{req.body.owner?.displayName}'s"
-        else
-            captureOwner = 'a'
-
-        text = "<!channel>: #{req.user.displayName} has rejected #{captureOwner} capture"
-        if capture.rejectedReason
-            text += " because '#{capture.rejectedReason}'"
-
-        slack.sendMessage {text}
+        _sendRejectSlackMessage {req, willSendEmail}
 
     capture.id = req.params['captureID']
     models.Capture
@@ -110,7 +142,7 @@ exports.updateCapture = (req, res, next) ->
         .then (newCapture) ->
             res.json {capture: newCapture}
 
-            if req.body.rejectedEmail?.length > 3
+            if willSendEmail
                 _sendRejectEmail newCapture, req.body.rejectedEmail
         .catch next
 
