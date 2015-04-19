@@ -20,6 +20,7 @@ intergrationsV1 = require './v1/intergrations'
 admin        = require './admin'
 statsAdmin   = require './admin/stats.coffee'
 captureAdmin = require './admin/capture.coffee'
+queriesAdmin = require './admin/queries.coffee'
 scriptsAdmin = require './admin/scripts.coffee'
 
 module.exports = (app) ->
@@ -132,6 +133,11 @@ module.exports = (app) ->
     app.route('/_admin/stats/shifts/created')      .get  isAdmin,        statsAdmin.shiftsCreated
     app.route('/_admin/stats/captures/created')    .get  isAdmin,        statsAdmin.capturesCreated
     app.route('/_admin/stats/users/created')       .get  isAdmin,        statsAdmin.usersCreated
+
+    app.route('/_admin/queries')                   .get  isAdmin,        queriesAdmin.getAllQueries
+    app.route('/_admin/queries')                   .post isAdmin,        queriesAdmin.updateQuery
+    app.route('/_admin/queries/:queryID')          .post isAdmin,        queriesAdmin.updateQuery
+    app.route('/_admin/queries/:queryID/execute')  .get  isAdmin,        queriesAdmin.executeQuery
 
     # 404 handler
     app.use (req, res, next) -> next new _errs.NotFound()

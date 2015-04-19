@@ -10,6 +10,7 @@ importModel 'User',       exports
 importModel 'Link',       exports
 importModel 'Shift',      exports
 importModel 'Parse',      exports
+importModel 'Query',      exports
 importModel 'Parser',     exports
 importModel 'Script',     exports
 importModel 'Capture',    exports
