@@ -14,6 +14,7 @@ defaultSettings = {
     'startOfWeek': 0
     'softNotifcationPermission': undefined
     'shiftReminderMinutes': 60 * 2
+    'completedOnboarding': false
 }
 validSettings = _.keys defaultSettings
 
