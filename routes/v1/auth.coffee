@@ -47,10 +47,10 @@ _sendWelcomeEmail = (user) ->
     messageHTML = """
     <p>Hey #{user.displayName},</p>
 
-    <p>Sam here, cofounder of Robby. I'm guessing it's not everyday you download a new app
+    <p>Sam here, cofounder of Atum. I'm guessing it's not everyday you download a new app
     so we just wanted to make sure everything's in place for you to feel welcome and at home.</p>
 
-    <p>Hopefully by now you've gotten the hang of Robby. If you haven't already, we suggest adding your first
+    <p>Hopefully by now you've gotten the hang of Atum. If you haven't already, we suggest adding your first
     week's or fortnight's schedule. It super easy, all you have to do is a take a photo of your schedule, however you
     get it (even from your computer screen) and we take care of the rest.</p>
 
@@ -69,9 +69,9 @@ _sendWelcomeEmail = (user) ->
 
     message = {
         html: messageHTML
-        subject: "Sam here from Robby!"
-        from_email: "sam@heyrobby.com"
-        from_name: "Robby"
+        subject: "Sam here from Atum!"
+        from_email: "sam@getatum.com"
+        from_name: "Atum"
         to: [{
             email: user.email
             name: user.displayName

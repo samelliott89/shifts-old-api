@@ -91,9 +91,9 @@ exports.requestPasswordReset = (req, res, next) ->
             """
             message = {
                 html: messageHTML
-                subject: "Robby Password Reset"
-                from_email: "hi@heyrobby.com"
-                from_name: "Robby"
+                subject: "Atum Password Reset"
+                from_email: "hi@getatum.com"
+                from_name: "Atum"
                 to: [{
                     email: user.email
                     name: user.displayName
