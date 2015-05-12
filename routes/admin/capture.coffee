@@ -37,8 +37,8 @@ _sendRejectEmail = (capture, reason) ->
             mandrill.sendEmail email, {
                 heading: "Your recent schedule capture was not imported"
                 paragraphs: [
-                    "Just letting you know that Robby was unable to find any valid shifts in your <a href=\"#{imgLink}\">recent schedule capture</a>: #{reason}"
-                    'If you believe this is a mistake, or have any questions, just reply to this email or contact us at hi@heyrobby.com'
+                    "Just letting you know that Atum was unable to find any valid shifts in your <a href=\"#{imgLink}\">recent schedule capture</a>: #{reason}"
+                    'If you believe this is a mistake, or have any questions, just reply to this email or contact us at hi@getatum.com'
                 ]
             }
 
@@ -200,7 +200,7 @@ exports.addCaptureShifts = (req, res, next) ->
             email = {
                 template_name: 'dynamic-basic-text'
                 message: {
-                    subject: 'Your new shifts have been added to Robby'
+                    subject: 'Your new shifts have been added to Atum'
                     to: [{email: owner.email, name: owner.displayName }]
                 }
             }
@@ -210,8 +210,8 @@ exports.addCaptureShifts = (req, res, next) ->
             mandrill.sendEmail email, {
                 heading: "Your Schedule Capture was successful"
                 paragraphs: [
-                    "Awesome! <b>#{shifts.length} #{shiftWord} have been added to your Robby profile.</b>"
-                    "If you have any questions, just reply to this email (or email us at hi@heyrobby.com) and we'll sort you out."
+                    "Awesome! <b>#{shifts.length} #{shiftWord} have been added to your Atum profile.</b>"
+                    "If you have any questions, just reply to this email (or email us at hi@getatum.com) and we'll sort you out."
                     " "
                 ]
             }
