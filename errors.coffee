@@ -1,4 +1,5 @@
 _ = require 'underscore'
+bugsnag = require 'bugsnag'
 
 config = require './config'
 thinky = require './models/thinky'
