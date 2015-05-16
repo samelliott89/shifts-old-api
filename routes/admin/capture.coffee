@@ -210,7 +210,7 @@ exports.addCaptureShifts = (req, res, next) ->
             mandrill.sendEmail email, {
                 heading: "Your Schedule Capture was successful"
                 paragraphs: [
-                    "Awesome! <b>#{shifts.length} #{shiftWord} have been added to your Atum profile.</b>"
+                    "Awesome! <b>#{shifts.length} #{shiftWord} been added to your Atum profile.</b>"
                     "If you have any questions, just reply to this email (or email us at hi@getatum.com) and we'll sort you out."
                     " "
                 ]
