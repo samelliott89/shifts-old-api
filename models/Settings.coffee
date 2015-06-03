@@ -15,7 +15,9 @@ defaultSettings = {
     'softNotifcationPermission': undefined
     'shiftReminderMinutes': 60 * 2
     'completedOnboarding': false
+    'calendarTitle': ''
 }
+
 validSettings = _.keys defaultSettings
 
 modelSchema =
