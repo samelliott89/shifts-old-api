@@ -5,7 +5,7 @@ mandrill = require 'mandrill-api/mandrill'
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 defaultMessage = {
-    from_email: 'hi@hgetatum.com'
+    from_email: 'hi@getatum.com'
     from_name: 'Team Atum'
     track_opens: true
     track_clicks: true
