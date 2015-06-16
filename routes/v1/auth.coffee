@@ -55,7 +55,8 @@ _sendWelcomeEmail = (user) ->
     get it (even from your computer screen) and we take care of the rest.</p>
 
     <p>Before I go, I just want to let you know that I'm here to answer any questions or respond to any feedback.
-    Please let us know if you need any help, have feature ideas or just want to say hi.</p>
+    Please let us know if you need any help, have feature ideas or just want to say hi and also if you want to support
+    future development, please donate <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CUFVZ88XD9PBW">here.</a>
 
     <p>
         Cheers,<br/>
