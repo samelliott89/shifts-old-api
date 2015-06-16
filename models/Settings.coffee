@@ -15,7 +15,7 @@ defaultSettings = {
     'softNotifcationPermission': undefined
     'shiftReminderMinutes': 60 * 2
     'completedOnboarding': false
-    'calendarTitle': ''
+    'calendarTitle': 'Work'
 }
 
 validSettings = _.keys defaultSettings
