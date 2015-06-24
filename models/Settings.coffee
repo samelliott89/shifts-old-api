@@ -17,6 +17,7 @@ defaultSettings = {
     'completedOnboarding': false
     'calendarTitle': 'Work Shift'
     'calendarName': 'Work Calendar'
+    'calendarSync': false
 }
 
 validSettings = _.keys defaultSettings
