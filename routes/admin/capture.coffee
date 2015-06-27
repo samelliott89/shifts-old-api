@@ -22,6 +22,7 @@ _cleanCaptures = (captures) ->
     return captures
 
 _sendRejectEmail = (capture, reason) ->
+
     models.getUser capture.ownerID
         .then (owner) ->
             email = {
@@ -37,7 +38,7 @@ _sendRejectEmail = (capture, reason) ->
             mandrill.sendEmail email, {
                 heading: "Your recent schedule capture was not imported"
                 paragraphs: [
-                    "Just letting you know that Atum was unable to find any valid shifts in your <a href=\"#{imgLink}\">recent schedule capture</a>: #{reason}"
+                    "Just letting you know that Atum was unable to capture any shifts from your <a href=\"#{imgLink}\">recent schedule</a>: #{reason}"
                     'If you believe this is a mistake, or have any questions, just reply to this email or contact us at hi@getatum.com'
                 ]
             }
@@ -124,14 +125,24 @@ exports.updateCapture = (req, res, next) ->
     ]
 
     capture = _.pick req.body, whitelistedFields
-    willSendEmail = req.body.rejectedEmail?.length > 2
+    willSendEmail = false
 
-    if req.body.delete and req.user.traits.admin
+    _setComplete = (capture) ->
         capture.processed = true
         capture.processedByID = req.user.id # here
         capture.processedDate = new Date()
 
-    if req.body.rejected
+    if req.body.delete and req.user.traits.admin
+        willSendEmail = true
+        _setComplete capture
+
+    if req.body.rejected and req.body.rejectedReason?.length > 3
+
+        if req.body.rejectedReason.toLowerCase().indexOf('escalate for review') is -1
+            willSendEmail = true
+            req.body.rejectedEmail ?= req.body.rejectedReason
+            _setComplete capture
+
         _sendRejectSlackMessage {req, willSendEmail}
 
     capture.id = req.params['captureID']
@@ -145,6 +156,7 @@ exports.updateCapture = (req, res, next) ->
 
             if willSendEmail
                 _sendRejectEmail newCapture, req.body.rejectedEmail
+
         .catch next
 
 exports.claimCapture = (req, res, next) ->

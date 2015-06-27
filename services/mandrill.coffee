@@ -13,6 +13,11 @@ defaultMessage = {
 }
 
 exports.sendEmail = (opts, globalVars) ->
+    unless config.env is 'prod'
+        console.log opts
+        console.log globalVars
+        return
+
     opts.message = _.defaults opts.message, defaultMessage
     opts.async ?= false
 
