@@ -1,15 +1,12 @@
 models = require '../../models'
-
+_ = require 'underscore'
 
 
 exports.checkContacts = (req, res, next) ->
-    usersFound = []
     emails = req.body.emails
-    console.log 'Emails: ' + emails
-    for email in emails
-        models.getUser(email)
-        .then (user) ->
-            usersFound.push(user)
-            console.log 'Found Users - ' + usersFound
-            res.json { contacts: usersFound } 
-        
+    #emails = ["prabhu.saitu@gmail.com", "robin.r@gmail.com"]
+    models.getAllUsersByEmails(emails)
+        .then((users) ->
+            _.map users, models.cleanUser
+            res.json users
+        )

@@ -68,8 +68,7 @@ module.exports = (app) ->
 
     app.route '/v1/search/users'
         .get    auth.authRequired,        searchV1.userSearch
-    app.route '/v1/search/users/emails'
-        .post    auth.authRequired,        searchV1.usersSearch
+
 
 
     ##
@@ -110,13 +109,13 @@ module.exports = (app) ->
     app.route('/v1/parse/frame')         .get                     intergrationsV1.frame
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
-    
+
     ##
-    # Find friends from contacts
+    # Find connections from contacts
     ##
-    
+
     app.route('/v1/contacts/find')
-        .post contactsV1.checkContacts
+        .post auth.currentUserRequired, contactsV1.checkContacts
 
     ##
     # Admin and misc routes

@@ -10,6 +10,7 @@ auth = require '../auth'
 friendshipHelpers = require('./Friendship').helpers
 thinky = require './thinky'
 _errs = require '../errors'
+r = thinky.r
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
 safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet']
@@ -84,6 +85,11 @@ getUser = (key, opts={}) -> new Promise (resolve, reject) ->
             resolve user
         .catch reject
 
+getAllUsersByEmails = (emails) ->
+    r.table('User').filter((user) ->
+        r.expr(emails).contains user('email')).run()
+
+
 extendAuthedUser = (req, res, next) ->
     User.get req.user.id
         .run()
@@ -96,5 +102,6 @@ extendAuthedUser = (req, res, next) ->
 _.extend module.exports.helpers, {
     extendAuthedUser,
     cleanUser,
-    getUser
+    getUser,
+    getAllUsersByEmails
 }
