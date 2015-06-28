@@ -15,6 +15,7 @@ scraperV1  = require './v1/scraper'
 captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
 calendarV1 = require './v1/calendar'
+contactsV1 = require './v1/contacts'
 intergrationsV1 = require './v1/intergrations'
 
 admin        = require './admin'
@@ -69,6 +70,7 @@ module.exports = (app) ->
         .get    auth.authRequired,        searchV1.userSearch
 
 
+
     ##
     # Calendar feed
     ##
@@ -107,6 +109,13 @@ module.exports = (app) ->
     app.route('/v1/parse/frame')         .get                     intergrationsV1.frame
     app.route('/intergrations/debug')    .post                    intergrationsV1.debug
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
+
+    ##
+    # Find connections from contacts
+    ##
+
+    app.route('/v1/contacts/find')
+        .post auth.currentUserRequired, contactsV1.checkContacts
 
     ##
     # Admin and misc routes
