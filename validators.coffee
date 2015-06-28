@@ -23,3 +23,5 @@ module.exports =
             !validator.isAfter(shift.end, shift.start)
         # return true if invalidShifts is undefined
         !invalidShifts?
+
+    isArray: (value) -> Array.isArray(value)

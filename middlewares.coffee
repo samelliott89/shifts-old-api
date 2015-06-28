@@ -7,6 +7,15 @@ config  = require './config'
 thinky = require './models/thinky'
 rethinkDBErrors = thinky.Errors
 
+cleanError = (err) ->
+    if not err.stack
+        return err
+
+    err.stack
+        .split '\n'
+        .filter (line) -> line.indexOf('node_modules') is -1
+        .join '\n'
+
 exports.isAuthed = (req, res, next) ->
     req.isAuthenticated = !!req.user
     next()
@@ -43,7 +52,7 @@ exports.errorHandler = (originalError, req, res, next) ->
 
     else
         console.log 'UNEXPECTED ERROR:'
-        console.log originalError.stack or originalError
+        console.log cleanError originalError
         _errs.sendError(originalError, _.extend({severity: 'error'}, bugsnagOptions))
         error = new _errs.ServerError()
 

@@ -85,10 +85,26 @@ getUser = (key, opts={}) -> new Promise (resolve, reject) ->
             resolve user
         .catch reject
 
-getAllUsersByEmails = (emails) ->
-    r.table('User').filter((user) ->
-        r.expr(emails).contains user('email')).run()
+getAllUsersByEmails = (emails) -> new Promise (resolve, reject) ->
 
+    # Package emails for rethink
+    r.expr(emails)
+
+        # And join them to the User table by using the 'email' inde
+        .eqJoin(((email) -> email), r.table('User'), {index: 'email'})
+
+        # Remove any duplicates
+        .distinct()
+
+        # And get only the users and execute
+        .map (row) -> row('right')
+        .run()
+
+        # Clean users up and then return
+        .then (foundUsers) ->
+            cleanedUsers = _.map foundUsers, (user) -> cleanUser user
+            resolve cleanedUsers
+        .catch reject
 
 extendAuthedUser = (req, res, next) ->
     User.get req.user.id

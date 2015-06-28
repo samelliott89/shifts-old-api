@@ -111,11 +111,10 @@ module.exports = (app) ->
     app.route('/intergrations/debug/:id').get                     intergrationsV1.getDebugHtml
 
     ##
-    # Find connections from contacts
+    # Find users from contacts
     ##
-
     app.route('/v1/contacts/find')
-        .post auth.currentUserRequired, contactsV1.checkContacts
+        .post auth.authRequired, contactsV1.checkContacts
 
     ##
     # Admin and misc routes
