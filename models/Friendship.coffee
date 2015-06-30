@@ -77,13 +77,13 @@ requireFriendship = (user1, user2) ->
                 return Promise.reject new _errs.InvalidPermissions()
             return
 
-getFriends = (userID) ->
+getFriends = (userID, joinToUsers = true) ->
     userAsFriend = r.table('Friendship')
         .getAll userID, {index: 'friendID'}
         .map (row) -> row 'userID'
         .coerceTo 'array'
 
-    Friendship
+    query = Friendship
         # First, create a list one direction of relationships
         .getAll userID, {index: 'userID'}
         .map (row) -> row 'friendID'
@@ -93,15 +93,20 @@ getFriends = (userID) ->
         # This intersection is all the friends userID has
         .setIntersection userAsFriend
 
-        # 'Join' to the User tables and execute
-        .map (friendID) -> r.table('User').get friendID
-        .execute()
+    # Optionally 'join' to the User tables and execute
+    if joinToUsers
+        query = query.map (friendID) -> r.table('User').get friendID
+
+    query.execute()
 
         # And then process the returned promise
         .then (cursor) ->
             cursor.toArray()
         .then (friends) ->
-            _.map friends, userHelpers.cleanUser
+            if joinToUsers
+                return _.map friends, userHelpers.cleanUser
+            else
+                return friends
 
 # Returns a list of pending friend requests, ready for user userID to accept
 getPendingFriendships = (userID) ->
