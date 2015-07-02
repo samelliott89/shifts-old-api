@@ -35,28 +35,33 @@ Friendship.ensureIndex 'UserToFriend', (doc) ->
 
 module.exports.model = Friendship
 
-NONE = 0
-MUTUAL = 1
-USER2_TO_ACCEPT = -1
-USER1_TO_ACCEPT = -2
+
+
+
+
 
 status = FRIENDSHIP_STATUS = {
-    NONE
-    MUTUAL
-    USER2_TO_ACCEPT
-    USER1_TO_ACCEPT
+    NONE: 0
+    MUTUAL: 1
+    USER2_TO_ACCEPT: -1
+    USER1_TO_ACCEPT: -2
 }
 
-_evaluateFriendship = ([[rel1], [rel2]]) ->
+statusMap = FRIENDSHIP_STATUS_MAP = _.invert status
+
+_evaluateFriendship = (rel1, rel2) ->
+    if rel1 and rel2
+        return status.MUTUAL
+    else if rel1 and not rel2
+        return status.USER2_TO_ACCEPT
+    else if not rel1 and rel2
+        return status.USER1_TO_ACCEPT
+    else
+        return status.NONE
+
+_evaluateFriendshipPromise = ([[rel1], [rel2]]) ->
     new Promise (resolve) ->
-        if rel1 and rel2
-            resolve status.MUTUAL
-        else if rel1 and not rel2
-            resolve status.USER2_TO_ACCEPT
-        else if not rel1 and rel2
-            resolve status.USER1_TO_ACCEPT
-        else
-            resolve status.NONE
+        resolve _evaluateFriendship(rel1, rel2)
 
 mapFriendStatus = (status) ->
     _.invert(FRIENDSHIP_STATUS)[status]
@@ -68,7 +73,54 @@ getFriendshipStatus = (user1, user2) ->
     ]
 
     bluebird.all promises
-        .then _evaluateFriendship
+        .then _evaluateFriendshipPromise
+
+getMultipleFriendshipStatus = (user1, otherUsers, opts = {}) ->
+    opts.friendly ?= false
+
+    allIndexes = []
+
+    _.each otherUsers, (user2) ->
+        allIndexes.push user1 + user2
+        allIndexes.push user2 + user1
+
+    # Package emails for rethink
+    r.expr(allIndexes)
+
+        # And join them to the User table by using the 'email' inde
+        .eqJoin(((email) -> email), r.table('Friendship'), {index: 'UserToFriend'})
+
+        # Remove any duplicates
+        .distinct()
+
+        # And get only the users and execute
+        .map (row) -> row('right')
+        .run()
+
+        .then (allFriendships) ->
+            # Map the friendship data to something we can check easily 'query' pairs for
+            rels = {}
+            for ship in allFriendships
+                rels[ship.userID + ship.friendID] = true
+
+            # Store the relationships data results
+            results = {}
+            for user2 in otherUsers
+                # Figure out which way the relationships exists
+                rel1 = rels[user1 + user2]
+                rel2 = rels[user2 + user1]
+
+                # Figure out if its mutual or not
+                shipStatus = _evaluateFriendship rel1, rel2
+
+                if opts.friendly
+                    shipStatus = statusMap[shipStatus]
+
+                # Add it to our return obj
+                results[user2] = shipStatus
+
+            return results
+
 
 requireFriendship = (user1, user2) ->
     getFriendshipStatus user1, user2
@@ -149,6 +201,7 @@ _.extend module.exports.helpers, {
     getFriends
     deleteFriendship
     getPendingFriendships
+    getMultipleFriendshipStatus
     mapFriendStatus
     requireFriendship
     FRIENDSHIP_STATUS
