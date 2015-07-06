@@ -26,7 +26,7 @@ cleanUser = (user, req, opts = {}) ->
 
     unless user.profilePhoto
         photoHash = crypto.createHash('md5').update(user.id).digest('hex')
-        user.defaultPhoto = "http://www.gravatar.com/avatar/#{photoHash}?default=retro"
+        user.defaultPhoto = "https://www.gravatar.com/avatar/#{photoHash}?default=retro"
 
     _.pick user, fields
 
