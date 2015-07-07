@@ -13,7 +13,7 @@ _errs = require '../errors'
 r = thinky.r
 
 safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
-safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet']
+safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet', 'phone']
 adminUserFeilds = safeOwnUserFields.concat ['pwResetToken']
 
 cleanUser = (user, req, opts = {}) ->
@@ -35,6 +35,7 @@ User = thinky.createModel 'User',
     bio:          String
     displayName:  String
     email:        String
+    phone:        String
     password:     String
     traits:       Object
     created:      Date
