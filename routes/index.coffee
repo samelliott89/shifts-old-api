@@ -119,7 +119,7 @@ module.exports = (app) ->
     ##
     # Request to add phone number
     ##
-    app.route('/v1/user/:userID/requestPhone')
+    app.route('/v1/users/:userID/requestPhone')
         .post auth.authRequired, models.extendAuthedUser, userV1.requestPhoneNumber
 
     ##
