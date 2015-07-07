@@ -39,7 +39,7 @@ exports.editUser = (req, res, next) ->
         req.checkBody('profilePhoto.id', 'Valid profile photo id for type is required').optional().isUUID()
     _errs.handleValidationErrors {req}
 
-    allowedFields = ['email', 'displayName', 'bio', 'profilePhoto']
+    allowedFields = ['email', 'displayName', 'bio', 'profilePhoto', 'phone']
     photoAllowedFields = ['type', 'id']
 
     models.getUser req.param('userID')
