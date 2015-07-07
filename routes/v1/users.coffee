@@ -64,17 +64,11 @@ exports.requestPhoneNumber = (req, res, next) ->
     user = req.user
     models.getUser req.params.userID
         .then (userReceiving) ->
-            console.log 'got', userReceiving
-
-            email = {
+            email =
                 template_name: 'dynamic-basic-text'
-                message: {
+                message:
                     subject: 'Phone Number Request'
                     to: [{email: userReceiving.email, name: userReceiving.displayName }]
-                }
-            }
-
-            console.log 'made email'
 
             mandrill.sendEmail email, {
                 heading: "Phone number request from #{user.displayName}"
