@@ -100,59 +100,27 @@ exports.requestPasswordReset = (req, res, next) ->
             user.save()
         .then (user) ->
             resetUrl = "https://api.getshifts.co/resetPassword?t=#{user.pwResetToken}"
-            messageHTML = """
-            <p>Hey,</p>
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: 'Atum Password Reset'
+                    to: [{email: user.email, name: user.displayName }]
 
-            <p>You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a>
-                and enter a new password.</p>
-
-            <p>If you haven't, you can safely ignore this email.</p>
-
-            <p>If you have any questions, just reply to this email and we'll do our best to help you out.</p>
-
-            <p>
-                Cheers,<br/>
-                Sam
-            </p>
-            """
-            message = {
-                html: messageHTML
-                subject: "Atum Password Reset"
-                from_email: "hi@getatum.com"
-                from_name: "Atum"
-                to: [{
-                    email: user.email
-                    name: user.displayName
-                }]
-                important: true
-                track_opens: true
-                track_clicks: true
-                auto_text: true
-                tags: ['shifts-transactional', 'resetpw']
+            mandrill.sendEmail email, {
+                heading: "Atum Password Reset"
+                paragraphs: [
+                    "Hi #{user.displayName}"
+                    "You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a> and enter a new password."
+                    "If you haven't, you can safely ignore this email."
+                    "If you have any questions, just reply to this email and we'll do our best to help you out."
+                    "Team Atum"
+                ]
             }
 
-            _chimpSuccess = ([result]) ->
-                console.log 'Password reset email: _chimpSuccess'
-                console.log arguments
-                invalidstatus = ['rejected', 'invalid']
+        .then (mandrilResp) ->
+            res.json {success: true}
 
-                if (not result) or (result.status in invalidstatus)
-                    console.log 'Could not send password reset email: '
-                    console.log result
-                    next new _errs.ServerError 'Error sending password reset email'
-                    return
-
-                res.json {success: true}
-
-            _chimpFailure = (err) ->
-                console.log 'Password reset email: _chimpFailure'
-                console.log arguments
-                console.log err
-                next new _errs.ServerError 'Error sending password reset email'
-
-            mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
         .catch (err) ->
-            console.log 'caught error :(', err
             _errs.handleRethinkErrors err, next
 
 exports.changePassword = (req, res, next) ->
