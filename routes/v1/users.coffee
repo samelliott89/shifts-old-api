@@ -1,15 +1,13 @@
 _ = require 'underscore'
 bluebird = require 'bluebird'
 jwt = require 'jsonwebtoken'
-mandrill = require 'mandrill-api/mandrill'
+mandrill = require '../../services/mandrill'
 
 auth = require '../../auth'
 config = require '../../config'
 models = require '../../models'
 _errs = require '../../errors'
 analytics = require '../../analytics'
-
-mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
@@ -61,6 +59,34 @@ exports.editUser = (req, res, next) ->
             res.json {user}
         .catch next
 
+exports.requestPhoneNumber = (req, res, next) ->
+
+    user = req.user
+    models.getUser req.params.userID
+        .then (userReceiving) ->
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: 'Phone Number Request'
+                    to: [{email: userReceiving.email, name: userReceiving.displayName }]
+
+            mandrill.sendEmail email, {
+                heading: "Phone number request from #{user.displayName}"
+                paragraphs: [
+                    "Hey #{userReceiving.displayName}"
+                    "#{user.displayName} wants you to add your mobile number to Atum."
+                    "This will make it easy for #{user.displayName} to contact you if they want to swap a shift or oganise to do something on your day off together."
+                    "You can add your mobile number from your Profile by tapping on 'Edit Profile' and going to 'Number'."
+                ]
+            }
+
+        .then (mandrilResp) ->
+            res.json {success: true}
+            analytics.track req, 'Request Phone Number'
+
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
 exports.requestPasswordReset = (req, res, next) ->
     req.checkBody('email', 'Valid email required').isEmail()
     _errs.handleValidationErrors {req}
@@ -86,7 +112,7 @@ exports.requestPasswordReset = (req, res, next) ->
 
             <p>
                 Cheers,<br/>
-                Sam + Josh
+                Sam
             </p>
             """
             message = {

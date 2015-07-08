@@ -1,6 +1,7 @@
 _ = require 'underscore'
 config = require '../config'
 mandrill = require 'mandrill-api/mandrill'
+Promise = require 'bluebird'
 
 mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
@@ -12,10 +13,12 @@ defaultMessage = {
     auto_text: true
 }
 
-exports.sendEmail = (opts, globalVars) ->
+exports.sendEmail = (opts, globalVars) -> new Promise (resolve, reject) ->
     unless config.env is 'prod'
+        console.log 'Supressing email send:'
         console.log opts
         console.log globalVars
+        resolve undefined
         return
 
     opts.message = _.defaults opts.message, defaultMessage
@@ -29,12 +32,20 @@ exports.sendEmail = (opts, globalVars) ->
             opts.message.global_merge_vars.push {name, content}
 
     _chimpSuccess = (allResults) ->
+        failed = false
         for result in allResults
             if result.reject_reason
+                failed = true
                 console.log 'Mailchimp error'
                 console.error result
 
+        if failed
+            reject allResults
+        else
+            resolve allResults
+
     _chimpFailure = (err) ->
+        reject err
         console.log 'Mailchimp error:'
         console.error err
 
