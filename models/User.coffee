@@ -12,7 +12,8 @@ thinky = require './thinky'
 _errs = require '../errors'
 r = thinky.r
 
-safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
+# TO DO: Move 'phone' into a new list that can only be viewed by mutual connections
+safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto', 'phone']
 safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet', 'phone']
 adminUserFeilds = safeOwnUserFields.concat ['pwResetToken']
 
