@@ -67,14 +67,14 @@ exports.requestPhoneNumber = (req, res, next) ->
             email =
                 template_name: 'dynamic-basic-text'
                 message:
-                    subject: 'Phone Number Request'
+                    subject: "Phone Number Request from #{user.displayName}"
                     to: [{email: userReceiving.email, name: userReceiving.displayName }]
 
             mandrill.sendEmail email, {
                 heading: "Phone number request from #{user.displayName}"
                 paragraphs: [
-                    "Hey #{userReceiving.displayName}"
-                    "#{user.displayName} wants you to add your mobile number to Atum."
+                    "Hey #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your mobile number to Atum."
                     "This will make it easy for #{user.displayName} to contact you if they want to swap a shift or oganise to do something on your day off together."
                     "You can add your mobile number from your Profile by tapping on 'Edit Profile' and going to 'Number'."
                 ]
@@ -83,6 +83,33 @@ exports.requestPhoneNumber = (req, res, next) ->
         .then (mandrilResp) ->
             res.json {success: true}
             analytics.track req, 'Request Phone Number'
+
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
+exports.requestSchedule = (req, res, next) ->
+
+    user = req.user
+    models.getUser req.params.userID
+        .then (userReceiving) ->
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: "Schedule Request from #{user.displayName}"
+                    to: [{email: userReceiving.email, name: userReceiving.displayName }]
+
+            mandrill.sendEmail email, {
+                heading: "Schedule request from #{user.displayName}"
+                paragraphs: [
+                    "Hey #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your schedule to Atum."
+                    "This will make it easy for the both of you to swap shifts and organise things to do on your days off."
+                ]
+            }
+
+        .then (mandrilResp) ->
+            res.json {success: true}
+            analytics.track req, 'Request Schedule'
 
         .catch (err) ->
             _errs.handleRethinkErrors err, next
