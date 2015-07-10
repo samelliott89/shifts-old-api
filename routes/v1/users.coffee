@@ -67,16 +67,15 @@ exports.requestPhoneNumber = (req, res, next) ->
             email =
                 template_name: 'dynamic-basic-text'
                 message:
-                    subject: "Phone Number Request from #{user.displayName}"
-                    to: [{email: userReceiving.email, name: userReceiving.displayName }]
+                    subject: "Phone request from #{user.displayName}"
+                    to: [{ email: userReceiving.email, name: userReceiving.displayName }]
 
             mandrill.sendEmail email, {
                 heading: "Phone number request from #{user.displayName}"
                 paragraphs: [
-                    "Hey #{userReceiving.displayName},"
-                    "#{user.displayName} would like you to add your mobile number to Atum."
-                    "This will make it easy for #{user.displayName} to contact you if they want to swap a shift or oganise to do something on your day off together."
-                    "You can add your mobile number from your Profile by tapping on 'Edit Profile' and going to 'Number'."
+                    "Hi #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your mobile number to Atum, allowing them to easily contact you to swap a shift."
+                    "From your Profile, simply tap 'Edit Profile' and select 'Number' to provide the best contact details."
                 ]
             }
 
@@ -95,15 +94,14 @@ exports.requestSchedule = (req, res, next) ->
             email =
                 template_name: 'dynamic-basic-text'
                 message:
-                    subject: "Schedule Request from #{user.displayName}"
-                    to: [{email: userReceiving.email, name: userReceiving.displayName }]
+                    subject: "Schedule request from #{user.displayName}"
+                    to: [{ email: userReceiving.email, name: userReceiving.displayName }]
 
             mandrill.sendEmail email, {
                 heading: "Schedule request from #{user.displayName}"
                 paragraphs: [
-                    "Hey #{userReceiving.displayName},"
-                    "#{user.displayName} would like you to add your schedule to Atum."
-                    "This will make it easy for the both of you to swap shifts and organise things to do on your days off."
+                    "Hi #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your schedule to Atum to allow easy and convenient swapping of shifts."
                 ]
             }
 
