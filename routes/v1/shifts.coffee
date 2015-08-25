@@ -8,6 +8,8 @@ models = require '../../models'
 _errs = require '../../errors'
 analytics = require '../../analytics'
 
+pushService = require '../../services/pushNotifications'
+
 VALID_SHIFT_FIELDS = ['start', 'end', 'title']
 
 getCurrentUsersShift = (req) ->
@@ -85,6 +87,21 @@ exports.addShifts = (req, res, next) ->
             _eventAdd = true
 
         shift.ownerID = req.user.id
+        console.log "User ID " + req.user.id
+        
+        models.Settings.filter({ownerID: req.user.id}).run()
+            .then ([settings]) ->
+                console.log "Settings: ", settings
+                # pushService.sendPush 'Hello There!', settings.deviceType, settings.deviceID
+                # pushService.sendAll 'Hello All!'
+            .catch next
+        
+        models.getUser req.user.id
+            .then (user) ->
+                console.log user
+                #console.log "Device ID " + user.prefs.deviceID
+                #pushService.sendPush 'Hello There!', 'iOS', user.prefs.deviceID
+        
         return shift
 
     checkPermissions

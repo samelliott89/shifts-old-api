@@ -16,6 +16,7 @@ captureV1  = require './v1/capture'
 settingsV1 = require './v1/settings'
 calendarV1 = require './v1/calendar'
 contactsV1 = require './v1/contacts'
+pushV1 = require './v1/pushNotif'
 intergrationsV1 = require './v1/intergrations'
 
 admin        = require './admin'
@@ -79,7 +80,10 @@ module.exports = (app) ->
 
     app.route '/v1/users/:userID/calendar'
         .get auth.currentUserRequired, calendarV1.getCalFeedItem
-
+    
+    ## Push Notification Testing
+    app.route '/v1/sendPush'
+        .get pushV1.sendTestPushNotification
 
     ##
     # Shift and feed management
