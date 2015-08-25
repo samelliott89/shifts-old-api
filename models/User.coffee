@@ -12,8 +12,9 @@ thinky = require './thinky'
 _errs = require '../errors'
 r = thinky.r
 
-safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto']
-safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet']
+# TO DO: Move 'phone' into a new list that can only be viewed by mutual connections
+safeUserFields = ['bio', 'displayName', 'id', 'profilePhoto', 'defaultPhoto', 'phone']
+safeOwnUserFields = safeUserFields.concat ['email', 'traits', 'created', 'defaultDisplayNameSet', 'phone']
 adminUserFeilds = safeOwnUserFields.concat ['pwResetToken']
 
 cleanUser = (user, req, opts = {}) ->
@@ -26,7 +27,7 @@ cleanUser = (user, req, opts = {}) ->
 
     unless user.profilePhoto
         photoHash = crypto.createHash('md5').update(user.id).digest('hex')
-        user.defaultPhoto = "http://www.gravatar.com/avatar/#{photoHash}?default=retro"
+        user.defaultPhoto = "https://www.gravatar.com/avatar/#{photoHash}?default=retro"
 
     _.pick user, fields
 
@@ -35,6 +36,7 @@ User = thinky.createModel 'User',
     bio:          String
     displayName:  String
     email:        String
+    phone:        String
     password:     String
     traits:       Object
     created:      Date

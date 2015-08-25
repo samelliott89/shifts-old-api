@@ -1,15 +1,13 @@
 _ = require 'underscore'
 bluebird = require 'bluebird'
 jwt = require 'jsonwebtoken'
-mandrill = require 'mandrill-api/mandrill'
+mandrill = require '../../services/mandrill'
 
 auth = require '../../auth'
 config = require '../../config'
 models = require '../../models'
 _errs = require '../../errors'
 analytics = require '../../analytics'
-
-mandrillClient = new mandrill.Mandrill config.MANDRILL_API_KEY
 
 exports.getUser = (req, res, next) ->
     userID = req.param 'userID'
@@ -39,7 +37,7 @@ exports.editUser = (req, res, next) ->
         req.checkBody('profilePhoto.id', 'Valid profile photo id for type is required').optional().isUUID()
     _errs.handleValidationErrors {req}
 
-    allowedFields = ['email', 'displayName', 'bio', 'profilePhoto']
+    allowedFields = ['email', 'displayName', 'bio', 'profilePhoto', 'phone']
     photoAllowedFields = ['type', 'id']
 
     models.getUser req.param('userID')
@@ -48,7 +46,7 @@ exports.editUser = (req, res, next) ->
             newUserFields = _.pick req.body, allowedFields
             if newUserFields.profilePhoto
                 newUserFields.profilePhoto = _.pick newUserFields.profilePhoto, photoAllowedFields
-                newUserFields.profilePhoto.href = "http://www.ucarecdn.com/#{newUserFields.profilePhoto.id}"
+                newUserFields.profilePhoto.href = "https://www.ucarecdn.com/#{newUserFields.profilePhoto.id}"
 
             if req.body.changedDisplayName
                 newUserFields.defaultDisplayNameSet = false
@@ -60,6 +58,59 @@ exports.editUser = (req, res, next) ->
             analytics.track req, 'Update User'
             res.json {user}
         .catch next
+
+exports.requestPhoneNumber = (req, res, next) ->
+
+    user = req.user
+    models.getUser req.params.userID
+        .then (userReceiving) ->
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: "Phone request from #{user.displayName}"
+                    to: [{ email: userReceiving.email, name: userReceiving.displayName }]
+
+            mandrill.sendEmail email, {
+                heading: "Phone number request from #{user.displayName}"
+                paragraphs: [
+                    "Hi #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your mobile number to Atum, allowing them to easily contact you to swap a shift."
+                    "From your Profile, simply tap 'Edit Profile' and select 'Number' to provide the best contact details."
+                ]
+            }
+
+        .then (mandrilResp) ->
+            res.json {success: true}
+            analytics.track req, 'Request Phone Number'
+
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
+
+exports.requestSchedule = (req, res, next) ->
+
+    user = req.user
+    models.getUser req.params.userID
+        .then (userReceiving) ->
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: "Schedule request from #{user.displayName}"
+                    to: [{ email: userReceiving.email, name: userReceiving.displayName }]
+
+            mandrill.sendEmail email, {
+                heading: "Schedule request from #{user.displayName}"
+                paragraphs: [
+                    "Hi #{userReceiving.displayName},"
+                    "#{user.displayName} would like you to add your schedule to Atum to allow easy and convenient swapping of shifts."
+                ]
+            }
+
+        .then (mandrilResp) ->
+            res.json {success: true}
+            analytics.track req, 'Request Schedule'
+
+        .catch (err) ->
+            _errs.handleRethinkErrors err, next
 
 exports.requestPasswordReset = (req, res, next) ->
     req.checkBody('email', 'Valid email required').isEmail()
@@ -74,59 +125,27 @@ exports.requestPasswordReset = (req, res, next) ->
             user.save()
         .then (user) ->
             resetUrl = "https://api.getshifts.co/resetPassword?t=#{user.pwResetToken}"
-            messageHTML = """
-            <p>Hey,</p>
+            email =
+                template_name: 'dynamic-basic-text'
+                message:
+                    subject: 'Atum Password Reset'
+                    to: [{email: user.email, name: user.displayName }]
 
-            <p>You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a>
-                and enter a new password.</p>
-
-            <p>If you haven't, you can safely ignore this email.</p>
-
-            <p>If you have any questions, just reply to this email and we'll do our best to help you out.</p>
-
-            <p>
-                Cheers,<br/>
-                Sam + Josh
-            </p>
-            """
-            message = {
-                html: messageHTML
-                subject: "Atum Password Reset"
-                from_email: "hi@getatum.com"
-                from_name: "Atum"
-                to: [{
-                    email: user.email
-                    name: user.displayName
-                }]
-                important: true
-                track_opens: true
-                track_clicks: true
-                auto_text: true
-                tags: ['shifts-transactional', 'resetpw']
+            mandrill.sendEmail email, {
+                heading: "Atum Password Reset"
+                paragraphs: [
+                    "Hi #{user.displayName}"
+                    "You may have requested to reset your password. If so, <a href=\"#{resetUrl}\">click this link</a> and enter a new password."
+                    "If you haven't, you can safely ignore this email."
+                    "If you have any questions, just reply to this email and we'll do our best to help you out."
+                    "Team Atum"
+                ]
             }
 
-            _chimpSuccess = ([result]) ->
-                console.log 'Password reset email: _chimpSuccess'
-                console.log arguments
-                invalidstatus = ['rejected', 'invalid']
+        .then (mandrilResp) ->
+            res.json {success: true}
 
-                if (not result) or (result.status in invalidstatus)
-                    console.log 'Could not send password reset email: '
-                    console.log result
-                    next new _errs.ServerError 'Error sending password reset email'
-                    return
-
-                res.json {success: true}
-
-            _chimpFailure = (err) ->
-                console.log 'Password reset email: _chimpFailure'
-                console.log arguments
-                console.log err
-                next new _errs.ServerError 'Error sending password reset email'
-
-            mandrillClient.messages.send {message}, _chimpSuccess, _chimpFailure
         .catch (err) ->
-            console.log 'caught error :(', err
             _errs.handleRethinkErrors err, next
 
 exports.changePassword = (req, res, next) ->

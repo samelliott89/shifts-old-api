@@ -121,6 +121,18 @@ module.exports = (app) ->
         .post auth.authRequired, contactsV1.checkContacts
 
     ##
+    # Request to add phone number
+    ##
+    app.route('/v1/users/:userID/requestPhone')
+        .post auth.authRequired, models.extendAuthedUser, userV1.requestPhoneNumber
+
+    ##
+    # Request to add schedule
+    ##
+    app.route('/v1/users/:userID/requestSchedule')
+        .post auth.authRequired, models.extendAuthedUser, userV1.requestSchedule
+
+    ##
     # Admin and misc routes
     ##
     isAdmin = auth.hasTrait 'admin'
