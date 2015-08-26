@@ -15,6 +15,8 @@ defaultSettings = {
     'softNotifcationPermission': undefined
     'shiftReminderMinutes': 60 * 2
     'completedOnboarding': false
+    'deviceID': undefined
+    'deviceType': undefined
 }
 
 validSettings = _.keys defaultSettings
