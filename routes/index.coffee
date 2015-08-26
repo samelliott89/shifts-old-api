@@ -80,10 +80,13 @@ module.exports = (app) ->
 
     app.route '/v1/users/:userID/calendar'
         .get auth.currentUserRequired, calendarV1.getCalFeedItem
-    
+
     ## Push Notification Testing
+    app.route '/v1/sendPushAll'
+        .get pushV1.sendTestPushNotificationToAll
+        
     app.route '/v1/sendPush'
-        .get pushV1.sendTestPushNotification
+        .get pushV1.sendTestPushNotificationToDevice
 
     ##
     # Shift and feed management

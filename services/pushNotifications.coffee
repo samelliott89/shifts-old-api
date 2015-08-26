@@ -6,26 +6,39 @@ pubnub = require('pubnub')(
 PNmessage = require('pubnub').PNmessage
 
 _makeSubscription = ( deviceType, deviceID, channel ) ->
+
     if deviceType == 'IOS'
-    	pubnub.mobile_gw_provision
-    		device_id: deviceID
-    		channel: channel
-    		op: 'add'
-    		gw_type: 'apns'
-    		error: () ->
-    			console.log "Error while trying to set subscription for this device - ", msg
-    		callback: (msg) ->
+        pubnub.mobile_gw_provision
+            device_id: deviceID
+            channel: channel
+            op: 'add'
+            gw_type: 'apns'
+            error: () ->
+                console.log "Error while trying to set subscription for this device - ", msg
+            callback: (msg) ->
                 console.log 'Channel subscription successful for this device. - ' + msg
 
+    if deviceType == 'Android'
+        pubnub.mobile_gw_provision
+            device_id: deviceID
+            channel  : channel
+            op: 'add'
+            gw_type: 'gcm'
+            error: () ->
+                console.log "Error while trying to set subscription for this device - ", msg
+            callback: (msg) ->
+                console.log 'Channel subscription successful for this device. - ' + msg
+
+
 _makePushNotification = (message, deviceType) ->
-	notification = PNmessage();
+    notification = PNmessage();
     notification.pubnub = pubnub
-    notif.callback = (msg) ->
+    notification.callback = (msg) ->
         console.log(msg)
-    notif.error = (msg) ->
+    notification.error = (msg) ->
         console.log(msg)
 
-	if deviceType == "IOS"
+    if deviceType == "IOS"
         notification.apns = {
             alert: message,
         }
@@ -36,7 +49,7 @@ _makePushNotification = (message, deviceType) ->
             message: message
         }
 
-	return notification
+    return notification
 
 exports.setup = (deviceType, deviceID) ->
     #Device id is associated with a each channel individually
