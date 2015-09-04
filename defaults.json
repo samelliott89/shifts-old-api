@@ -20,9 +20,9 @@
     "BOOKMARKLET_ASSET_ROOT": "localhost:5016",
     "AUTH_COOKIE_NAME": "authToken",
     "WELCOME_EMAIL_DURATION": 5,
-    
-    "PUBNUB_PUBLISH_KEY": "pub-c-318443f7-641d-4696-99ca-6e44807872a0",
-    "PUBNUB_SUBSCRIBE_KEY": "sub-c-f02e8a98-2a43-11e5-b9fb-02ee2ddab7fe",
+
+    "PUBNUB_PUBLISH_KEY": "__fill-in-from-env-var__",
+    "PUBNUB_SUBSCRIBE_KEY": "__fill-in-from-env-var__",
 
     "CAPTURE_SLACK_NOTIFY_URL": "https://hooks.slack.com/services/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"
 }
